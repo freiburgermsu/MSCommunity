@@ -221,7 +221,7 @@ class MSCommunity:
                     met = _select_biomass_cpd(bioCPDs, memberBioCPDs, allModelCPDs)
                     if met is None:   print(f"The {memID} bioCPD was not captured")
                     else:  abundances[memID].update({"biomass_compound": met})
-        elif "abundance" not in list(abundances.values())[0]:
+        elif not isinstance(list(abundances.values())[0], dict):  # plain floats ("abundance" in <float> raised TypeError)
             abundances = {memID:{"abundance": abund,
                                  "biomass_compound": _select_biomass_cpd(
                                      model.notes["member_biomass_cpds"][memID], memberBioCPDs, allModelCPDs)}
@@ -321,8 +321,13 @@ class MSCommunity:
         self.set_objective(target, minimize)
         gfname = FBAHelper.mediaName(media) + "-" + target
         if suffix:  gfname += f"-{suffix}"
+        # MSGapfill's 7th positional is now `atp_gapfilling`, not solver: set the solver
+        # on the model instead of passing it through (a truthy string silently switched
+        # every community gapfill into ATP-gapfilling mode).
+        if solver:
+            self.util.model.solver = solver
         self.gapfillings[gfname] = MSGapfill(self.util.model, default_gapfill_templates, default_gapfill_models,
-                                             test_conditions, reaction_scores, blacklist, solver)
+                                             test_conditions, reaction_scores, blacklist)
         gfresults = self.gapfillings[gfname].run_gapfilling(media, target)
         assert gfresults, f"Gapfilling of {self.util.model.id} in {gfname} towards {target} failed."
         return self.gapfillings[gfname].integrate_gapfill_solution(gfresults)
