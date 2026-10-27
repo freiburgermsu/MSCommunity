@@ -28,8 +28,10 @@ Removing them -- tried on the nine members of the codiffusion day-174 cycle and 
                           one that feeds biomass; LPs only. It keeps a reference flux wherever that
                           holds no cycle: on a loop_law_optimum solution it keeps the loop-law
                           optimum and turns every later simulation into an ordinary cycle-free LP.
-                          Without one, "both" (each member alone, and the community's pFBA
-                          optimum) is safe and "pfba" optimistic.
+                          Without one: "pfba" (the community's own optimum) keeps more when that
+                          optimum holds few cycles (9 members: 19.61 of 19.91), "both" (each
+                          member alone, then the optimum) when it leans on them (88 members:
+                          11.83 vs 6.17 of 18.21), and "both" always keeps every member growing.
     cut_energy_cycles     closes, cycle by cycle, the directions thermodynamics rules out (the gate
                           below). It finds template curations (directions no concentrations could
                           drive), but cannot finish: what is left runs on steps feasible one by
@@ -965,9 +967,10 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
                model's own pFBA optimum; "both": the members (weighted 10x) and the optimum; or
                {reaction id: flux}, e.g. a loop-law MILP solution, or a list of (flux, weight).
                The orientation keeps a reference feasible where it holds no cycle, so the
-               objective it allows is at least the reference's. On a large community, use
-               "both": the optimum alone can lean on a cycle in a way that, once the cycle is
-               oriented away, leaves some member unable to grow (day 174: growth 18.2 -> 0).
+               objective it allows is at least the reference's, and "both" always leaves
+               every member able to grow. Where the optimum leans on cycles, "both" keeps more
+               (day 174, 88 members: 11.83 vs 6.17 for "pfba", of 18.21); where it holds few,
+               "pfba" does (the nine cycle members: 19.61 vs 11.02, of 19.91).
 
     With rounds > 1, each further round adds the oriented model's pFBA optimum to the reference
     and derives a new profile from the original bounds. The optimum stays feasible (the new profile
@@ -1017,14 +1020,15 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
     return {"history": history, "changed": changed, "profile": profile, "member_growth_alone": grown}
 
 
-def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True):
+def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto"):
     """The internal reactions of a cycle inside a flux distribution, or [] if it holds none.
 
     A cycle here is a steady-state flux u through internal reactions only, each run the way
     `fluxes` runs it (support and signs within the flux's own), plus, with pin_atp, any amount of
     ATP hydrolysis in each member: exactly what makes `fluxes` violate the loop law with ATP
     hydrolysis pinned downhill (no potentials can make every step of u downhill). One LP over
-    the active reactions; the support of its solution is returned."""
+    the active reactions; the support of its solution is returned. lp: "gurobi", "highs" or
+    "auto" (gurobi when gurobipy imports)."""
     import numpy as np
     import scipy.sparse as sp
     from scipy.optimize import linprog
@@ -1058,10 +1062,27 @@ def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True):
     # w_j = sign_j * u_j in [0, 1]; maximise the flux through the active reactions only, so a pin
     # alone (ATP hydrolysis with nothing making the ATP) is not a cycle
     c = np.concatenate([-np.ones(n_active), np.zeros(len(cols) - n_active)])
-    res = linprog(c, A_eq=A, b_eq=np.zeros(len(index)), bounds=[(0, 1)] * len(cols), method="highs")
-    if res.status != 0 or -res.fun <= tol:
+    if lp == "auto":
+        try:
+            import gurobipy  # noqa: F401
+            lp = "gurobi"
+        except ImportError:
+            lp = "highs"
+    if lp == "gurobi":
+        import gurobipy as gp
+        env = gp.Env(params={"OutputFlag": 0})
+        g = gp.Model(env=env)
+        w = g.addMVar(len(cols), lb=0, ub=1, obj=c)
+        g.addMConstr(A, w, "=", np.zeros(len(index)))
+        g.optimize()
+        ok, value, x = g.Status == gp.GRB.OPTIMAL, -g.ObjVal if g.SolCount else 0.0, w.X.copy() if g.SolCount else None
+        g.dispose(); env.dispose()
+    else:
+        res = linprog(c, A_eq=A, b_eq=np.zeros(len(index)), bounds=[(0, 1)] * len(cols), method="highs")
+        ok, value, x = res.status == 0, -res.fun if res.status == 0 else 0.0, res.x
+    if not ok or value <= tol:
         return []
-    return [active[j].id for j in range(n_active) if res.x[j] > tol]
+    return [active[j].id for j in range(n_active) if x[j] > tol]
 
 
 def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None, tol=1e-7, **law_args):

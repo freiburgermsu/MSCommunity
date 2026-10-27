@@ -13,3 +13,4 @@ mscommunity/__pycache__/__init__.cpython-312.pyc
 .claude/
 pilots/*/results/*gurobi.log
 pilots/*/results/*.lp
+pilots/*/results/*_oriented.xml

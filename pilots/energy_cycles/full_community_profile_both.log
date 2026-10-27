@@ -1,0 +1,97 @@
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+[17:08:13] day174_full_both: 90721 reactions, 88 members, loaded in 250.4s
+[17:10:43] before: {"atp_from_nothing": 30065.979661709043, "atp_by_member": {"1": 749.6118012422351, "10": 1000.0, "12": 78.66028297738603, "15": 1000.0, "16": 200.0, "18": 1000.0, "2": 208.33333333333348, "20": 158.33333333333326, "21": 41.66666666666697, "23": 1000.0, "24": 1000.0, "27": 1000.0, "28": 1000.0, "29": 1000.0, "30": 429.16666666666663, "31": 1000.0, "33": 1000.0, "35": 1000.0, "36": 641.6666666666667, "37": 1000.0, "38": 1000.0, "39": 274.9999999999612, "4": 500.0, "40": 166.66666666666674, "41": 50.0, "42": 337.7367774230486, "43": 800.0000000000009, "45": 1000.0, "48": 79.16666666666879, "49": 175.0, "52": 1000.0, "53": 341.0795940757529, "56": 833.3333333333323, "57": 70.83333333333348, "58": 643.0158637378393, "6": 899.9999999999999, "62": 100.00000000000061, "63": 1000.0, "64": 233.33333333333303, "65": 191.66666666666674, "66": 850.0, "67": 233.33333333333303, "69": 522.1100917432336, "7": 458.3333333333342, "71": 900.0, "72": 408.3333333333333, "74": 654.1666666666667, "75": 12.5, "78": 416.6666666666665, "79": 187.5, "80": 235.7142857142855, "83": 145.55096479530016, "84": 50.0, "85": 58.33333333333337, "86": 200.0, "87": 358.3333333333337, "9": 170.83333333333326}, "n_atp_tests": 88, "growth_from_nothing": 0.0, "electrons_from_nothing": 100.00000000018645, "electron_carriers": {"cpd01024": 12.500000000023306}, "test_s": 39.4, "growth_on_medium": 18.213296210049545, "growth_s": 110.1}
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+[17:26:24] profile: {"reactions": 90204, "metabolites": 84499, "objective": 58157.010740964644, "oriented": 11552, "pins": 88, "against_reference": [[], ["rxn00154_c18", "rxn00154_c34", "rxn00154_c76", "rxn00173_c1", "rxn00178_c23", "rxn00184_c1", "rxn00191_c59", "rxn00290_c19", "rxn00336_c83", "rxn03020_c28", "rxn05201_c9", "rxn05209_c28", "rxn05209_c36", "rxn05217_c15", "rxn05319_c31", "rxn05466_c59", "rxn05469_c29", "rxn05469_c32", "rxn05469_c36", "rxn05469_c47", "rxn05469_c58", "rxn05469_c72", "rxn05488_c13", "rxn05488_c16", "rxn05488_c20", "rxn05488_c40", "rxn05488_c55", "rxn05488_c67", "rxn05488_c70", "rxn05488_c8", "rxn05488_c81", "rxn05488_c9", "rxn05496_c3", "rxn05496_c59", "rxn05559_c20", "rxn05559_c38", "rxn05559_c78", "rxn05561_c64", "rxn05602_c20", "rxn05602_c49", "rxn05651_c31", "rxn05651_c69", "rxn05654_c39", "rxn05654_c49", "rxn05654_c52", "rxn05654_c59", "rxn05654_c64", "rxn05759_c44", "rxn08032_c1", "rxn08032_c36", "rxn08032_c49", "rxn08032_c6", "rxn08032_c67", "rxn08032_c68", "rxn08173_c35", "rxn08350_c67", "rxn08689_c4", "rxn08689_c75", "rxn08691_c18", "rxn08691_c21", "rxn08691_c31", "rxn08691_c54", "rxn08691_c7", "rxn08691_c71", "rxn08691_c77", "rxn09004_c59", "rxn09260_c31", "rxn09260_c4", "rxn10155_c28", "rxn10570_c10", "rxn10570_c4", "rxn13974_c57", "rxn13974_c61", "rxn13974_c64", "rxn13974_c76", "rxn15961_c28"]], "irreversible_blocked": ["rxn00001_c35", "rxn00001_c5", "rxn00014_c19", "rxn00014_c53", "rxn00063_c43", "rxn00063_c51", "rxn00063_c57", "rxn00064_c43", "rxn00064_c51", "rxn00066_c19", "rxn00083_c12", "rxn00083_c23", "rxn00083_c35", "rxn00083_c44", "rxn00083_c87", "rxn00105_c51", "rxn00123_c83", "rxn00147_c73", "rxn00148_c51", "rxn00151_c19", "rxn00151_c50", "rxn00151_c57", "rxn00151_c61", "rxn00151_c73", "rxn00152_c19", "rxn00154_c34", "rxn00159_c47", "rxn00161_c47", "rxn00162_c18", "rxn00173_c1", "rxn00175_c1", "rxn00175_c12", "rxn00175_c19", "rxn00175_c2", "rxn00175_c23", "rxn00175_c3", "rxn00175_c30", "rxn00175_c43", "rxn00175_c50", "rxn00175_c51", "rxn00175_c58", "rxn00175_c74", "rxn00175_c78", "rxn00175_c8", "rxn00175_c83", "rxn00175_c87", "rxn00183_c64", "rxn00183_c87", "rxn00187_c12", "rxn00187_c31", "rxn00189_c29", "rxn00189_c68", "rxn00247_c47", "rxn00262_c19", "rxn00262_c87", "rxn00264_c19", "rxn00265_c19", "rxn00265_c83", "rxn00272_c50", "rxn00301_c43", "rxn00304_c35", "rxn00304_c73", "rxn00336_c1", "rxn00336_c59", "rxn00336_c83", "rxn00342_c45", "rxn00363_c38", "rxn00363_c51", "rxn00367_c43", "rxn00367_c51", "rxn00367_c57", "rxn00383_c87", "rxn00394_c19", "rxn00394_c23", "rxn00395_c51", "rxn00411_c35", "rxn00411_c73", "rxn00416_c51", "rxn00460_c35", "rxn00460_c73", "rxn00463_c43", "rxn00506_c80", "rxn00507_c34", "rxn00514_c57", "rxn00545_c50", "rxn00545_c51", "rxn00545_c57", "rxn00545_c61", "rxn00549_c35", "rxn00552_c29", "rxn00552_c68", "rxn00568_c12", "rxn00568_c3", "rxn00568_c35", "rxn00568_c45", "rxn00568_c59", "rxn00569_c12", "rxn00569_c23", "rxn00569_c3", "rxn00569_c35", "rxn00569_c45", "rxn00569_c87", "rxn00614_c19", "rxn00615_c57", "rxn00708_c51", "rxn00711_c3", "rxn00711_c31", "rxn00782_c12", "rxn00782_c87", "rxn00836_c57", "rxn00837_c23", "rxn00837_c44", "rxn00839_c51", "rxn00875_c12", "rxn00875_c23", "rxn00913_c57", "rxn00915_c51", "rxn00947_c51", "rxn00953_c83", "rxn00988_c1", "rxn00988_c12", "rxn00988_c19", "rxn00988_c3", "rxn00988_c51", "rxn00988_c57", "rxn00988_c64", "rxn00988_c70", "rxn00988_c8", "rxn00990_c12", "rxn00990_c23", "rxn01102_c57", "rxn01225_c51", "rxn01368_c87", "rxn01806_c5", "rxn01924_c19", "rxn02270_c19", "rxn02374_c68", "rxn02431_c1", "rxn05119_c1", "rxn05152_c12", "rxn05152_c19", "rxn05158_c21", "rxn05158_c23", "rxn05158_c52", "rxn05158_c76", "rxn05226_c23", "rxn05226_c48", "rxn05226_c83", "rxn05233_c12", "rxn05239_c12", "rxn05256_c12", "rxn05312_c15", "rxn05312_c19", "rxn05312_c21", "rxn05312_c23", "rxn05312_c26", "rxn05312_c28", "rxn05312_c3", "rxn05312_c30", "rxn05312_c31", "rxn05312_c33", "rxn05312_c38", "rxn05312_c43", "rxn05312_c47", "rxn05312_c48", "rxn05312_c49", "rxn05312_c52", "rxn05312_c53", "rxn05312_c58", "rxn05312_c63", "rxn05312_c64", "rxn05312_c68", "rxn05312_c73", "rxn05312_c75", "rxn05312_c76", "rxn05312_c83", "rxn05513_c29", "rxn05573_c22", "rxn05573_c23", "rxn05627_c50", "rxn05627_c83", "rxn05736_c51", "rxn06874_c1", "rxn06874_c15", "rxn06874_c19", "rxn06874_c21", "rxn06874_c25", "rxn06874_c28", "rxn06874_c29", "rxn06874_c36", "rxn06874_c37", "rxn06874_c39", "rxn06874_c4", "rxn06874_c43", "rxn06874_c51", "rxn06874_c78", "rxn06874_c81", "rxn08015_c51", "rxn08200_c51", "rxn08201_c51", "rxn08204_c51", "rxn08306_c51", "rxn08309_c51", "rxn08310_c51", "rxn08312_c51", "rxn08518_c65", "rxn08518_c8", "rxn08556_c35", "rxn08734_c23", "rxn08783_c59", "rxn08971_c59", "rxn08975_c59", "rxn08976_c59", "rxn09014_c43", "rxn09014_c51", "rxn09014_c57", "rxn09176_c50", "rxn09176_c51", "rxn09272_c35", "rxn09272_c48", "rxn09272_c73", "rxn09272_c8", "rxn09272_c83", "rxn09296_c87", "rxn09449_c51", "rxn10126_c35", "rxn10126_c48", "rxn10126_c73", "rxn10126_c83", "rxn10157_c22", "rxn10157_c25", "rxn10157_c28", "rxn10157_c49", "rxn10577_c10", "rxn10577_c31", "rxn10577_c48", "rxn11934_c15", "rxn13974_c19", "rxn13974_c20", "rxn13974_c55", "rxn13974_c57", "rxn13974_c61", "rxn13974_c64", "rxn13974_c65", "rxn13974_c73", "rxn13974_c76", "rxn13974_c82", "rxn13974_c88", "rxn14415_c19", "rxn14415_c52", "rxn14415_c53", "rxn14418_c53", "rxn14419_c19", "rxn14419_c53", "rxn14422_c19", "rxn14426_c19", "rxn14426_c53", "rxn14427_c23", "rxn14427_c3", "rxn14427_c50", "rxn14427_c83", "rxn17211_c6", "rxn17211_c88", "rxn44357_c3", "rxn44357_c69", "rxn60859_c25", "rxn60859_c52", "rxn60859_c53"], "bounds_changed": 3801, "history": [{"round": 0, "objective": 11.833023236657876, "oriented": 11552, "bounds_changed": 3801, "reference": [31946, 29830], "against_reference": [0, 76], "irreversible_blocked": 268}], "seconds": 846.3}
+[17:41:50] after: {"atp_from_nothing": -8.36825514218162e-10, "atp_by_member": {}, "n_atp_tests": 88, "growth_from_nothing": 0.0, "electrons_from_nothing": -1.0004259112901708e-09, "electron_carriers": {}, "test_s": 604.0, "growth_on_medium": 11.83302323670921, "growth_s": 322.5}
+[17:43:07] done

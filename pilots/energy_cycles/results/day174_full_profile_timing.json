@@ -1,0 +1,14 @@
+{
+ "reactions": 90721,
+ "load_s": 282.0,
+ "backends": {
+  "gurobi": {
+   "seconds": 65.3,
+   "objective": 202927.8594945005,
+   "oriented": 11443,
+   "against_reference": 27,
+   "irreversible_blocked": 165
+  }
+ },
+ "pfba_s": 650.9
+}

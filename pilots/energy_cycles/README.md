@@ -90,18 +90,34 @@ Two numerical lessons, both now in the code: take dG from the LP's p - q split, 
 in a first LP of its own (a single weighted LP let many small orientations outweigh two
 1000-flux reactions of a cycle-free reference, and dropped the hybrid from 19.91 to 7.4).
 
-## The whole day-174 community (`full_community_profile.py`, `profile_timing.py`)
+## The whole day-174 community (`full_community_profile.py`, `cutting_plane_pilot.py`)
 
-90,721 reactions, 88 members; LP growth on Wolfe 18.21; ATP from nothing 30,066 (sum over the
-members' ATP tests); electrons from CO2/H2O/H+ 100 (all 2,138 members are 0 alone; the 100 is the
-+-100 bound gapfilling gives the reactions it adds).
+90,721 reactions, 88 members. Unoriented LP: growth on Wolfe 18.21; ATP from nothing 30,066
+(summed over the members' ATP tests, most at the 1,000 bound); electrons from CO2/H2O/H+ 100
+(every member alone makes 0).
 
-| step | result |
-|---|---|
-| members-alone reference, 3 rounds | growth 5.07 -> 5.37 -> 5.90; 3,151 s (scipy HiGHS simplex) |
-| pFBA reference | FULL_PFBA_RESULT |
-| profile LP, Gurobi barrier + crossover | 65 s (scipy HiGHS dual simplex: about 20 min) |
-| pFBA reference itself | 651 s (cobra pfba) |
+| | growth on Wolfe | ATP / e- from nothing | time |
+|---|---|---|---|
+| LP | 18.21 | 30,066 / 100 | 1 min |
+| profile, reference "members" (3 rounds, before the two numerical fixes) | 5.90 | 0 / 0 | 53 min (scipy HiGHS) |
+| profile, reference "pfba" | 6.17 (16 optimum reactions oriented against, 217 irreversible closed) | 0 / 0 | 18 min |
+| profile, reference "both" | **11.83** (76 optimum reactions oriented against, 268 irreversible closed) | 0 / 0 | 14 min |
+| cutting-plane loop law from the "both" start (11.32) | round 1 (MILP, 1,800 s limit): incumbent 11.81, bound 18.21 after 9 min; running (`cutting_full.log`, `results/day174_full_cutting.json`) | | |
+
+- The electrons from nothing go too. Every member alone makes 0 and the community made 100, so
+  the 100 are cross-member as well; that the orientation removes them along with the ATP is
+  consistent with the cycle driving them, though the orientation also closes 268 irreversible
+  directions, any of which could shut a pump on its own.
+- Unlike the nine-member pilot, the full optimum leans on the cycles: the profile has to orient
+  against 16-76 of its reactions, and "pfba" keeps only a third of the growth. "both" keeps
+  every member growing and about two thirds. So neither reference is the better one in general:
+  "pfba" when the optimum holds few cycles, "both" when it leans on them.
+- The nine-member result (loop-law growth = LP growth) is about growth on Wolfe only. It does not
+  make the cycles harmless: anything ATP limits -- the CH4 intervals of the measured runs above
+  all -- is computed with free ATP until the community is oriented under those constraints.
+- Time: the profile LP itself takes about a minute per stage with Gurobi's barrier; most of the
+  14-18 min is cobra's pFBA on 90k reactions (11 min) and the after-checks. scipy's HiGHS simplex
+  took about 20 min per profile LP.
 
 ## What to use
 
@@ -110,9 +126,9 @@ members' ATP tests); electrons from CO2/H2O/H+ 100 (all 2,138 members are 0 alon
 2. Under the conditions you will simulate: `orient_community(copy, reference="both")` for a safe,
    cycle-free start; `loop_law_optimum(model, start=...)` for the loop-law optimum; then
    `orient_community(model, reference=<that optimum>)` -- one profile that keeps the optimum and
-   makes every later simulation an ordinary, cycle-free LP. Where the MILP is too slow,
-   `reference="both"` alone is the safe fallback (it keeps every member growing) and "pfba" the
-   optimistic one (check that the community still grows).
+   makes every later simulation an ordinary, cycle-free LP. Where the MILP is too slow, orient
+   on `reference="both"` (keeps every member growing; better when the optimum leans on cycles)
+   or `"pfba"` (better when it holds few), and compare their growth with the unoriented LP.
 3. `cut_energy_cycles(auto=False)` to list the directions thermodynamics rules out, as template
    curations; members that need them to grow have to be regapfilled.
 

@@ -1,0 +1,7 @@
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+[16:33:26] loaded in 282.0s; pFBA reference 29822 reactions in 650.9s
+[16:34:31] gurobi: {'seconds': 65.3, 'objective': 202927.8594945005, 'oriented': 11443, 'against_reference': 27, 'irreversible_blocked': 165}
+[16:34:31] done

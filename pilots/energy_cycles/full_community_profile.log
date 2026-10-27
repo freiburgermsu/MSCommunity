@@ -1,0 +1,97 @@
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+[15:30:44] day174_full: 90721 reactions, 88 members, loaded in 200.5s
+[15:32:09] before: {"atp_from_nothing": 30065.979661709043, "atp_by_member": {"1": 749.6118012422351, "10": 1000.0, "12": 78.66028297738603, "15": 1000.0, "16": 200.0, "18": 1000.0, "2": 208.33333333333348, "20": 158.33333333333326, "21": 41.66666666666697, "23": 1000.0, "24": 1000.0, "27": 1000.0, "28": 1000.0, "29": 1000.0, "30": 429.16666666666663, "31": 1000.0, "33": 1000.0, "35": 1000.0, "36": 641.6666666666667, "37": 1000.0, "38": 1000.0, "39": 274.9999999999612, "4": 500.0, "40": 166.66666666666674, "41": 50.0, "42": 337.7367774230486, "43": 800.0000000000009, "45": 1000.0, "48": 79.16666666666879, "49": 175.0, "52": 1000.0, "53": 341.0795940757529, "56": 833.3333333333323, "57": 70.83333333333348, "58": 643.0158637378393, "6": 899.9999999999999, "62": 100.00000000000061, "63": 1000.0, "64": 233.33333333333303, "65": 191.66666666666674, "66": 850.0, "67": 233.33333333333303, "69": 522.1100917432336, "7": 458.3333333333342, "71": 900.0, "72": 408.3333333333333, "74": 654.1666666666667, "75": 12.5, "78": 416.6666666666665, "79": 187.5, "80": 235.7142857142855, "83": 145.55096479530016, "84": 50.0, "85": 58.33333333333337, "86": 200.0, "87": 358.3333333333337, "9": 170.83333333333326}, "n_atp_tests": 88, "growth_from_nothing": 0.0, "electrons_from_nothing": 100.00000000018645, "electron_carriers": {"cpd01024": 12.500000000023306}, "test_s": 28.0, "growth_on_medium": 18.213296210049545, "growth_s": 57.0}
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+[16:26:01] profile: {"reactions": 90204, "metabolites": 84499, "objective": 7995.90939045665, "oriented": 10665, "pins": 88, "against_reference": [], "irreversible_blocked": ["rxn14425_c24"], "bounds_changed": 3784, "history": [{"round": 0, "objective": 5.067007590021502, "oriented": 10715, "bounds_changed": 3777, "reference": 31946, "against_reference": 0, "irreversible_blocked": 0}, {"round": 1, "objective": 5.373439813254568, "oriented": 10702, "bounds_changed": 3750, "reference": 34683, "against_reference": 0, "irreversible_blocked": 0}, {"round": 2, "objective": 5.899271117552902, "oriented": 10665, "bounds_changed": 3784, "reference": 35408, "against_reference": 0, "irreversible_blocked": 1}], "seconds": 3151.1}
+[16:39:23] after: {"atp_from_nothing": 5.128897123267642e-10, "atp_by_member": {}, "n_atp_tests": 88, "growth_from_nothing": 0.0, "electrons_from_nothing": -7.653397915419191e-10, "electron_carriers": {}, "test_s": 540.4, "growth_on_medium": 5.899271117551381, "growth_s": 262.0}
+[16:39:23] done
