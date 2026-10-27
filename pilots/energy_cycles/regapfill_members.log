@@ -1,0 +1,12 @@
+'' is not a valid SBML 'SId'.
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+'' is not a valid SBML 'SId'.
+loading biochemistry database from ../ModelSEEDDatabase
+[14:59:44] Terrisporobacter.1: growth 1.75 -> rules only 0 -> regapfilled 1.5; 149 added; ATP from nothing 0.0; e- 0.0; 
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+[15:00:52] Sedimentibacter.8: growth 2.42 -> rules only 0 -> regapfilled 1.43; 192 added; ATP from nothing 0.0; e- 0.0; 
+[15:00:52] done

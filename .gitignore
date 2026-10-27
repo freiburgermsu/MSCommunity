@@ -11,3 +11,5 @@ mscommunity/__pycache__/__init__.cpython-312.pyc
 
 # Claude Code local settings and scratch worktrees
 .claude/
+pilots/*/results/*gurobi.log
+pilots/*/results/*.lp

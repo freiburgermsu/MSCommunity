@@ -1,0 +1,37 @@
+{
+ "name": "day174_9members",
+ "reactions": 11098,
+ "metabolites": 9857,
+ "load_s": 35.4,
+ "pin_atp": true,
+ "time_limit": 1800,
+ "lp": {
+  "atp_from_nothing": 4257.400793650795,
+  "atp_by_member": {
+   "1": 851.7857142857142,
+   "3": 2.777777777777743,
+   "4": 1000.0,
+   "5": 899.7222222222221,
+   "6": 294.6031746031743,
+   "7": 133.33333333333337,
+   "8": 1000.0,
+   "9": 75.17857142857292
+  },
+  "n_atp_tests": 9,
+  "growth_from_nothing": 0.0,
+  "electrons_from_nothing": 0.0,
+  "electron_carriers": {},
+  "growth_on_medium": {
+   "value": 19.91457920760818,
+   "status": "optimal",
+   "seconds": 3.9
+  },
+  "seconds": 9.5
+ },
+ "loopset": {
+  "reactions": 3723,
+  "seconds": 116.8,
+  "share": 0.33546584970264914,
+  "build_s": 0.3
+ }
+}

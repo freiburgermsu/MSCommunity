@@ -1,0 +1,8880 @@
+{
+ "members": [
+  "Desulfosporosinus.1",
+  "Erysipelothrix.1",
+  "Methanobacterium.1",
+  "Methanosarcina.1",
+  "Ochrobactrum.1",
+  "Petrimonas.1",
+  "Sedimentibacter.8",
+  "Terrisporobacter.1",
+  "midas_g_25828.1"
+ ],
+ "medium": "Wolfe",
+ "gf_dir": "/home/freiburger/Documents/codiffusion_bioreactor/media_gapfilled_models_v7c/Wolfe",
+ "member_alone": {
+  "Desulfosporosinus.1": {
+   "growth": 2.998967230237821,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Erysipelothrix.1": {
+   "growth": 3.1324644798374353,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Methanobacterium.1": {
+   "growth": 2.3563454308800598,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Methanosarcina.1": {
+   "growth": 2.096149347400188,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Ochrobactrum.1": {
+   "growth": 1.2397085117676552,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Petrimonas.1": {
+   "growth": 2.676520557911986,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Sedimentibacter.8": {
+   "growth": 2.4150701003405266,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Terrisporobacter.1": {
+   "growth": 1.7451483973564952,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "midas_g_25828.1": {
+   "growth": 1.518793002141324,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  }
+ },
+ "community": {
+  "reactions": 11098,
+  "metabolites": 9857,
+  "build_s": 19.6,
+  "member_index": {
+   "1": "Desulfosporosinus.1",
+   "2": "Erysipelothrix.1",
+   "3": "Methanobacterium.1",
+   "4": "Methanosarcina.1",
+   "5": "Ochrobactrum.1",
+   "6": "Petrimonas.1",
+   "7": "Sedimentibacter.8",
+   "8": "Terrisporobacter.1",
+   "9": "midas_g_25828.1"
+  }
+ },
+ "before": {
+  "atp_from_nothing": 4257.400793650795,
+  "atp_by_member": {
+   "1": 851.7857142857142,
+   "3": 2.777777777777743,
+   "4": 1000.0,
+   "5": 899.7222222222221,
+   "6": 294.6031746031743,
+   "7": 133.33333333333337,
+   "8": 1000.0,
+   "9": 75.17857142857292
+  },
+  "n_atp_tests": 9,
+  "growth_from_nothing": 0.0,
+  "electrons_from_nothing": 0.0,
+  "electron_carriers": {},
+  "growth_on_medium": 19.91457920760818,
+  "test_s": 5.1
+ },
+ "electron_test_limits": [
+  {
+   "reaction": "rxn00018_c2",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00018_c6",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00251_c7",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn00343_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00343_c9",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00347_c7",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00430_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00430_c9",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00548_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00937_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00937_c9",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn04651_c2",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn04651_c6",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn08527_c2",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn10594_c2",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn10594_c6",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13143_c2",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13143_c6",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13734_c8",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13746_c8",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  }
+ ],
+ "cycle_before": {
+  "status": "cycle",
+  "reactions": [
+   {
+    "reaction": "rxn00018_c6",
+    "msid": "rxn00018",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "3-phospho-D-glycerate carboxy-lyase (dimerizing; D-ribulose-1,5-bisphosphate-forming)",
+    "against_db": false,
+    "dg0": 5.01,
+    "dg_min": -6.725309499921595,
+    "dg_err": 1.0,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00097_c6",
+    "msid": "rxn00097",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.16589861751152077,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:AMP phosphotransferase",
+    "against_db": false,
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "dg_err": 0.04,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00097_c8",
+    "msid": "rxn00097",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:AMP phosphotransferase",
+    "against_db": false,
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "dg_err": 0.04,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00151_c6",
+    "msid": "rxn00151",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576029,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:pyruvate,phosphate phosphotransferase",
+    "against_db": false,
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "dg_err": 0.13,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00154_c7",
+    "msid": "rxn00154",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": -0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate:NAD+ 2-oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": 8.93,
+    "dg_min": -8.672964249882394,
+    "dg_err": 0.85,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00157_c5",
+    "msid": "rxn00157",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.04608294930875617,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "Acetyl-CoA:formate C-acetyltransferase",
+    "against_db": false,
+    "dg0": -4.38,
+    "dg_min": -16.115309499921594,
+    "dg_err": 0.39,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00157_c8",
+    "msid": "rxn00157",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "Acetyl-CoA:formate C-acetyltransferase",
+    "against_db": false,
+    "dg0": -4.38,
+    "dg_min": -16.115309499921594,
+    "dg_err": 0.39,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c1",
+    "msid": "rxn00171",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": -3.95,
+    "dg_min": -13.36749971342087,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c5",
+    "msid": "rxn00171",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.10138248847926254,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": -3.95,
+    "dg_min": -13.36749971342087,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c7",
+    "msid": "rxn00171",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": 0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": -3.95,
+    "dg_min": -13.36749971342087,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c8",
+    "msid": "rxn00171",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": 3.95,
+    "dg_min": -15.970774036383123,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c1",
+    "msid": "rxn00172",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c3",
+    "msid": "rxn00172",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c4",
+    "msid": "rxn00172",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.09216589861751145,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c5",
+    "msid": "rxn00172",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.1474654377880187,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00359_c1",
+    "msid": "rxn00359",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": ">",
+    "name": "3'-phosphoadenylyl-sulfate sulfohydrolase",
+    "against_db": true,
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "dg_err": 1.51,
+    "dg_source": "eQuilibrator",
+    "infeasible": true,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00379_c8",
+    "msid": "rxn00379",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "<",
+    "name": "ATP:sulfate adenylyltransferase",
+    "against_db": false,
+    "dg0": -11.03,
+    "dg_min": -22.765309499921592,
+    "dg_err": 0.3,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00429_c5",
+    "msid": "rxn00429",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": ">",
+    "name": "Formaldehyde:NAD+ oxidoreductase",
+    "against_db": true,
+    "dg0": 11.11,
+    "dg_min": -0.6253094999215953,
+    "dg_err": 0.5,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00430_c5",
+    "msid": "rxn00430",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "methanol:NAD+ oxidoreductase",
+    "against_db": false,
+    "dg0": -7.79,
+    "dg_min": -19.525309499921594,
+    "dg_err": 0.85,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00459_c6",
+    "msid": "rxn00459",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-phospho-D-glycerate hydro-lyase (phosphoenolpyruvate-forming)",
+    "against_db": false,
+    "dg0": 0.87,
+    "dg_min": -4.997654749960797,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00541_c6",
+    "msid": "rxn00541",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "L-threonine acetaldehyde-lyase (glycine-forming)",
+    "against_db": false,
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "dg_err": 0.58,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00543_c5",
+    "msid": "rxn00543",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ethanol:NAD+ oxidoreductase",
+    "against_db": false,
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00543_c8",
+    "msid": "rxn00543",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ethanol:NAD+ oxidoreductase",
+    "against_db": false,
+    "dg0": -5.05,
+    "dg_min": -16.785309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00545_c6",
+    "msid": "rxn00545",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:D-fructose-6-phosphate 1-phosphotransferase",
+    "against_db": false,
+    "dg0": -3.21,
+    "dg_min": -14.945309499921596,
+    "dg_err": 0.18,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00571_c8",
+    "msid": "rxn00571",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     0.0,
+     100.0
+    ],
+    "db_reversibility": "<",
+    "name": "nitrite:NAD+ oxidoreductase",
+    "against_db": true,
+    "dg0": 34.82,
+    "dg_min": 23.084690500078406,
+    "dg_err": 1.09,
+    "dg_source": "eQuilibrator",
+    "infeasible": true,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00611_c1",
+    "msid": "rxn00611",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "sn-Glycerol-3-phosphate:NAD+ 2-oxidoreductase",
+    "against_db": false,
+    "dg0": -6.11,
+    "dg_min": -17.845309499921594,
+    "dg_err": 0.19,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00612_c1",
+    "msid": "rxn00612",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sn-Glycerol-3-phosphate:NADP+ 2-oxidoreductase",
+    "against_db": false,
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "dg_err": 0.21,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00747_c6",
+    "msid": "rxn00747",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.16589861751152074,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-glyceraldehyde-3-phosphate aldose-ketose-isomerase",
+    "against_db": false,
+    "dg0": 1.45,
+    "dg_min": -4.417654749960797,
+    "dg_err": 0.15,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00770_c6",
+    "msid": "rxn00770",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:D-ribose-5-phosphate diphosphotransferase",
+    "against_db": false,
+    "dg0": 0.03,
+    "dg_min": -11.705309499921595,
+    "dg_err": 0.38,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00777_c6",
+    "msid": "rxn00777",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.16589861751152074,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-ribose-5-phosphate aldose-ketose-isomerase",
+    "against_db": false,
+    "dg0": 0.51,
+    "dg_min": -5.357654749960798,
+    "dg_err": 0.2,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00781_c6",
+    "msid": "rxn00781",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "<",
+    "name": "D-glyceraldehyde-3-phosphate:NAD+ oxidoreductase (phosphorylating)",
+    "against_db": true,
+    "dg0": 1.13,
+    "dg_min": -8.287499713420868,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00785_c6",
+    "msid": "rxn00785",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-Fructose 6-phosphate:D-glyceraldehyde-3-phosphate glycolaldehyde transferase",
+    "against_db": false,
+    "dg0": -2.4,
+    "dg_min": -14.135309499921595,
+    "dg_err": 0.5,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00786_c6",
+    "msid": "rxn00786",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-fructose-1,6-bisphosphate D-glyceraldehyde-3-phosphate-lyase (glycerone-phosphate-forming)",
+    "against_db": false,
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "dg_err": 0.14,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01100_c6",
+    "msid": "rxn01100",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:3-phospho-D-glycerate 1-phosphotransferase",
+    "against_db": false,
+    "dg0": -4.58,
+    "dg_min": -16.315309499921597,
+    "dg_err": 0.11,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01106_c6",
+    "msid": "rxn01106",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-Phospho-D-glycerate 2,3-phosphomutase",
+    "against_db": false,
+    "dg0": -1.14,
+    "dg_min": -7.007654749960797,
+    "dg_err": 0.09,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01116_c6",
+    "msid": "rxn01116",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.16589861751152074,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-Ribulose-5-phosphate 3-epimerase",
+    "against_db": false,
+    "dg0": -0.78,
+    "dg_min": -6.647654749960798,
+    "dg_err": 0.3,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01200_c6",
+    "msid": "rxn01200",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Sedoheptulose-7-phosphate:D-glyceraldehyde-3-phosphate glycolaldehyde transferase",
+    "against_db": false,
+    "dg0": -0.89,
+    "dg_min": -12.625309499921595,
+    "dg_err": 0.5,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01334_c6",
+    "msid": "rxn01334",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Sedoheptulose 1,7-bisphosphate D-glyceraldehyde-3-phosphate-lyase",
+    "against_db": false,
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "dg_err": 0.74,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01343_c6",
+    "msid": "rxn01343",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:Sedoheptulose 7-phosphate 1-phosphotransferase",
+    "against_db": false,
+    "dg0": -1.82,
+    "dg_min": -13.555309499921595,
+    "dg_err": 0.76,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn02480_c3",
+    "msid": "rxn02480",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "5,10-Methenyltetrahydromethanopterin 10-hydrolase (decyclizing)",
+    "against_db": false,
+    "dg0": -3.99,
+    "dg_min": -9.857654749960798,
+    "dg_err": 2.33,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03020_c4",
+    "msid": "rxn03020",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "5-Methyl-5,6,7,8-tetrahydromethanopterin:2-mercaptoethanesulfonate 2-methyltransferas",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03085_c3",
+    "msid": "rxn03085",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "5,10-Methylenetetrahydromethanopterin:coenzyme-F420 oxidoreductase",
+    "against_db": false,
+    "dg0": -0.34,
+    "dg_min": -12.075309499921595,
+    "dg_err": 1.96,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03126_c4",
+    "msid": "rxn03126",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Coenzyme B:coenzyme M:methanophenazine oxidoreductase",
+    "against_db": false,
+    "dg0": 8.12,
+    "dg_min": -1.2974997134208675,
+    "dg_err": 2.02,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03127_c3",
+    "msid": "rxn03127",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-(Methylthio)ethanesulfonate:N-(7-thioheptanoyl)-3-O-phosphothreonine S-(2-sulfoethyl)thiotransferase",
+    "against_db": false,
+    "dg0": -6.2,
+    "dg_min": -17.935309499921594,
+    "dg_err": 1.05,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03127_c4",
+    "msid": "rxn03127",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-(Methylthio)ethanesulfonate:N-(7-thioheptanoyl)-3-O-phosphothreonine S-(2-sulfoethyl)thiotransferase",
+    "against_db": false,
+    "dg0": 6.2,
+    "dg_min": -5.535309499921595,
+    "dg_err": 1.05,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn04651_c6",
+    "msid": "rxn04651",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.24884792626728106,
+    "bounds": [
+     0.0,
+     100.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:ribose-1,5-bisphosphate phosphotransferase",
+    "against_db": false,
+    "dg0": 2.04,
+    "dg_min": -9.695309499921596,
+    "dg_err": 0.68,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn05209_c4",
+    "msid": "rxn05209",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.018433179723502308,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "TRANS-RXNBWI-115525.ce.maizeexp.NA+_NA+",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05239_c1",
+    "msid": "rxn05239",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "adenosine 3',5'-bisphosphate,sulfite:oxidized-thioredoxin oxidoreductase (3'-phosphoadenosine-5'-phosphosulfate -forming)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05289_c1",
+    "msid": "rxn05289",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "NADPH:oxidized-thioredoxin oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c4",
+    "msid": "rxn05319",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c5",
+    "msid": "rxn05319",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.09216589861751186,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c6",
+    "msid": "rxn05319",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.1658986175115206,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c8",
+    "msid": "rxn05319",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.03686635944700417,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c3",
+    "msid": "rxn05467",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c4",
+    "msid": "rxn05467",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.018433179723502308,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c6",
+    "msid": "rxn05467",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c7",
+    "msid": "rxn05467",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": 0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c4",
+    "msid": "rxn05469",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c5",
+    "msid": "rxn05469",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.04608294930875617,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c6",
+    "msid": "rxn05469",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c7",
+    "msid": "rxn05469",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": -0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c8",
+    "msid": "rxn05469",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c1",
+    "msid": "rxn05488",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c3",
+    "msid": "rxn05488",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c5",
+    "msid": "rxn05488",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.1474654377880187,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c6",
+    "msid": "rxn05488",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05559_c5",
+    "msid": "rxn05559",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.009216589861750682,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "formate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05559_c8",
+    "msid": "rxn05559",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "formate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05651_c1",
+    "msid": "rxn05651",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05651_c8",
+    "msid": "rxn05651",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05759_c4",
+    "msid": "rxn05759",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.018433179723502308,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "hydrogen:ferredoxin oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05759_c8",
+    "msid": "rxn05759",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "hydrogen:ferredoxin oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn06299_c3",
+    "msid": "rxn06299",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Hydrogen:Coenzyme F420 oxidoreductase",
+    "against_db": false,
+    "dg0": -10.2,
+    "dg_min": -13.74984496346007,
+    "dg_err": 2.64,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn06696_c3",
+    "msid": "rxn06696",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "hydrogen:N5,N10-methenyltetraydromethanopterin oxidoreductase",
+    "against_db": false,
+    "dg0": -10.93,
+    "dg_min": -14.47984496346007,
+    "dg_err": 1.2,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c1",
+    "msid": "rxn08032",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c5",
+    "msid": "rxn08032",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.0921658986175114,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c6",
+    "msid": "rxn08032",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c7",
+    "msid": "rxn08032",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": -0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08062_c4",
+    "msid": "rxn08062",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.09216589861751145,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Na+/Acetate symport (periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08173_c1",
+    "msid": "rxn08173",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.2073732718894007,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "F(1)-ATPase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08173_c4",
+    "msid": "rxn08173",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050689,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "F(1)-ATPase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08173_c8",
+    "msid": "rxn08173",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "F(1)-ATPase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08428_c5",
+    "msid": "rxn08428",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ethanol transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08428_c8",
+    "msid": "rxn08428",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ethanol transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08689_c1",
+    "msid": "rxn08689",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "h2s transport (periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08689_c3",
+    "msid": "rxn08689",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "h2s transport (periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08691_c3",
+    "msid": "rxn08691",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08691_c4",
+    "msid": "rxn08691",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08691_c8",
+    "msid": "rxn08691",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09176_c6",
+    "msid": "rxn09176",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "polyphosphate kinase",
+    "against_db": false,
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09176_c8",
+    "msid": "rxn09176",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "polyphosphate kinase",
+    "against_db": false,
+    "dg0": -2.26,
+    "dg_min": -13.995309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09260_c3",
+    "msid": "rxn09260",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfite transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09260_c8",
+    "msid": "rxn09260",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfite transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10122_c1",
+    "msid": "rxn10122",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.1105990783410137,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": ">",
+    "name": "NADH dehydrogenase (ubiquinone-8 & 3.5 protons)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10471_c3",
+    "msid": "rxn10471",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methane Transport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10471_c4",
+    "msid": "rxn10471",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methane Transport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10570_c3",
+    "msid": "rxn10570",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methanol diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10570_c5",
+    "msid": "rxn10570",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methanol diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10594_c6",
+    "msid": "rxn10594",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "ribose 1,5-bisphosphate isomerase",
+    "against_db": false,
+    "dg0": 2.54,
+    "dg_min": -3.3276547499607974,
+    "dg_err": 0.3,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn13143_c6",
+    "msid": "rxn13143",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.4147465437788018,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": ">",
+    "name": "Threonine dehydrogenase",
+    "against_db": true,
+    "dg0": 8.49,
+    "dg_min": -0.9274997134208665,
+    "dg_err": 0.62,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn13689_c1",
+    "msid": "rxn13689",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.1105990783410137,
+    "bounds": [
+     0.0,
+     100.0
+    ],
+    "db_reversibility": "?",
+    "name": "cytochrome-c reductase (ubiquinol8: 4 protons translocated)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn13974_c4",
+    "msid": "rxn13974",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "pyruvate:ferredoxin 2-oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn14427_c8",
+    "msid": "rxn14427",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Nitrate reductase cytochrome-c type (2 protons translocated)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn15961_c4",
+    "msid": "rxn15961",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen:2-(2,3-dihydropentaprenyloxy)phenazine oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn15962_c3",
+    "msid": "rxn15962",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "carbon monoxide dehydrogenase/acetyl-CoA synthase (CODH/ACS)",
+    "against_db": false,
+    "dg0": -18.11,
+    "dg_min": -27.527499713420866,
+    "dg_err": 15.03,
+    "dg_source": "dGPredictor",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn15962_c4",
+    "msid": "rxn15962",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "carbon monoxide dehydrogenase/acetyl-CoA synthase (CODH/ACS)",
+    "against_db": false,
+    "dg0": -18.11,
+    "dg_min": -27.527499713420866,
+    "dg_err": 15.03,
+    "dg_source": "dGPredictor",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn17445_c3",
+    "msid": "rxn17445",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "formylmethanofuran-tetrahydromethanopterin formyltransferase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn24606_c3",
+    "msid": "rxn24606",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "methanol-corrinoid protein Co-methyltransferase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn24607_c3",
+    "msid": "rxn24607",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "[methyl-Co(III) methanol-specific corrinoid protein]:coenzyme M methyltransferase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn40505_c3",
+    "msid": "rxn40505",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn40505_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn40505_c4",
+    "msid": "rxn40505",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn40505_c4",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn42669_c3",
+    "msid": "rxn42669",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn42669_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn43076_c3",
+    "msid": "rxn43076",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn43076_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn46184_c3",
+    "msid": "rxn46184",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn46184_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn48579_c1",
+    "msid": "rxn48579",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Sulfite reductase, cytochrome c3 type ",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "sul00002_c8",
+    "msid": null,
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": null,
+    "name": "sul00002_c8",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   }
+  ],
+  "cross_fed": {
+   "cpd00067_e0": {
+    "Methanosarcina.1": 0.055299539,
+    "Ochrobactrum.1": 0.092165899,
+    "Petrimonas.1": -0.497695853,
+    "Sedimentibacter.8": 0.175115207,
+    "Terrisporobacter.1": 0.036866359,
+    "Desulfosporosinus.1": 0.110599078,
+    "Methanobacterium.1": 0.02764977
+   },
+   "cpd00001_e0": {
+    "Methanosarcina.1": -0.036866359,
+    "Ochrobactrum.1": -0.092165899,
+    "Petrimonas.1": 0.165898618,
+    "Terrisporobacter.1": -0.036866359
+   },
+   "cpd00011_e0": {
+    "Methanobacterium.1": -0.055299539,
+    "Methanosarcina.1": -0.01843318,
+    "Petrimonas.1": 0.248847926,
+    "Sedimentibacter.8": -0.175115207
+   },
+   "cpd00020_e0": {
+    "Methanosarcina.1": -0.036866359,
+    "Ochrobactrum.1": -0.046082949,
+    "Petrimonas.1": -0.082949309,
+    "Sedimentibacter.8": 0.175115207,
+    "Terrisporobacter.1": -0.00921659
+   },
+   "cpd00029_e0": {
+    "Desulfosporosinus.1": 0.147465438,
+    "Methanobacterium.1": 0.02764977,
+    "Ochrobactrum.1": 0.147465438,
+    "Petrimonas.1": -0.414746544,
+    "Methanosarcina.1": 0.092165899
+   },
+   "cpd00047_e0": {
+    "Ochrobactrum.1": -0.00921659,
+    "Terrisporobacter.1": 0.00921659
+   },
+   "cpd00048_e0": {
+    "Desulfosporosinus.1": -0.036866359,
+    "Terrisporobacter.1": 0.036866359
+   },
+   "cpd00071_e0": {
+    "Desulfosporosinus.1": -0.147465438,
+    "Ochrobactrum.1": -0.092165899,
+    "Petrimonas.1": 0.414746544,
+    "Sedimentibacter.8": -0.175115207
+   },
+   "cpd00363_e0": {
+    "Ochrobactrum.1": -0.00921659,
+    "Terrisporobacter.1": 0.00921659
+   },
+   "cpd00239_e0": {
+    "Desulfosporosinus.1": 0.036866359,
+    "Methanobacterium.1": -0.036866359
+   },
+   "cpd11640_e0": {
+    "Methanobacterium.1": -0.055299539,
+    "Methanosarcina.1": 0.036866359,
+    "Terrisporobacter.1": 0.01843318
+   },
+   "cpd00081_e0": {
+    "Methanobacterium.1": 0.036866359,
+    "Terrisporobacter.1": -0.036866359
+   },
+   "cpd01024_e0": {
+    "Methanobacterium.1": 0.055299539,
+    "Methanosarcina.1": -0.055299539
+   },
+   "cpd00116_e0": {
+    "Methanobacterium.1": -0.055299539,
+    "Ochrobactrum.1": 0.055299539
+   }
+  },
+  "members": [
+   "Desulfosporosinus.1",
+   "Methanobacterium.1",
+   "Methanosarcina.1",
+   "Ochrobactrum.1",
+   "Petrimonas.1",
+   "Sedimentibacter.8",
+   "Terrisporobacter.1"
+  ]
+ },
+ "cut": {
+  "rules_applied": [],
+  "rounds": [
+   {
+    "round": 0,
+    "atp_from_nothing": 4257.400793650795,
+    "atp_members": 8,
+    "cycle_reactions": 112,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00359_c1",
+     "rxn00359_c7",
+     "rxn00359_c8"
+    ]
+   },
+   {
+    "round": 1,
+    "atp_from_nothing": 4170.138888888903,
+    "atp_members": 8,
+    "cycle_reactions": 114,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": []
+   },
+   {
+    "round": 2,
+    "atp_from_nothing": 4170.138888888888,
+    "atp_members": 9,
+    "cycle_reactions": 114,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00429_c5"
+    ]
+   },
+   {
+    "round": 3,
+    "atp_from_nothing": 4170.138888888892,
+    "atp_members": 8,
+    "cycle_reactions": 121,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00377_c4",
+     "rxn00377_c5",
+     "rxn00377_c9"
+    ]
+   },
+   {
+    "round": 4,
+    "atp_from_nothing": 4032.552083333323,
+    "atp_members": 7,
+    "cycle_reactions": 105,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn39452_c1",
+     "rxn39452_c2",
+     "rxn39452_c3",
+     "rxn39452_c4",
+     "rxn39452_c5",
+     "rxn39452_c6",
+     "rxn39452_c7",
+     "rxn39452_c8",
+     "rxn39452_c9"
+    ]
+   },
+   {
+    "round": 5,
+    "atp_from_nothing": 4032.552083333343,
+    "atp_members": 8,
+    "cycle_reactions": 105,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00379_c1",
+     "rxn00379_c4",
+     "rxn00379_c5",
+     "rxn00379_c7",
+     "rxn00379_c8",
+     "rxn00379_c9"
+    ]
+   },
+   {
+    "round": 6,
+    "atp_from_nothing": 3999.2187500000005,
+    "atp_members": 8,
+    "cycle_reactions": 138,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00154_c2",
+     "rxn00154_c7"
+    ]
+   },
+   {
+    "round": 7,
+    "atp_from_nothing": 3063.194444444445,
+    "atp_members": 9,
+    "cycle_reactions": 170,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00278_c1",
+     "rxn00278_c2",
+     "rxn00278_c5",
+     "rxn00278_c6",
+     "rxn00278_c7"
+    ]
+   },
+   {
+    "round": 8,
+    "atp_from_nothing": 3063.194444444444,
+    "atp_members": 9,
+    "cycle_reactions": 171,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00931_c1",
+     "rxn00931_c2",
+     "rxn00931_c4",
+     "rxn00931_c5",
+     "rxn00931_c6",
+     "rxn00931_c8",
+     "rxn00931_c9"
+    ]
+   },
+   {
+    "round": 9,
+    "atp_from_nothing": 3063.194444444444,
+    "atp_members": 9,
+    "cycle_reactions": 171,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00184_c1",
+     "rxn00184_c2",
+     "rxn00184_c3",
+     "rxn00184_c4",
+     "rxn00184_c5",
+     "rxn00184_c6",
+     "rxn00184_c7",
+     "rxn00184_c8",
+     "rxn00184_c9"
+    ]
+   },
+   {
+    "round": 10,
+    "atp_from_nothing": 3063.1944444444457,
+    "atp_members": 9,
+    "cycle_reactions": 169,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00085_c1",
+     "rxn00085_c2",
+     "rxn00085_c3",
+     "rxn00085_c4",
+     "rxn00085_c5",
+     "rxn00085_c6",
+     "rxn00085_c7",
+     "rxn00085_c8",
+     "rxn00085_c9"
+    ]
+   },
+   {
+    "round": 11,
+    "atp_from_nothing": 3063.194444444441,
+    "atp_members": 8,
+    "cycle_reactions": 182,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn03126_c3",
+     "rxn03126_c4",
+     "rxn03126_c6"
+    ]
+   },
+   {
+    "round": 12,
+    "atp_from_nothing": 2287.500000000001,
+    "atp_members": 7,
+    "cycle_reactions": 50,
+    "cycle_members": [
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1"
+    ],
+    "cuts": [
+     "rxn00197_c1",
+     "rxn00197_c5"
+    ]
+   },
+   {
+    "round": 13,
+    "atp_from_nothing": 2087.499999999999,
+    "atp_members": 8,
+    "cycle_reactions": 14,
+    "cycle_members": [
+     "Ochrobactrum.1",
+     "Petrimonas.1"
+    ],
+    "cuts": [
+     "rxn00543_c1",
+     "rxn00543_c4",
+     "rxn00543_c5",
+     "rxn00543_c6",
+     "rxn00543_c7",
+     "rxn00543_c8",
+     "rxn00543_c9"
+    ]
+   },
+   {
+    "round": 14,
+    "atp_from_nothing": 2038.425925925923,
+    "atp_members": 6,
+    "cycle_reactions": 9,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Methanosarcina.1"
+    ],
+    "cuts": [
+     "rxn00347_c1",
+     "rxn00347_c2",
+     "rxn00347_c4",
+     "rxn00347_c5",
+     "rxn00347_c6",
+     "rxn00347_c8",
+     "rxn00347_c9"
+    ]
+   },
+   {
+    "round": 15,
+    "atp_from_nothing": 2038.4259259259265,
+    "atp_members": 6,
+    "cycle_reactions": 216,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": []
+   },
+   {
+    "round": 16,
+    "atp_from_nothing": 2038.4259259259256,
+    "atp_members": 7,
+    "cycle_reactions": 216,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn00786_c1",
+     "rxn00786_c2",
+     "rxn00786_c4",
+     "rxn00786_c5",
+     "rxn00786_c6",
+     "rxn00786_c7",
+     "rxn00786_c8",
+     "rxn00786_c9"
+    ]
+   },
+   {
+    "round": 17,
+    "atp_from_nothing": 2038.4259259259252,
+    "atp_members": 7,
+    "cycle_reactions": 210,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn01281_c1",
+     "rxn01281_c5",
+     "rxn01281_c8"
+    ]
+   },
+   {
+    "round": 18,
+    "atp_from_nothing": 2038.425925925926,
+    "atp_members": 7,
+    "cycle_reactions": 215,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn00612_c1",
+     "rxn00612_c2",
+     "rxn00612_c3",
+     "rxn00612_c4",
+     "rxn00612_c5",
+     "rxn00612_c6",
+     "rxn00612_c7",
+     "rxn00612_c8",
+     "rxn00612_c9"
+    ]
+   },
+   {
+    "round": 19,
+    "atp_from_nothing": 2038.425925925926,
+    "atp_members": 8,
+    "cycle_reactions": 210,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn01302_c1",
+     "rxn01302_c3",
+     "rxn01302_c4",
+     "rxn01302_c5",
+     "rxn01302_c7",
+     "rxn01302_c8"
+    ]
+   },
+   {
+    "round": 20,
+    "atp_from_nothing": 2038.425925925926,
+    "atp_members": 7,
+    "cycle_reactions": 210,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn01510_c1",
+     "rxn01510_c4",
+     "rxn01510_c5",
+     "rxn01510_c6",
+     "rxn01510_c7",
+     "rxn01510_c8",
+     "rxn01510_c9"
+    ]
+   },
+   {
+    "round": 21,
+    "atp_from_nothing": 2038.4259259259277,
+    "atp_members": 8,
+    "cycle_reactions": 210,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn00840_c4",
+     "rxn00840_c5",
+     "rxn00840_c6",
+     "rxn00840_c7",
+     "rxn00840_c8",
+     "rxn00840_c9"
+    ]
+   },
+   {
+    "round": 22,
+    "atp_from_nothing": 2038.4259259259256,
+    "atp_members": 8,
+    "cycle_reactions": 216,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn00787_c1",
+     "rxn00787_c5",
+     "rxn00787_c8"
+    ]
+   },
+   {
+    "round": 23,
+    "atp_from_nothing": 2015.9259259259247,
+    "atp_members": 6,
+    "cycle_reactions": 174,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn03954_c5"
+    ]
+   },
+   {
+    "round": 24,
+    "atp_from_nothing": 2015.9259259259354,
+    "atp_members": 5,
+    "cycle_reactions": 174,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00131_c1",
+     "rxn00131_c2",
+     "rxn00131_c4",
+     "rxn00131_c5",
+     "rxn00131_c6",
+     "rxn00131_c8",
+     "rxn00131_c9"
+    ]
+   },
+   {
+    "round": 25,
+    "atp_from_nothing": 1975.9259259258356,
+    "atp_members": 6,
+    "cycle_reactions": 174,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn01705_c1",
+     "rxn01705_c4",
+     "rxn01705_c5",
+     "rxn01705_c6",
+     "rxn01705_c7",
+     "rxn01705_c8",
+     "rxn01705_c9"
+    ]
+   },
+   {
+    "round": 26,
+    "atp_from_nothing": 1975.9259259259165,
+    "atp_members": 7,
+    "cycle_reactions": 164,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00810_c5",
+     "rxn00810_c6"
+    ]
+   },
+   {
+    "round": 27,
+    "atp_from_nothing": 1975.9259259259275,
+    "atp_members": 4,
+    "cycle_reactions": 166,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn01648_c1",
+     "rxn01648_c5",
+     "rxn01648_c8"
+    ]
+   },
+   {
+    "round": 28,
+    "atp_from_nothing": 1975.9259259259318,
+    "atp_members": 6,
+    "cycle_reactions": 165,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn01706_c1",
+     "rxn01706_c4",
+     "rxn01706_c5",
+     "rxn01706_c6",
+     "rxn01706_c7",
+     "rxn01706_c8",
+     "rxn01706_c9"
+    ]
+   },
+   {
+    "round": 29,
+    "atp_from_nothing": 1975.9259259259272,
+    "atp_members": 6,
+    "cycle_reactions": 173,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Petrimonas.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn01334_c1",
+     "rxn01334_c2",
+     "rxn01334_c4",
+     "rxn01334_c5",
+     "rxn01334_c6",
+     "rxn01334_c7",
+     "rxn01334_c8",
+     "rxn01334_c9"
+    ]
+   },
+   {
+    "round": 30,
+    "atp_from_nothing": 1375.925925925927,
+    "atp_members": 5,
+    "cycle_reactions": 30,
+    "cycle_members": [
+     "Ochrobactrum.1",
+     "Petrimonas.1"
+    ],
+    "cuts": [
+     "rxn00541_c1",
+     "rxn00541_c2",
+     "rxn00541_c4",
+     "rxn00541_c5",
+     "rxn00541_c6",
+     "rxn00541_c7",
+     "rxn00541_c8",
+     "rxn00541_c9"
+    ]
+   },
+   {
+    "round": 31,
+    "atp_from_nothing": 1175.9259259259245,
+    "atp_members": 4,
+    "cycle_reactions": 74,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00225_c1",
+     "rxn00225_c2",
+     "rxn00225_c4",
+     "rxn00225_c5",
+     "rxn00225_c6",
+     "rxn00225_c7",
+     "rxn00225_c8",
+     "rxn00225_c9"
+    ]
+   },
+   {
+    "round": 32,
+    "atp_from_nothing": 1175.925925925926,
+    "atp_members": 7,
+    "cycle_reactions": 75,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn09176_c1",
+     "rxn09176_c2",
+     "rxn09176_c4",
+     "rxn09176_c5",
+     "rxn09176_c6",
+     "rxn09176_c8",
+     "rxn09176_c9"
+    ]
+   },
+   {
+    "round": 33,
+    "atp_from_nothing": 1054.1666666666679,
+    "atp_members": 2,
+    "cycle_reactions": 31,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00097_c1",
+     "rxn00097_c2",
+     "rxn00097_c4",
+     "rxn00097_c5",
+     "rxn00097_c6",
+     "rxn00097_c7",
+     "rxn00097_c8",
+     "rxn00097_c9"
+    ]
+   },
+   {
+    "round": 34,
+    "atp_from_nothing": 1054.1666666666697,
+    "atp_members": 2,
+    "cycle_reactions": 31,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00151_c1",
+     "rxn00151_c2",
+     "rxn00151_c4",
+     "rxn00151_c5",
+     "rxn00151_c6",
+     "rxn00151_c7",
+     "rxn00151_c8"
+    ]
+   },
+   {
+    "round": 35,
+    "atp_from_nothing": 1054.166666666667,
+    "atp_members": 2,
+    "cycle_reactions": 32,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00104_c1",
+     "rxn00104_c2",
+     "rxn00104_c4",
+     "rxn00104_c5",
+     "rxn00104_c6",
+     "rxn00104_c8",
+     "rxn00104_c9"
+    ]
+   },
+   {
+    "round": 36,
+    "atp_from_nothing": 1054.1666666666647,
+    "atp_members": 2,
+    "cycle_reactions": 123,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn01045_c4",
+     "rxn01045_c5"
+    ]
+   },
+   {
+    "round": 37,
+    "atp_from_nothing": 1054.1666666666663,
+    "atp_members": 2,
+    "cycle_reactions": 124,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn00182_c4",
+     "rxn00182_c5"
+    ]
+   },
+   {
+    "round": 38,
+    "atp_from_nothing": 1054.1666666666647,
+    "atp_members": 2,
+    "cycle_reactions": 124,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn01679_c1",
+     "rxn01679_c4",
+     "rxn01679_c5",
+     "rxn01679_c6",
+     "rxn01679_c7",
+     "rxn01679_c8",
+     "rxn01679_c9"
+    ]
+   },
+   {
+    "round": 39,
+    "atp_from_nothing": 1054.1666666666665,
+    "atp_members": 2,
+    "cycle_reactions": 124,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn00804_c4",
+     "rxn00804_c5"
+    ]
+   },
+   {
+    "round": 40,
+    "atp_from_nothing": 1054.1666666666665,
+    "atp_members": 2,
+    "cycle_reactions": 124,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1",
+     "midas_g_25828.1"
+    ],
+    "cuts": [
+     "rxn01573_c4",
+     "rxn01573_c5"
+    ]
+   },
+   {
+    "round": 41,
+    "atp_from_nothing": 1054.1666666666622,
+    "atp_members": 2,
+    "cycle_reactions": 83,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00286_c2"
+    ]
+   },
+   {
+    "round": 42,
+    "atp_from_nothing": 1054.166666666663,
+    "atp_members": 2,
+    "cycle_reactions": 35,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn01129_c1",
+     "rxn01129_c4",
+     "rxn01129_c5",
+     "rxn01129_c6",
+     "rxn01129_c7",
+     "rxn01129_c8",
+     "rxn01129_c9"
+    ]
+   },
+   {
+    "round": 43,
+    "atp_from_nothing": 1054.1666666666729,
+    "atp_members": 2,
+    "cycle_reactions": 35,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn01370_c1",
+     "rxn01370_c4",
+     "rxn01370_c5",
+     "rxn01370_c6",
+     "rxn01370_c7",
+     "rxn01370_c8",
+     "rxn01370_c9"
+    ]
+   },
+   {
+    "round": 44,
+    "atp_from_nothing": 1054.1666666666247,
+    "atp_members": 2,
+    "cycle_reactions": 35,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn01366_c1",
+     "rxn01366_c4",
+     "rxn01366_c5",
+     "rxn01366_c6",
+     "rxn01366_c7",
+     "rxn01366_c8",
+     "rxn01366_c9"
+    ]
+   },
+   {
+    "round": 45,
+    "atp_from_nothing": 1054.1666666666702,
+    "atp_members": 2,
+    "cycle_reactions": 35,
+    "cycle_members": [
+     "Erysipelothrix.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ]
+   }
+  ],
+  "cuts": [
+   {
+    "reaction": "rxn00359_c1",
+    "msid": "rxn00359",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00359_c1",
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 1
+   },
+   {
+    "reaction": "rxn00359_c7",
+    "msid": "rxn00359",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00359_c1",
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 1
+   },
+   {
+    "reaction": "rxn00359_c8",
+    "msid": "rxn00359",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00359_c1",
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 1
+   },
+   {
+    "reaction": "rxn00429_c5",
+    "msid": "rxn00429",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00429_c5",
+    "dg0": 11.11,
+    "dg_min": -0.6253094999215953,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00377_c4",
+    "msid": "rxn00377",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00377_c5",
+    "dg0": 7.98,
+    "dg_min": 4.430155036539931,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 1
+   },
+   {
+    "reaction": "rxn00377_c5",
+    "msid": "rxn00377",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00377_c5",
+    "dg0": 7.98,
+    "dg_min": 4.430155036539931,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 1
+   },
+   {
+    "reaction": "rxn00377_c9",
+    "msid": "rxn00377",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00377_c5",
+    "dg0": 7.98,
+    "dg_min": 4.430155036539931,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 1
+   },
+   {
+    "reaction": "rxn39452_c1",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c2",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c3",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 3,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c4",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c5",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c6",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c7",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c8",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn39452_c9",
+    "msid": "rxn39452",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn39452_c1",
+    "dg0": 12.2,
+    "dg_min": 0.4646905000784045,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00379_c1",
+    "msid": "rxn00379",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00379_c1",
+    "dg0": 11.03,
+    "dg_min": -0.7053094999215954,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00379_c4",
+    "msid": "rxn00379",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00379_c1",
+    "dg0": 11.03,
+    "dg_min": -0.7053094999215954,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00379_c5",
+    "msid": "rxn00379",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00379_c1",
+    "dg0": 11.03,
+    "dg_min": -0.7053094999215954,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00379_c7",
+    "msid": "rxn00379",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00379_c1",
+    "dg0": 11.03,
+    "dg_min": -0.7053094999215954,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00379_c8",
+    "msid": "rxn00379",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00379_c1",
+    "dg0": 11.03,
+    "dg_min": -0.7053094999215954,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00379_c9",
+    "msid": "rxn00379",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00379_c1",
+    "dg0": 11.03,
+    "dg_min": -0.7053094999215954,
+    "gapfilled": false,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00154_c2",
+    "msid": "rxn00154",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00154_c7",
+    "dg0": 8.93,
+    "dg_min": -8.672964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00154_c7",
+    "msid": "rxn00154",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00154_c7",
+    "dg0": 8.93,
+    "dg_min": -8.672964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00278_c1",
+    "msid": "rxn00278",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00278_c6",
+    "dg0": 8.79,
+    "dg_min": -11.130774036383123,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00278_c2",
+    "msid": "rxn00278",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00278_c6",
+    "dg0": 8.79,
+    "dg_min": -11.130774036383123,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00278_c5",
+    "msid": "rxn00278",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00278_c6",
+    "dg0": 8.79,
+    "dg_min": -11.130774036383123,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00278_c6",
+    "msid": "rxn00278",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00278_c6",
+    "dg0": 8.79,
+    "dg_min": -11.130774036383123,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00278_c7",
+    "msid": "rxn00278",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00278_c6",
+    "dg0": 8.79,
+    "dg_min": -11.130774036383123,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00931_c1",
+    "msid": "rxn00931",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00931_c1",
+    "dg0": 11.99,
+    "dg_min": 0.25469050007840544,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00931_c2",
+    "msid": "rxn00931",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00931_c1",
+    "dg0": 11.99,
+    "dg_min": 0.25469050007840544,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00931_c4",
+    "msid": "rxn00931",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00931_c1",
+    "dg0": 11.99,
+    "dg_min": 0.25469050007840544,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00931_c5",
+    "msid": "rxn00931",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00931_c1",
+    "dg0": 11.99,
+    "dg_min": 0.25469050007840544,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00931_c6",
+    "msid": "rxn00931",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00931_c1",
+    "dg0": 11.99,
+    "dg_min": 0.25469050007840544,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00931_c8",
+    "msid": "rxn00931",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00931_c1",
+    "dg0": 11.99,
+    "dg_min": 0.25469050007840544,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00931_c9",
+    "msid": "rxn00931",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00931_c1",
+    "dg0": 11.99,
+    "dg_min": 0.25469050007840544,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c1",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c2",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c3",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 3,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c4",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c5",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c6",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c7",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c8",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00184_c9",
+    "msid": "rxn00184",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00184_c6",
+    "dg0": 8.73,
+    "dg_min": -11.190774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c1",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c2",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c3",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 3,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c4",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c5",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c6",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c7",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c8",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00085_c9",
+    "msid": "rxn00085",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00085_c6",
+    "dg0": 11.99,
+    "dg_min": -5.612964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn03126_c3",
+    "msid": "rxn03126",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 3,
+    "found_in": "rxn03126_c4",
+    "dg0": 8.12,
+    "dg_min": -1.2974997134208675,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn03126_c4",
+    "msid": "rxn03126",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn03126_c4",
+    "dg0": 8.12,
+    "dg_min": -1.2974997134208675,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn03126_c6",
+    "msid": "rxn03126",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn03126_c4",
+    "dg0": 8.12,
+    "dg_min": -1.2974997134208675,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00197_c1",
+    "msid": "rxn00197",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00197_c5",
+    "dg0": 7.8,
+    "dg_min": -9.802964249882393,
+    "gapfilled": true,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00197_c5",
+    "msid": "rxn00197",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00197_c5",
+    "dg0": 7.8,
+    "dg_min": -9.802964249882393,
+    "gapfilled": true,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00543_c1",
+    "msid": "rxn00543",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00543_c6",
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00543_c4",
+    "msid": "rxn00543",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00543_c6",
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00543_c5",
+    "msid": "rxn00543",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00543_c6",
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00543_c6",
+    "msid": "rxn00543",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00543_c6",
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00543_c7",
+    "msid": "rxn00543",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00543_c6",
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00543_c8",
+    "msid": "rxn00543",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00543_c6",
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00543_c9",
+    "msid": "rxn00543",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00543_c6",
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00347_c1",
+    "msid": "rxn00347",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00347_c1",
+    "dg0": 3.0,
+    "dg_min": -11.053119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00347_c2",
+    "msid": "rxn00347",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00347_c1",
+    "dg0": 3.0,
+    "dg_min": -11.053119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00347_c4",
+    "msid": "rxn00347",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00347_c1",
+    "dg0": 3.0,
+    "dg_min": -11.053119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00347_c5",
+    "msid": "rxn00347",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00347_c1",
+    "dg0": 3.0,
+    "dg_min": -11.053119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00347_c6",
+    "msid": "rxn00347",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00347_c1",
+    "dg0": 3.0,
+    "dg_min": -11.053119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00347_c8",
+    "msid": "rxn00347",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00347_c1",
+    "dg0": 3.0,
+    "dg_min": -11.053119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00347_c9",
+    "msid": "rxn00347",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00347_c1",
+    "dg0": 3.0,
+    "dg_min": -11.053119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c1",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c2",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c4",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c5",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c6",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c7",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c8",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00786_c9",
+    "msid": "rxn00786",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00786_c6",
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01281_c1",
+    "msid": "rxn01281",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01281_c5",
+    "dg0": 7.83,
+    "dg_min": -3.9053094999215947,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01281_c5",
+    "msid": "rxn01281",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01281_c5",
+    "dg0": 7.83,
+    "dg_min": -3.9053094999215947,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01281_c8",
+    "msid": "rxn01281",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01281_c5",
+    "dg0": 7.83,
+    "dg_min": -3.9053094999215947,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c1",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c2",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c3",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 3,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c4",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c5",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c6",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c7",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c8",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00612_c9",
+    "msid": "rxn00612",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00612_c9",
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01302_c1",
+    "msid": "rxn01302",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01302_c8",
+    "dg0": 5.36,
+    "dg_min": -6.3753094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01302_c3",
+    "msid": "rxn01302",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 3,
+    "found_in": "rxn01302_c8",
+    "dg0": 5.36,
+    "dg_min": -6.3753094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01302_c4",
+    "msid": "rxn01302",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01302_c8",
+    "dg0": 5.36,
+    "dg_min": -6.3753094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01302_c5",
+    "msid": "rxn01302",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01302_c8",
+    "dg0": 5.36,
+    "dg_min": -6.3753094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01302_c7",
+    "msid": "rxn01302",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01302_c8",
+    "dg0": 5.36,
+    "dg_min": -6.3753094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01302_c8",
+    "msid": "rxn01302",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01302_c8",
+    "dg0": 5.36,
+    "dg_min": -6.3753094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01510_c1",
+    "msid": "rxn01510",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01510_c5",
+    "dg0": 5.11,
+    "dg_min": -6.6253094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01510_c4",
+    "msid": "rxn01510",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01510_c5",
+    "dg0": 5.11,
+    "dg_min": -6.6253094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01510_c5",
+    "msid": "rxn01510",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01510_c5",
+    "dg0": 5.11,
+    "dg_min": -6.6253094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01510_c6",
+    "msid": "rxn01510",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01510_c5",
+    "dg0": 5.11,
+    "dg_min": -6.6253094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01510_c7",
+    "msid": "rxn01510",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01510_c5",
+    "dg0": 5.11,
+    "dg_min": -6.6253094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01510_c8",
+    "msid": "rxn01510",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01510_c5",
+    "dg0": 5.11,
+    "dg_min": -6.6253094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01510_c9",
+    "msid": "rxn01510",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01510_c5",
+    "dg0": 5.11,
+    "dg_min": -6.6253094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00840_c4",
+    "msid": "rxn00840",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00840_c5",
+    "dg0": 5.58,
+    "dg_min": -6.155309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00840_c5",
+    "msid": "rxn00840",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00840_c5",
+    "dg0": 5.58,
+    "dg_min": -6.155309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00840_c6",
+    "msid": "rxn00840",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00840_c5",
+    "dg0": 5.58,
+    "dg_min": -6.155309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00840_c7",
+    "msid": "rxn00840",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00840_c5",
+    "dg0": 5.58,
+    "dg_min": -6.155309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00840_c8",
+    "msid": "rxn00840",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00840_c5",
+    "dg0": 5.58,
+    "dg_min": -6.155309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00840_c9",
+    "msid": "rxn00840",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00840_c5",
+    "dg0": 5.58,
+    "dg_min": -6.155309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00787_c1",
+    "msid": "rxn00787",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00787_c8",
+    "dg0": 4.98,
+    "dg_min": -9.073119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00787_c5",
+    "msid": "rxn00787",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00787_c8",
+    "dg0": 4.98,
+    "dg_min": -9.073119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00787_c8",
+    "msid": "rxn00787",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00787_c8",
+    "dg0": 4.98,
+    "dg_min": -9.073119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn03954_c5",
+    "msid": "rxn03954",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn03954_c5",
+    "dg0": 4.51,
+    "dg_min": -7.225309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00131_c1",
+    "msid": "rxn00131",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00131_c8",
+    "dg0": 3.94,
+    "dg_min": 0.3901550365399298,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00131_c2",
+    "msid": "rxn00131",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00131_c8",
+    "dg0": 3.94,
+    "dg_min": 0.3901550365399298,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00131_c4",
+    "msid": "rxn00131",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00131_c8",
+    "dg0": 3.94,
+    "dg_min": 0.3901550365399298,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00131_c5",
+    "msid": "rxn00131",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00131_c8",
+    "dg0": 3.94,
+    "dg_min": 0.3901550365399298,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00131_c6",
+    "msid": "rxn00131",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00131_c8",
+    "dg0": 3.94,
+    "dg_min": 0.3901550365399298,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00131_c8",
+    "msid": "rxn00131",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00131_c8",
+    "dg0": 3.94,
+    "dg_min": 0.3901550365399298,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00131_c9",
+    "msid": "rxn00131",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00131_c8",
+    "dg0": 3.94,
+    "dg_min": 0.3901550365399298,
+    "gapfilled": true,
+    "against_db": true,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01705_c1",
+    "msid": "rxn01705",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01705_c5",
+    "dg0": 5.53,
+    "dg_min": -6.2053094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01705_c4",
+    "msid": "rxn01705",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01705_c5",
+    "dg0": 5.53,
+    "dg_min": -6.2053094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01705_c5",
+    "msid": "rxn01705",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01705_c5",
+    "dg0": 5.53,
+    "dg_min": -6.2053094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01705_c6",
+    "msid": "rxn01705",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01705_c5",
+    "dg0": 5.53,
+    "dg_min": -6.2053094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01705_c7",
+    "msid": "rxn01705",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01705_c5",
+    "dg0": 5.53,
+    "dg_min": -6.2053094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01705_c8",
+    "msid": "rxn01705",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01705_c5",
+    "dg0": 5.53,
+    "dg_min": -6.2053094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01705_c9",
+    "msid": "rxn01705",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01705_c5",
+    "dg0": 5.53,
+    "dg_min": -6.2053094999215945,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00810_c5",
+    "msid": "rxn00810",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00810_c5",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00810_c6",
+    "msid": "rxn00810",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00810_c5",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01648_c1",
+    "msid": "rxn01648",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01648_c5",
+    "dg0": 4.34,
+    "dg_min": -7.395309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01648_c5",
+    "msid": "rxn01648",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01648_c5",
+    "dg0": 4.34,
+    "dg_min": -7.395309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01648_c8",
+    "msid": "rxn01648",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01648_c5",
+    "dg0": 4.34,
+    "dg_min": -7.395309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01706_c1",
+    "msid": "rxn01706",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01706_c5",
+    "dg0": 424.58,
+    "dg_min": 412.8446905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01706_c4",
+    "msid": "rxn01706",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01706_c5",
+    "dg0": 424.58,
+    "dg_min": 412.8446905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01706_c5",
+    "msid": "rxn01706",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01706_c5",
+    "dg0": 424.58,
+    "dg_min": 412.8446905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01706_c6",
+    "msid": "rxn01706",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01706_c5",
+    "dg0": 424.58,
+    "dg_min": 412.8446905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01706_c7",
+    "msid": "rxn01706",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01706_c5",
+    "dg0": 424.58,
+    "dg_min": 412.8446905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01706_c8",
+    "msid": "rxn01706",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01706_c5",
+    "dg0": 424.58,
+    "dg_min": 412.8446905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01706_c9",
+    "msid": "rxn01706",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01706_c5",
+    "dg0": 424.58,
+    "dg_min": 412.8446905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c1",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c2",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c4",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c5",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c6",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c7",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c8",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01334_c9",
+    "msid": "rxn01334",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01334_c6",
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c1",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c2",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c4",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c5",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c6",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c7",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c8",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00541_c9",
+    "msid": "rxn00541",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00541_c6",
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c1",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c2",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c4",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c5",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c6",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c7",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c8",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00225_c9",
+    "msid": "rxn00225",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00225_c2",
+    "dg0": 3.13,
+    "dg_min": -8.605309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn09176_c1",
+    "msid": "rxn09176",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn09176_c2",
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn09176_c2",
+    "msid": "rxn09176",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn09176_c2",
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn09176_c4",
+    "msid": "rxn09176",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn09176_c2",
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn09176_c5",
+    "msid": "rxn09176",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn09176_c2",
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn09176_c6",
+    "msid": "rxn09176",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn09176_c2",
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn09176_c8",
+    "msid": "rxn09176",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn09176_c2",
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn09176_c9",
+    "msid": "rxn09176",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn09176_c2",
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c1",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c2",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c4",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c5",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c6",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c7",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c8",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00097_c9",
+    "msid": "rxn00097",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00097_c8",
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00151_c1",
+    "msid": "rxn00151",
+    "direction": ">",
+    "old_bounds": [
+     0.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00151_c8",
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00151_c2",
+    "msid": "rxn00151",
+    "direction": ">",
+    "old_bounds": [
+     0.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00151_c8",
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00151_c4",
+    "msid": "rxn00151",
+    "direction": ">",
+    "old_bounds": [
+     0.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00151_c8",
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00151_c5",
+    "msid": "rxn00151",
+    "direction": ">",
+    "old_bounds": [
+     0.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00151_c8",
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00151_c6",
+    "msid": "rxn00151",
+    "direction": ">",
+    "old_bounds": [
+     0.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00151_c8",
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00151_c7",
+    "msid": "rxn00151",
+    "direction": ">",
+    "old_bounds": [
+     0.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00151_c8",
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00151_c8",
+    "msid": "rxn00151",
+    "direction": ">",
+    "old_bounds": [
+     0.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00151_c8",
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00104_c1",
+    "msid": "rxn00104",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00104_c8",
+    "dg0": 6.75,
+    "dg_min": -4.985309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00104_c2",
+    "msid": "rxn00104",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00104_c8",
+    "dg0": 6.75,
+    "dg_min": -4.985309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00104_c4",
+    "msid": "rxn00104",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00104_c8",
+    "dg0": 6.75,
+    "dg_min": -4.985309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00104_c5",
+    "msid": "rxn00104",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00104_c8",
+    "dg0": 6.75,
+    "dg_min": -4.985309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00104_c6",
+    "msid": "rxn00104",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn00104_c8",
+    "dg0": 6.75,
+    "dg_min": -4.985309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00104_c8",
+    "msid": "rxn00104",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00104_c8",
+    "dg0": 6.75,
+    "dg_min": -4.985309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00104_c9",
+    "msid": "rxn00104",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn00104_c8",
+    "dg0": 6.75,
+    "dg_min": -4.985309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01045_c4",
+    "msid": "rxn01045",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01045_c4",
+    "dg0": 9.16,
+    "dg_min": -10.760774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01045_c5",
+    "msid": "rxn01045",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01045_c4",
+    "dg0": 9.16,
+    "dg_min": -10.760774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00182_c4",
+    "msid": "rxn00182",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00182_c4",
+    "dg0": 8.74,
+    "dg_min": -11.180774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00182_c5",
+    "msid": "rxn00182",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00182_c4",
+    "dg0": 8.74,
+    "dg_min": -11.180774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01679_c1",
+    "msid": "rxn01679",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01679_c8",
+    "dg0": 425.3,
+    "dg_min": 413.5646905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01679_c4",
+    "msid": "rxn01679",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01679_c8",
+    "dg0": 425.3,
+    "dg_min": 413.5646905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01679_c5",
+    "msid": "rxn01679",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01679_c8",
+    "dg0": 425.3,
+    "dg_min": 413.5646905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01679_c6",
+    "msid": "rxn01679",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01679_c8",
+    "dg0": 425.3,
+    "dg_min": 413.5646905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01679_c7",
+    "msid": "rxn01679",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01679_c8",
+    "dg0": 425.3,
+    "dg_min": 413.5646905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01679_c8",
+    "msid": "rxn01679",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01679_c8",
+    "dg0": 425.3,
+    "dg_min": 413.5646905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01679_c9",
+    "msid": "rxn01679",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01679_c8",
+    "dg0": 425.3,
+    "dg_min": 413.5646905000784,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00804_c4",
+    "msid": "rxn00804",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn00804_c5",
+    "dg0": 8.8,
+    "dg_min": -11.120774036383121,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00804_c5",
+    "msid": "rxn00804",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn00804_c5",
+    "dg0": 8.8,
+    "dg_min": -11.120774036383121,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01573_c4",
+    "msid": "rxn01573",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01573_c5",
+    "dg0": 7.24,
+    "dg_min": -12.680774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01573_c5",
+    "msid": "rxn01573",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01573_c5",
+    "dg0": 7.24,
+    "dg_min": -12.680774036383122,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn00286_c2",
+    "msid": "rxn00286",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 2,
+    "found_in": "rxn00286_c2",
+    "dg0": 1.73,
+    "dg_min": -10.005309499921594,
+    "gapfilled": true,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01129_c1",
+    "msid": "rxn01129",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01129_c8",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01129_c4",
+    "msid": "rxn01129",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01129_c8",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01129_c5",
+    "msid": "rxn01129",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01129_c8",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01129_c6",
+    "msid": "rxn01129",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01129_c8",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01129_c7",
+    "msid": "rxn01129",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01129_c8",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01129_c8",
+    "msid": "rxn01129",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01129_c8",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01129_c9",
+    "msid": "rxn01129",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01129_c8",
+    "dg0": 3.9,
+    "dg_min": -7.835309499921594,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01370_c1",
+    "msid": "rxn01370",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01370_c8",
+    "dg0": 5.83,
+    "dg_min": -5.905309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01370_c4",
+    "msid": "rxn01370",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01370_c8",
+    "dg0": 5.83,
+    "dg_min": -5.905309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01370_c5",
+    "msid": "rxn01370",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01370_c8",
+    "dg0": 5.83,
+    "dg_min": -5.905309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01370_c6",
+    "msid": "rxn01370",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01370_c8",
+    "dg0": 5.83,
+    "dg_min": -5.905309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01370_c7",
+    "msid": "rxn01370",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01370_c8",
+    "dg0": 5.83,
+    "dg_min": -5.905309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01370_c8",
+    "msid": "rxn01370",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01370_c8",
+    "dg0": 5.83,
+    "dg_min": -5.905309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01370_c9",
+    "msid": "rxn01370",
+    "direction": "<",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01370_c8",
+    "dg0": 5.83,
+    "dg_min": -5.905309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01366_c1",
+    "msid": "rxn01366",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn01366_c8",
+    "dg0": 0.94,
+    "dg_min": -10.795309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01366_c4",
+    "msid": "rxn01366",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 4,
+    "found_in": "rxn01366_c8",
+    "dg0": 0.94,
+    "dg_min": -10.795309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01366_c5",
+    "msid": "rxn01366",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 5,
+    "found_in": "rxn01366_c8",
+    "dg0": 0.94,
+    "dg_min": -10.795309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01366_c6",
+    "msid": "rxn01366",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 6,
+    "found_in": "rxn01366_c8",
+    "dg0": 0.94,
+    "dg_min": -10.795309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01366_c7",
+    "msid": "rxn01366",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn01366_c8",
+    "dg0": 0.94,
+    "dg_min": -10.795309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01366_c8",
+    "msid": "rxn01366",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn01366_c8",
+    "dg0": 0.94,
+    "dg_min": -10.795309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   },
+   {
+    "reaction": "rxn01366_c9",
+    "msid": "rxn01366",
+    "direction": ">",
+    "old_bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "member_index": 9,
+    "found_in": "rxn01366_c8",
+    "dg0": 0.94,
+    "dg_min": -10.795309499921595,
+    "gapfilled": false,
+    "against_db": false,
+    "tier": 2
+   }
+  ],
+  "kept_open": [
+   {
+    "reaction": "rxn00571_c8",
+    "msid": "rxn00571",
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "dg0": 34.82,
+    "dg_min": 23.084690500078406
+   },
+   {
+    "reaction": "rxn00288_c1",
+    "msid": "rxn00288",
+    "member": "Desulfosporosinus.1",
+    "flux": 0.038277511961722493,
+    "dg0": 20.27,
+    "dg_min": 8.534690500078405
+   },
+   {
+    "reaction": "rxn00548_c2",
+    "msid": "rxn00548",
+    "member": "Erysipelothrix.1",
+    "flux": -0.016260162601626476,
+    "dg0": 10.09,
+    "dg_min": -1.645309499921595
+   },
+   {
+    "reaction": "rxn00548_c6",
+    "msid": "rxn00548",
+    "member": "Petrimonas.1",
+    "flux": -0.04878048780487574,
+    "dg0": 10.09,
+    "dg_min": -1.645309499921595
+   },
+   {
+    "reaction": "rxn13647_c2",
+    "msid": "rxn13647",
+    "member": "Erysipelothrix.1",
+    "flux": 0.01297122010539116,
+    "dg0": 8.94,
+    "dg_min": -14.53061899984319
+   },
+   {
+    "reaction": "rxn13143_c2",
+    "msid": "rxn13143",
+    "member": "Erysipelothrix.1",
+    "flux": -0.16538305634373734,
+    "dg0": 8.49,
+    "dg_min": -0.9274997134208665
+   },
+   {
+    "reaction": "rxn13143_c6",
+    "msid": "rxn13143",
+    "member": "Petrimonas.1",
+    "flux": -0.2156465342521281,
+    "dg0": 8.49,
+    "dg_min": -0.9274997134208665
+   },
+   {
+    "reaction": "rxn16503_c5",
+    "msid": "rxn16503",
+    "member": "Ochrobactrum.1",
+    "flux": -0.058960434445306686,
+    "dg0": 5.86,
+    "dg_min": 2.3101550365399306
+   },
+   {
+    "reaction": "rxn01690_c5",
+    "msid": "rxn01690",
+    "member": "Ochrobactrum.1",
+    "flux": -0.058960434445306686,
+    "dg0": 72.15,
+    "dg_min": 60.41469050007841
+   },
+   {
+    "reaction": "rxn01690_c9",
+    "msid": "rxn01690",
+    "member": "midas_g_25828.1",
+    "flux": -0.015515903801396452,
+    "dg0": 72.15,
+    "dg_min": 60.41469050007841
+   },
+   {
+    "reaction": "rxn01352_c5",
+    "msid": "rxn01352",
+    "member": "Ochrobactrum.1",
+    "flux": -0.058960434445306686,
+    "dg0": 10.62,
+    "dg_min": 7.07015503653993
+   },
+   {
+    "reaction": "rxn01297_c6",
+    "msid": "rxn01297",
+    "member": "Petrimonas.1",
+    "flux": 0.20170674941815248,
+    "dg0": 5.44,
+    "dg_min": -6.295309499921594
+   },
+   {
+    "reaction": "rxn00018_c6",
+    "msid": "rxn00018",
+    "member": "Petrimonas.1",
+    "flux": -0.09453072248480748,
+    "dg0": 5.01,
+    "dg_min": -6.725309499921595
+   },
+   {
+    "reaction": "rxn01986_c8",
+    "msid": "rxn01986",
+    "member": "Terrisporobacter.1",
+    "flux": -0.034965034965034926,
+    "dg0": 4.48,
+    "dg_min": -1.387654749960797
+   },
+   {
+    "reaction": "rxn00248_c2",
+    "msid": "rxn00248",
+    "member": "Erysipelothrix.1",
+    "flux": 0.10489510489510484,
+    "dg0": 4.11,
+    "dg_min": -7.6253094999215945
+   },
+   {
+    "reaction": "rxn00250_c2",
+    "msid": "rxn00250",
+    "member": "Erysipelothrix.1",
+    "flux": -0.16666666666666669,
+    "dg0": 3.29,
+    "dg_min": -14.312964249882395
+   },
+   {
+    "reaction": "rxn00972_c2",
+    "msid": "rxn00972",
+    "member": "Erysipelothrix.1",
+    "flux": -0.16666666666666674,
+    "dg0": 2.82,
+    "dg_min": -8.915309499921594
+   },
+   {
+    "reaction": "rxn00336_c2",
+    "msid": "rxn00336",
+    "member": "Erysipelothrix.1",
+    "flux": 0.16666666666666674,
+    "dg0": 2.5,
+    "dg_min": -11.553119286422323
+   },
+   {
+    "reaction": "rxn00974_c2",
+    "msid": "rxn00974",
+    "member": "Erysipelothrix.1",
+    "flux": 0.16666666666666674,
+    "dg0": 2.27,
+    "dg_min": -3.5976547499607974
+   },
+   {
+    "reaction": "rxn01674_c8",
+    "msid": "rxn01674",
+    "member": "Terrisporobacter.1",
+    "flux": -1.0000000000000004,
+    "dg0": 6.25,
+    "dg_min": -5.485309499921595
+   }
+  ],
+  "status": "protected",
+  "remaining_cycle": {
+   "status": "cycle",
+   "reactions": [
+    {
+     "reaction": "rxn00146_c7",
+     "msid": "rxn00146",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "(R)-Lactate:ferricytochrome-c 2-oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00378_c2",
+     "msid": "rxn00378",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -100.0,
+      0.0
+     ],
+     "db_reversibility": "?",
+     "name": "Sulfite:ferricytochrome-c oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn00378_c7",
+     "msid": "rxn00378",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -100.0,
+      0.0
+     ],
+     "db_reversibility": "?",
+     "name": "Sulfite:ferricytochrome-c oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn00379_c8",
+     "msid": "rxn00379",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -1.3333333333333333,
+     "bounds": [
+      -1000.0,
+      0
+     ],
+     "db_reversibility": "<",
+     "name": "ATP:sulfate adenylyltransferase",
+     "against_db": false,
+     "dg0": -11.03,
+     "dg_min": -22.765309499921592,
+     "dg_err": 0.3,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00500_c8",
+     "msid": "rxn00500",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "(R)-Lactate:NAD+ oxidoreductase",
+     "against_db": false,
+     "dg0": -5.66,
+     "dg_min": -17.395309499921595,
+     "dg_err": 0.54,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00571_c8",
+     "msid": "rxn00571",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      0.0,
+      100.0
+     ],
+     "db_reversibility": "<",
+     "name": "nitrite:NAD+ oxidoreductase",
+     "against_db": true,
+     "dg0": 34.82,
+     "dg_min": 23.084690500078406,
+     "dg_err": 1.09,
+     "dg_source": "eQuilibrator",
+     "infeasible": true,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn01352_c8",
+     "msid": "rxn01352",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -1.3333333333333335,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": ">",
+     "name": "dGTP triphosphohydrolase",
+     "against_db": true,
+     "dg0": 10.62,
+     "dg_min": 7.07015503653993,
+     "dg_err": 7.89,
+     "dg_source": "dGPredictor",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01353_c8",
+     "msid": "rxn01353",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -1.3333333333333335,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ATP:dGDP phosphotransferase",
+     "against_db": false,
+     "dg0": -2.84,
+     "dg_min": -14.575309499921595,
+     "dg_err": 0.78,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01445_c8",
+     "msid": "rxn01445",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 1.3333333333333335,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": ">",
+     "name": "2'-Deoxyguanosine 5'-monophosphate phosphohydrolase",
+     "against_db": false,
+     "dg0": -3.71,
+     "dg_min": -17.763119286422324,
+     "dg_err": 0.6,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01509_c8",
+     "msid": "rxn01509",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -1.3333333333333335,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ATP:dGMP phosphotransferase",
+     "against_db": false,
+     "dg0": -1.08,
+     "dg_min": -12.815309499921595,
+     "dg_err": 0.76,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn03978_c2",
+     "msid": "rxn03978",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.2222222222222222,
+     "bounds": [
+      0.0,
+      100.0
+     ],
+     "db_reversibility": "?",
+     "name": "ammonia:ferricytochrome-c oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn05319_c2",
+     "msid": "rxn05319",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05319_c7",
+     "msid": "rxn05319",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05319_c8",
+     "msid": "rxn05319",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 1.3333333333333333,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05469_c7",
+     "msid": "rxn05469",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "pyruvate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05469_c8",
+     "msid": "rxn05469",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "pyruvate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05651_c2",
+     "msid": "rxn05651",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfate transport in via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05651_c7",
+     "msid": "rxn05651",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfate transport in via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05651_c8",
+     "msid": "rxn05651",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -1.3333333333333333,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfate transport in via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05759_c8",
+     "msid": "rxn05759",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "hydrogen:ferredoxin oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08173_c2",
+     "msid": "rxn08173",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.3333333333333333,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "F(1)-ATPase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08173_c8",
+     "msid": "rxn08173",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.6666666666666667,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "F(1)-ATPase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08350_c7",
+     "msid": "rxn08350",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "D-lactate transport via proton symport (periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08350_c8",
+     "msid": "rxn08350",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "D-lactate transport via proton symport (periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08691_c2",
+     "msid": "rxn08691",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08691_c8",
+     "msid": "rxn08691",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08734_c2",
+     "msid": "rxn08734",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": ">",
+     "name": "hydrogenase (ubiquinone-8: 2 protons) (periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09176_c8",
+     "msid": "rxn09176",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 2.666666666666667,
+     "bounds": [
+      0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "polyphosphate kinase",
+     "against_db": false,
+     "dg0": -2.26,
+     "dg_min": -13.995309499921595,
+     "dg_err": 0.08,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09260_c2",
+     "msid": "rxn09260",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfite transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09260_c7",
+     "msid": "rxn09260",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfite transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09260_c8",
+     "msid": "rxn09260",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -1.3333333333333333,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfite transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn10052_c8",
+     "msid": "rxn10052",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -1.3333333333333335,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "adenylate kinase (Inorganic triphosphate)",
+     "against_db": false,
+     "dg0": -6.36,
+     "dg_min": -18.095309499921594,
+     "dg_err": 7.7,
+     "dg_source": "dGPredictor",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn13647_c2",
+     "msid": "rxn13647",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.2222222222222222,
+     "bounds": [
+      0.0,
+      100.0
+     ],
+     "db_reversibility": "=",
+     "name": "nitrite Reductase (Ubiquinole-8, periplasm)",
+     "against_db": false,
+     "dg0": 8.94,
+     "dg_min": -14.53061899984319,
+     "dg_err": 4.34,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn14427_c8",
+     "msid": "rxn14427",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.6666666666666666,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "Nitrate reductase cytochrome-c type (2 protons translocated)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "sul00002_c8",
+     "msid": null,
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.6666666666666666,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": null,
+     "name": "sul00002_c8",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    }
+   ],
+   "cross_fed": {
+    "cpd00001_e0": {
+     "Erysipelothrix.1": 0.666666667,
+     "Sedimentibacter.8": 0.666666667,
+     "Terrisporobacter.1": -1.333333333
+    },
+    "cpd00020_e0": {
+     "Sedimentibacter.8": 0.666666667,
+     "Terrisporobacter.1": -0.666666667
+    },
+    "cpd00067_e0": {
+     "Sedimentibacter.8": -0.666666667,
+     "Terrisporobacter.1": 1.333333333,
+     "Erysipelothrix.1": -0.666666667
+    },
+    "cpd00048_e0": {
+     "Erysipelothrix.1": -0.666666667,
+     "Sedimentibacter.8": -0.666666667,
+     "Terrisporobacter.1": 1.333333333
+    },
+    "cpd00221_e0": {
+     "Sedimentibacter.8": -0.666666667,
+     "Terrisporobacter.1": 0.666666667
+    },
+    "cpd11640_e0": {
+     "Erysipelothrix.1": -0.666666667,
+     "Terrisporobacter.1": 0.666666667
+    },
+    "cpd00081_e0": {
+     "Erysipelothrix.1": 0.666666667,
+     "Sedimentibacter.8": 0.666666667,
+     "Terrisporobacter.1": -1.333333333
+    }
+   },
+   "members": [
+    "Erysipelothrix.1",
+    "Sedimentibacter.8",
+    "Terrisporobacter.1"
+   ]
+  },
+  "protect_log": [
+   {
+    "cuts": [
+     "rxn00359<",
+     "rxn00571>"
+    ],
+    "members_stopped": [
+     "Terrisporobacter.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00571>"
+    ],
+    "members_stopped": [
+     "Terrisporobacter.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00359<"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608107,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00288>"
+    ],
+    "members_stopped": [
+     "Sedimentibacter.8"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00288>"
+    ],
+    "members_stopped": [
+     "Sedimentibacter.8"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00429<"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608277,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00377<"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608206,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn39452>"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.91457920760869,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00379>"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608156,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00154<"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608107,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00548<"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00548<"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00278>"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.91457920760819,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00931>"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608387,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00184>"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608046,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00085>"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.91457920760817,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn13647>"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn13143<"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn13143<"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn03126<"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.948213320548152,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00197<"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.94821332054817,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00543>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.93982518166378,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00347>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.9129123879538,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn16503<"
+    ],
+    "members_stopped": [
+     "Ochrobactrum.1"
+    ],
+    "community_growth": 16.9129123879621,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn16503<"
+    ],
+    "members_stopped": [
+     "Ochrobactrum.1"
+    ],
+    "community_growth": 16.91291238796207,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn01690<"
+    ],
+    "members_stopped": [
+     "Petrimonas.1"
+    ],
+    "community_growth": 16.85595358438173,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn01690<"
+    ],
+    "members_stopped": [
+     "Petrimonas.1"
+    ],
+    "community_growth": 16.85595358438163,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn01352<"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00786>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.912912387962226,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01281>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.912912387962113,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00612>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.912912387961804,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01297>"
+    ],
+    "members_stopped": [
+     "Methanosarcina.1",
+     "midas_g_25828.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn01302>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.90366737132749,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01510<"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.90366737132734,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00840>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.903667371327188,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00018<"
+    ],
+    "members_stopped": [
+     "Erysipelothrix.1"
+    ],
+    "community_growth": 16.90366737132742,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00787>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.81240391979542,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn03954>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.812403919795194,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01986<"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1",
+     "Methanosarcina.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00248>"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00131<"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.809511397747002,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01705<"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.809511397746654,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00810<"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.809511397747034,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01648>"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.809511397746263,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01706<"
+    ],
+    "members_stopped": [],
+    "community_growth": 16.809511397747485,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01334>"
+    ],
+    "members_stopped": [],
+    "community_growth": 15.30293770922532,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00541>"
+    ],
+    "members_stopped": [],
+    "community_growth": 14.264079952038951,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00250<"
+    ],
+    "members_stopped": [
+     "Methanobacterium.1",
+     "Sedimentibacter.8"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00225>"
+    ],
+    "members_stopped": [],
+    "community_growth": 14.264079952038589,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00972<"
+    ],
+    "members_stopped": [
+     "Terrisporobacter.1"
+    ],
+    "community_growth": 14.165183067119449,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00336>"
+    ],
+    "members_stopped": [
+     "Terrisporobacter.1"
+    ],
+    "community_growth": 14.122800115329218,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00974>"
+    ],
+    "members_stopped": [
+     "Erysipelothrix.1",
+     "Methanosarcina.1",
+     "Petrimonas.1",
+     "Terrisporobacter.1"
+    ],
+    "community_growth": 14.116710786097627,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn09176<"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.28716479746255,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00097<"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.2871647974626,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00151>"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856981,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00104<"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206857003,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01045>"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856951,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00182>"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856811,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01679<"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856948,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00804>"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856914,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01573>"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856944,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01674<"
+    ],
+    "members_stopped": [],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00286<"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856965,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01129<"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.28242020685706,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01370<"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.282420206856987,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn01366>"
+    ],
+    "members_stopped": [],
+    "community_growth": 12.279256222563015,
+    "accepted": true
+   }
+  ],
+  "seconds": 326.6
+ },
+ "after": {
+  "atp_from_nothing": 1054.166666666667,
+  "atp_by_member": {
+   "1": 954.166666666667,
+   "7": 100.0
+  },
+  "n_atp_tests": 9,
+  "growth_from_nothing": 0.0,
+  "electrons_from_nothing": 0.0,
+  "electron_carriers": {},
+  "growth_on_medium": 12.279256222562973
+ }
+}

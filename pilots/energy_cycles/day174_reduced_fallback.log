@@ -1,0 +1,69 @@
+'' is not a valid SBML 'SId'.
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+[14:56:21] loaded 9 members; gapfilled reactions per member: {'Desulfosporosinus.1': 103, 'Erysipelothrix.1': 182, 'Methanobacterium.1': 136, 'Methanosarcina.1': 44, 'Ochrobactrum.1': 79, 'Petrimonas.1': 149, 'Sedimentibacter.8': 190, 'Terrisporobacter.1': 130, 'midas_g_25828.1': 134}
+[14:56:22] members alone: Desulfosporosinus.1 g=3 atp=0.0 e-=0.0; Erysipelothrix.1 g=3.13 atp=0.0 e-=0.0; Methanobacterium.1 g=2.36 atp=0.0 e-=0.0; Methanosarcina.1 g=2.1 atp=0.0 e-=0.0; Ochrobactrum.1 g=1.24 atp=0.0 e-=0.0; Petrimonas.1 g=2.68 atp=0.0 e-=0.0; Sedimentibacter.8 g=2.42 atp=0.0 e-=0.0; Terrisporobacter.1 g=1.75 atp=0.0 e-=0.0; midas_g_25828.1 g=1.52 atp=0.0 e-=0.0
+Read LP format model from file /tmp/tmp9qw3x8lz.lp
+Reading time = 0.00 seconds
+: 1188 rows, 2518 columns, 10942 nonzeros
+Read LP format model from file /tmp/tmpc9f8ud9p.lp
+Reading time = 0.00 seconds
+: 945 rows, 1918 columns, 8210 nonzeros
+Read LP format model from file /tmp/tmp3tdqpzo5.lp
+Reading time = 0.00 seconds
+: 736 rows, 1384 columns, 6210 nonzeros
+Read LP format model from file /tmp/tmp9gd4tv0_.lp
+Reading time = 0.01 seconds
+: 1464 rows, 3440 columns, 15052 nonzeros
+Read LP format model from file /tmp/tmp0wzi22vq.lp
+Reading time = 0.01 seconds
+: 1719 rows, 4190 columns, 18430 nonzeros
+Read LP format model from file /tmp/tmp_p3335i8.lp
+Reading time = 0.00 seconds
+: 1105 rows, 2290 columns, 9868 nonzeros
+Read LP format model from file /tmp/tmp6cyng4dg.lp
+Reading time = 0.00 seconds
+: 993 rows, 2122 columns, 9128 nonzeros
+Read LP format model from file /tmp/tmp9ovj35em.lp
+Reading time = 0.00 seconds
+: 1253 rows, 2872 columns, 12412 nonzeros
+Read LP format model from file /tmp/tmpzl8y2pqr.lp
+Reading time = 0.01 seconds
+: 1325 rows, 3218 columns, 13854 nonzeros
+bio1 from Desulfosporosinus.1 becomes bio2
+bio1 from Erysipelothrix.1 becomes bio3
+bio1 from Methanobacterium.1 becomes bio4
+bio1 from Methanosarcina.1 becomes bio5
+bio1 from Ochrobactrum.1 becomes bio6
+bio1 from Petrimonas.1 becomes bio7
+bio1 from Sedimentibacter.8 becomes bio8
+bio1 from Terrisporobacter.1 becomes bio9
+bio1 from midas_g_25828.1 becomes bio10
+Community objective 1.0*bio1 - 1.0*bio1_reverse_b18f7
+[14:56:41] community: 11098 reactions, built in 19.6s
+[14:56:46] before: {"atp_from_nothing": 4257.400793650795, "atp_by_member": {"1": 851.7857142857142, "3": 2.777777777777743, "4": 1000.0, "5": 899.7222222222221, "6": 294.6031746031743, "7": 133.33333333333337, "8": 1000.0, "9": 75.17857142857292}, "n_atp_tests": 9, "growth_from_nothing": 0.0, "electrons_from_nothing": 0.0, "electron_carriers": {}, "growth_on_medium": 19.91457920760818, "test_s": 5.1}
+[14:56:47] electron test limited by: [{'reaction': 'rxn00018_c2', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00018_c6', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00251_c7', 'flux': 100.0, 'bounds': [0.0, 100.0]}, {'reaction': 'rxn00343_c5', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00343_c9', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00347_c7', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00430_c5', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00430_c9', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00548_c5', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00937_c5', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn00937_c9', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn04651_c2', 'flux': 100.0, 'bounds': [0.0, 100.0]}, {'reaction': 'rxn04651_c6', 'flux': 100.0, 'bounds': [0.0, 100.0]}, {'reaction': 'rxn08527_c2', 'flux': 100.0, 'bounds': [0.0, 100.0]}, {'reaction': 'rxn10594_c2', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn10594_c6', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn13143_c2', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn13143_c6', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn13734_c8', 'flux': -100.0, 'bounds': [-100.0, 0.0]}, {'reaction': 'rxn13746_c8', 'flux': 100.0, 'bounds': [0.0, 100.0]}]
+[14:56:51] cycle: 116 reactions in ['Desulfosporosinus.1', 'Methanobacterium.1', 'Methanosarcina.1', 'Ochrobactrum.1', 'Petrimonas.1', 'Sedimentibacter.8', 'Terrisporobacter.1'] (2.4s); cross-fed 14; gated 2, against db 5
+[15:02:17] cut: status protected, 232 reaction bounds changed (['rxn00085>', 'rxn00097<', 'rxn00104<', 'rxn00131<', 'rxn00151>', 'rxn00154<', 'rxn00182>', 'rxn00184>', 'rxn00197<', 'rxn00225>', 'rxn00278>', 'rxn00286<', 'rxn00347>', 'rxn00359<', 'rxn00377<', 'rxn00379>', 'rxn00429<', 'rxn00541>', 'rxn00543>', 'rxn00612>', 'rxn00786>', 'rxn00787>', 'rxn00804>', 'rxn00810<', 'rxn00840>', 'rxn00931>', 'rxn01045>', 'rxn01129<', 'rxn01281>', 'rxn01302>', 'rxn01334>', 'rxn01366>', 'rxn01370<', 'rxn01510<', 'rxn01573>', 'rxn01648>', 'rxn01679<', 'rxn01705<', 'rxn01706<', 'rxn03126<', 'rxn03954>', 'rxn09176<', 'rxn39452>']), kept open ['rxn00571', 'rxn00288', 'rxn00548', 'rxn00548', 'rxn13647', 'rxn13143', 'rxn13143', 'rxn16503', 'rxn01690', 'rxn01690', 'rxn01352', 'rxn01297', 'rxn00018', 'rxn01986', 'rxn00248', 'rxn00250', 'rxn00972', 'rxn00336', 'rxn00974', 'rxn01674'], 326.6s; rounds [(0, 4257.400793650795, 112), (1, 4170.138888888903, 114), (2, 4170.138888888888, 114), (3, 4170.138888888892, 121), (4, 4032.552083333323, 105), (5, 4032.552083333343, 105), (6, 3999.2187500000005, 138), (7, 3063.194444444445, 170), (8, 3063.194444444444, 171), (9, 3063.194444444444, 171), (10, 3063.1944444444457, 169), (11, 3063.194444444441, 182), (12, 2287.500000000001, 50), (13, 2087.499999999999, 14), (14, 2038.425925925923, 9), (15, 2038.4259259259265, 216), (16, 2038.4259259259256, 216), (17, 2038.4259259259252, 210), (18, 2038.425925925926, 215), (19, 2038.425925925926, 210), (20, 2038.425925925926, 210), (21, 2038.4259259259277, 210), (22, 2038.4259259259256, 216), (23, 2015.9259259259247, 174), (24, 2015.9259259259354, 174), (25, 1975.9259259258356, 174), (26, 1975.9259259259165, 164), (27, 1975.9259259259275, 166), (28, 1975.9259259259318, 165), (29, 1975.9259259259272, 173), (30, 1375.925925925927, 30), (31, 1175.9259259259245, 74), (32, 1175.925925925926, 75), (33, 1054.1666666666679, 31), (34, 1054.1666666666697, 31), (35, 1054.166666666667, 32), (36, 1054.1666666666647, 123), (37, 1054.1666666666663, 124), (38, 1054.1666666666647, 124), (39, 1054.1666666666665, 124), (40, 1054.1666666666665, 124), (41, 1054.1666666666622, 83), (42, 1054.166666666663, 35), (43, 1054.1666666666729, 35), (44, 1054.1666666666247, 35), (45, 1054.1666666666702, 35)]
+[15:02:24] after: {"atp_from_nothing": 1054.166666666667, "atp_by_member": {"1": 954.166666666667, "7": 100.0}, "n_atp_tests": 9, "growth_from_nothing": 0.0, "electrons_from_nothing": 0.0, "electron_carriers": {}, "growth_on_medium": 12.279256222562973}
+[15:02:24] remaining cycle: 35 reactions in ['Erysipelothrix.1', 'Sedimentibacter.8', 'Terrisporobacter.1']
+[15:02:24] done

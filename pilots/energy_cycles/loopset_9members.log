@@ -1,0 +1,55 @@
+'' is not a valid SBML 'SId'.
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+Read LP format model from file /tmp/tmp361baehl.lp
+Reading time = 0.01 seconds
+: 1188 rows, 2518 columns, 10942 nonzeros
+Read LP format model from file /tmp/tmpv30c0hg4.lp
+Reading time = 0.01 seconds
+: 945 rows, 1918 columns, 8210 nonzeros
+Read LP format model from file /tmp/tmpz8yy88fr.lp
+Reading time = 0.00 seconds
+: 736 rows, 1384 columns, 6210 nonzeros
+Read LP format model from file /tmp/tmpaxh5wlkd.lp
+Reading time = 0.01 seconds
+: 1464 rows, 3440 columns, 15052 nonzeros
+Read LP format model from file /tmp/tmp0x6b_nk5.lp
+Reading time = 0.01 seconds
+: 1719 rows, 4190 columns, 18430 nonzeros
+Read LP format model from file /tmp/tmpg5b4oewc.lp
+Reading time = 0.01 seconds
+: 1105 rows, 2290 columns, 9868 nonzeros
+Read LP format model from file /tmp/tmps6lwhytb.lp
+Reading time = 0.01 seconds
+: 993 rows, 2122 columns, 9128 nonzeros
+Read LP format model from file /tmp/tmpndttiw4o.lp
+Reading time = 0.01 seconds
+: 1253 rows, 2872 columns, 12412 nonzeros
+Read LP format model from file /tmp/tmp9ikih4jh.lp
+Reading time = 0.01 seconds
+: 1325 rows, 3218 columns, 13854 nonzeros
+bio1 from Desulfosporosinus.1 becomes bio2
+bio1 from Erysipelothrix.1 becomes bio3
+bio1 from Methanobacterium.1 becomes bio4
+bio1 from Methanosarcina.1 becomes bio5
+bio1 from Ochrobactrum.1 becomes bio6
+bio1 from Petrimonas.1 becomes bio7
+bio1 from Sedimentibacter.8 becomes bio8
+bio1 from Terrisporobacter.1 becomes bio9
+bio1 from midas_g_25828.1 becomes bio10
+Community objective 1.0*bio1 - 1.0*bio1_reverse_b18f7
+[14:45:45] day174_9members: 11098 reactions, loaded in 35.4s
+[14:45:55] LP: {"atp_from_nothing": 4257.400793650795, "atp_by_member": {"1": 851.7857142857142, "3": 2.777777777777743, "4": 1000.0, "5": 899.7222222222221, "6": 294.6031746031743, "7": 133.33333333333337, "8": 1000.0, "9": 75.17857142857292}, "n_atp_tests": 9, "growth_from_nothing": 0.0, "electrons_from_nothing": 0.0, "electron_carriers": {}, "growth_on_medium": {"value": 19.91457920760818, "status": "optimal", "seconds": 3.9}, "seconds": 9.5}
+Set parameter OutputFlag to value 1
+Set parameter LogToConsole to value 0
+[14:47:52] loop set: {"reactions": 3723, "seconds": 116.8, "share": 0.33546584970264914, "build_s": 0.3}

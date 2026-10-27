@@ -1,0 +1,5258 @@
+{
+ "members": [
+  "Desulfosporosinus.1",
+  "Erysipelothrix.1",
+  "Methanobacterium.1",
+  "Methanosarcina.1",
+  "Ochrobactrum.1",
+  "Petrimonas.1",
+  "Sedimentibacter.8",
+  "Terrisporobacter.1",
+  "midas_g_25828.1"
+ ],
+ "medium": "Wolfe",
+ "gf_dir": "/home/freiburger/Documents/codiffusion_bioreactor/media_gapfilled_models_v7c/Wolfe",
+ "member_alone": {
+  "Desulfosporosinus.1": {
+   "growth": 2.998967230237821,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Erysipelothrix.1": {
+   "growth": 3.1324644798374353,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Methanobacterium.1": {
+   "growth": 2.3563454308800598,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Methanosarcina.1": {
+   "growth": 2.096149347400188,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Ochrobactrum.1": {
+   "growth": 1.2397085117676552,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Petrimonas.1": {
+   "growth": 2.676520557911986,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Sedimentibacter.8": {
+   "growth": 2.4150701003405266,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "Terrisporobacter.1": {
+   "growth": 1.7451483973564952,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  },
+  "midas_g_25828.1": {
+   "growth": 1.518793002141324,
+   "atp_from_nothing": 0.0,
+   "atp_by_member": {},
+   "n_atp_tests": 1,
+   "growth_from_nothing": 0.0,
+   "electrons_from_nothing": 0.0,
+   "electron_carriers": {}
+  }
+ },
+ "community": {
+  "reactions": 11098,
+  "metabolites": 9857,
+  "build_s": 20.2,
+  "member_index": {
+   "1": "Desulfosporosinus.1",
+   "2": "Erysipelothrix.1",
+   "3": "Methanobacterium.1",
+   "4": "Methanosarcina.1",
+   "5": "Ochrobactrum.1",
+   "6": "Petrimonas.1",
+   "7": "Sedimentibacter.8",
+   "8": "Terrisporobacter.1",
+   "9": "midas_g_25828.1"
+  }
+ },
+ "before": {
+  "atp_from_nothing": 4257.400793650795,
+  "atp_by_member": {
+   "1": 851.7857142857142,
+   "3": 2.777777777777743,
+   "4": 1000.0,
+   "5": 899.7222222222221,
+   "6": 294.6031746031743,
+   "7": 133.33333333333337,
+   "8": 1000.0,
+   "9": 75.17857142857292
+  },
+  "n_atp_tests": 9,
+  "growth_from_nothing": 0.0,
+  "electrons_from_nothing": 0.0,
+  "electron_carriers": {},
+  "growth_on_medium": 19.91457920760818,
+  "test_s": 5.1
+ },
+ "electron_test_limits": [
+  {
+   "reaction": "rxn00018_c2",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00018_c6",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00251_c7",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn00343_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00343_c9",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00347_c7",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00430_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00430_c9",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00548_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00937_c5",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn00937_c9",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn04651_c2",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn04651_c6",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn08527_c2",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  },
+  {
+   "reaction": "rxn10594_c2",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn10594_c6",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13143_c2",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13143_c6",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13734_c8",
+   "flux": -100.0,
+   "bounds": [
+    -100.0,
+    0.0
+   ]
+  },
+  {
+   "reaction": "rxn13746_c8",
+   "flux": 100.0,
+   "bounds": [
+    0.0,
+    100.0
+   ]
+  }
+ ],
+ "cycle_before": {
+  "status": "cycle",
+  "reactions": [
+   {
+    "reaction": "rxn00018_c6",
+    "msid": "rxn00018",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "3-phospho-D-glycerate carboxy-lyase (dimerizing; D-ribulose-1,5-bisphosphate-forming)",
+    "against_db": false,
+    "dg0": 5.01,
+    "dg_min": -6.725309499921595,
+    "dg_err": 1.0,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00097_c6",
+    "msid": "rxn00097",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.16589861751152077,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:AMP phosphotransferase",
+    "against_db": false,
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "dg_err": 0.04,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00097_c8",
+    "msid": "rxn00097",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:AMP phosphotransferase",
+    "against_db": false,
+    "dg0": 0.04,
+    "dg_min": -11.695309499921596,
+    "dg_err": 0.04,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00151_c6",
+    "msid": "rxn00151",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576029,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:pyruvate,phosphate phosphotransferase",
+    "against_db": false,
+    "dg0": 4.25,
+    "dg_min": -13.352964249882394,
+    "dg_err": 0.13,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00154_c7",
+    "msid": "rxn00154",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": -0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate:NAD+ 2-oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": 8.93,
+    "dg_min": -8.672964249882394,
+    "dg_err": 0.85,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00157_c5",
+    "msid": "rxn00157",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.04608294930875617,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "Acetyl-CoA:formate C-acetyltransferase",
+    "against_db": false,
+    "dg0": -4.38,
+    "dg_min": -16.115309499921594,
+    "dg_err": 0.39,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00157_c8",
+    "msid": "rxn00157",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "Acetyl-CoA:formate C-acetyltransferase",
+    "against_db": false,
+    "dg0": -4.38,
+    "dg_min": -16.115309499921594,
+    "dg_err": 0.39,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c1",
+    "msid": "rxn00171",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": -3.95,
+    "dg_min": -13.36749971342087,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c5",
+    "msid": "rxn00171",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.10138248847926254,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": -3.95,
+    "dg_min": -13.36749971342087,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c7",
+    "msid": "rxn00171",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": 0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": -3.95,
+    "dg_min": -13.36749971342087,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00171_c8",
+    "msid": "rxn00171",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": 3.95,
+    "dg_min": -15.970774036383123,
+    "dg_err": 0.32,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c1",
+    "msid": "rxn00172",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c3",
+    "msid": "rxn00172",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c4",
+    "msid": "rxn00172",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.09216589861751145,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00172_c5",
+    "msid": "rxn00172",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.1474654377880187,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "Acetate:CoA ligase (ADP-forming)",
+    "against_db": false,
+    "dg0": -0.86,
+    "dg_min": -18.462964249882393,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00359_c1",
+    "msid": "rxn00359",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": ">",
+    "name": "3'-phosphoadenylyl-sulfate sulfohydrolase",
+    "against_db": true,
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "dg_err": 1.51,
+    "dg_source": "eQuilibrator",
+    "infeasible": true,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00379_c8",
+    "msid": "rxn00379",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "<",
+    "name": "ATP:sulfate adenylyltransferase",
+    "against_db": false,
+    "dg0": -11.03,
+    "dg_min": -22.765309499921592,
+    "dg_err": 0.3,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00429_c5",
+    "msid": "rxn00429",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": ">",
+    "name": "Formaldehyde:NAD+ oxidoreductase",
+    "against_db": true,
+    "dg0": 11.11,
+    "dg_min": -0.6253094999215953,
+    "dg_err": 0.5,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00430_c5",
+    "msid": "rxn00430",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "methanol:NAD+ oxidoreductase",
+    "against_db": false,
+    "dg0": -7.79,
+    "dg_min": -19.525309499921594,
+    "dg_err": 0.85,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00459_c6",
+    "msid": "rxn00459",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-phospho-D-glycerate hydro-lyase (phosphoenolpyruvate-forming)",
+    "against_db": false,
+    "dg0": 0.87,
+    "dg_min": -4.997654749960797,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00541_c6",
+    "msid": "rxn00541",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "L-threonine acetaldehyde-lyase (glycine-forming)",
+    "against_db": false,
+    "dg0": 2.62,
+    "dg_min": -11.433119286422322,
+    "dg_err": 0.58,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00543_c5",
+    "msid": "rxn00543",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ethanol:NAD+ oxidoreductase",
+    "against_db": false,
+    "dg0": 5.05,
+    "dg_min": -6.685309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00543_c8",
+    "msid": "rxn00543",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ethanol:NAD+ oxidoreductase",
+    "against_db": false,
+    "dg0": -5.05,
+    "dg_min": -16.785309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00545_c6",
+    "msid": "rxn00545",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:D-fructose-6-phosphate 1-phosphotransferase",
+    "against_db": false,
+    "dg0": -3.21,
+    "dg_min": -14.945309499921596,
+    "dg_err": 0.18,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00571_c8",
+    "msid": "rxn00571",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     0.0,
+     100.0
+    ],
+    "db_reversibility": "<",
+    "name": "nitrite:NAD+ oxidoreductase",
+    "against_db": true,
+    "dg0": 34.82,
+    "dg_min": 23.084690500078406,
+    "dg_err": 1.09,
+    "dg_source": "eQuilibrator",
+    "infeasible": true,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00611_c1",
+    "msid": "rxn00611",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "sn-Glycerol-3-phosphate:NAD+ 2-oxidoreductase",
+    "against_db": false,
+    "dg0": -6.11,
+    "dg_min": -17.845309499921594,
+    "dg_err": 0.19,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00612_c1",
+    "msid": "rxn00612",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sn-Glycerol-3-phosphate:NADP+ 2-oxidoreductase",
+    "against_db": false,
+    "dg0": 6.1,
+    "dg_min": -5.635309499921595,
+    "dg_err": 0.21,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00747_c6",
+    "msid": "rxn00747",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.16589861751152074,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-glyceraldehyde-3-phosphate aldose-ketose-isomerase",
+    "against_db": false,
+    "dg0": 1.45,
+    "dg_min": -4.417654749960797,
+    "dg_err": 0.15,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00770_c6",
+    "msid": "rxn00770",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:D-ribose-5-phosphate diphosphotransferase",
+    "against_db": false,
+    "dg0": 0.03,
+    "dg_min": -11.705309499921595,
+    "dg_err": 0.38,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00777_c6",
+    "msid": "rxn00777",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.16589861751152074,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-ribose-5-phosphate aldose-ketose-isomerase",
+    "against_db": false,
+    "dg0": 0.51,
+    "dg_min": -5.357654749960798,
+    "dg_err": 0.2,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00781_c6",
+    "msid": "rxn00781",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "<",
+    "name": "D-glyceraldehyde-3-phosphate:NAD+ oxidoreductase (phosphorylating)",
+    "against_db": true,
+    "dg0": 1.13,
+    "dg_min": -8.287499713420868,
+    "dg_err": 0.1,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00785_c6",
+    "msid": "rxn00785",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-Fructose 6-phosphate:D-glyceraldehyde-3-phosphate glycolaldehyde transferase",
+    "against_db": false,
+    "dg0": -2.4,
+    "dg_min": -14.135309499921595,
+    "dg_err": 0.5,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn00786_c6",
+    "msid": "rxn00786",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-fructose-1,6-bisphosphate D-glyceraldehyde-3-phosphate-lyase (glycerone-phosphate-forming)",
+    "against_db": false,
+    "dg0": 5.48,
+    "dg_min": -8.573119286422322,
+    "dg_err": 0.14,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01100_c6",
+    "msid": "rxn01100",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "ATP:3-phospho-D-glycerate 1-phosphotransferase",
+    "against_db": false,
+    "dg0": -4.58,
+    "dg_min": -16.315309499921597,
+    "dg_err": 0.11,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01106_c6",
+    "msid": "rxn01106",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-Phospho-D-glycerate 2,3-phosphomutase",
+    "against_db": false,
+    "dg0": -1.14,
+    "dg_min": -7.007654749960797,
+    "dg_err": 0.09,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01116_c6",
+    "msid": "rxn01116",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.16589861751152074,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "D-Ribulose-5-phosphate 3-epimerase",
+    "against_db": false,
+    "dg0": -0.78,
+    "dg_min": -6.647654749960798,
+    "dg_err": 0.3,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01200_c6",
+    "msid": "rxn01200",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Sedoheptulose-7-phosphate:D-glyceraldehyde-3-phosphate glycolaldehyde transferase",
+    "against_db": false,
+    "dg0": -0.89,
+    "dg_min": -12.625309499921595,
+    "dg_err": 0.5,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01334_c6",
+    "msid": "rxn01334",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Sedoheptulose 1,7-bisphosphate D-glyceraldehyde-3-phosphate-lyase",
+    "against_db": false,
+    "dg0": 3.9,
+    "dg_min": -10.153119286422323,
+    "dg_err": 0.74,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn01343_c6",
+    "msid": "rxn01343",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576037,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:Sedoheptulose 7-phosphate 1-phosphotransferase",
+    "against_db": false,
+    "dg0": -1.82,
+    "dg_min": -13.555309499921595,
+    "dg_err": 0.76,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn02480_c3",
+    "msid": "rxn02480",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "5,10-Methenyltetrahydromethanopterin 10-hydrolase (decyclizing)",
+    "against_db": false,
+    "dg0": -3.99,
+    "dg_min": -9.857654749960798,
+    "dg_err": 2.33,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03020_c4",
+    "msid": "rxn03020",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "5-Methyl-5,6,7,8-tetrahydromethanopterin:2-mercaptoethanesulfonate 2-methyltransferas",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03085_c3",
+    "msid": "rxn03085",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "5,10-Methylenetetrahydromethanopterin:coenzyme-F420 oxidoreductase",
+    "against_db": false,
+    "dg0": -0.34,
+    "dg_min": -12.075309499921595,
+    "dg_err": 1.96,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03126_c4",
+    "msid": "rxn03126",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Coenzyme B:coenzyme M:methanophenazine oxidoreductase",
+    "against_db": false,
+    "dg0": 8.12,
+    "dg_min": -1.2974997134208675,
+    "dg_err": 2.02,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03127_c3",
+    "msid": "rxn03127",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-(Methylthio)ethanesulfonate:N-(7-thioheptanoyl)-3-O-phosphothreonine S-(2-sulfoethyl)thiotransferase",
+    "against_db": false,
+    "dg0": -6.2,
+    "dg_min": -17.935309499921594,
+    "dg_err": 1.05,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn03127_c4",
+    "msid": "rxn03127",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "2-(Methylthio)ethanesulfonate:N-(7-thioheptanoyl)-3-O-phosphothreonine S-(2-sulfoethyl)thiotransferase",
+    "against_db": false,
+    "dg0": 6.2,
+    "dg_min": -5.535309499921595,
+    "dg_err": 1.05,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn04651_c6",
+    "msid": "rxn04651",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.24884792626728106,
+    "bounds": [
+     0.0,
+     100.0
+    ],
+    "db_reversibility": "=",
+    "name": "ATP:ribose-1,5-bisphosphate phosphotransferase",
+    "against_db": false,
+    "dg0": 2.04,
+    "dg_min": -9.695309499921596,
+    "dg_err": 0.68,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn05209_c4",
+    "msid": "rxn05209",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.018433179723502308,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "TRANS-RXNBWI-115525.ce.maizeexp.NA+_NA+",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05239_c1",
+    "msid": "rxn05239",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "adenosine 3',5'-bisphosphate,sulfite:oxidized-thioredoxin oxidoreductase (3'-phosphoadenosine-5'-phosphosulfate -forming)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05289_c1",
+    "msid": "rxn05289",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "NADPH:oxidized-thioredoxin oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c4",
+    "msid": "rxn05319",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c5",
+    "msid": "rxn05319",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.09216589861751186,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c6",
+    "msid": "rxn05319",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.1658986175115206,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05319_c8",
+    "msid": "rxn05319",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.03686635944700417,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c3",
+    "msid": "rxn05467",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c4",
+    "msid": "rxn05467",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.018433179723502308,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c6",
+    "msid": "rxn05467",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05467_c7",
+    "msid": "rxn05467",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": 0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "CO2 transporter via diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c4",
+    "msid": "rxn05469",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c5",
+    "msid": "rxn05469",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.04608294930875617,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c6",
+    "msid": "rxn05469",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c7",
+    "msid": "rxn05469",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": -0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05469_c8",
+    "msid": "rxn05469",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "pyruvate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c1",
+    "msid": "rxn05488",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c3",
+    "msid": "rxn05488",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c5",
+    "msid": "rxn05488",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.1474654377880187,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05488_c6",
+    "msid": "rxn05488",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetate reversible transport via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05559_c5",
+    "msid": "rxn05559",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": 0.009216589861750682,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "formate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05559_c8",
+    "msid": "rxn05559",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "formate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05651_c1",
+    "msid": "rxn05651",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05651_c8",
+    "msid": "rxn05651",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfate transport in via proton symport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05759_c4",
+    "msid": "rxn05759",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.018433179723502308,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "hydrogen:ferredoxin oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn05759_c8",
+    "msid": "rxn05759",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "hydrogen:ferredoxin oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn06299_c3",
+    "msid": "rxn06299",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Hydrogen:Coenzyme F420 oxidoreductase",
+    "against_db": false,
+    "dg0": -10.2,
+    "dg_min": -13.74984496346007,
+    "dg_err": 2.64,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn06696_c3",
+    "msid": "rxn06696",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "hydrogen:N5,N10-methenyltetraydromethanopterin oxidoreductase",
+    "against_db": false,
+    "dg0": -10.93,
+    "dg_min": -14.47984496346007,
+    "dg_err": 1.2,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c1",
+    "msid": "rxn08032",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": -0.14746543778801827,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c5",
+    "msid": "rxn08032",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.0921658986175114,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c6",
+    "msid": "rxn08032",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": 0.4147465437788018,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08032_c7",
+    "msid": "rxn08032",
+    "member_index": 7,
+    "member": "Sedimentibacter.8",
+    "flux": -0.17511520737327216,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08062_c4",
+    "msid": "rxn08062",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.09216589861751145,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Na+/Acetate symport (periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08173_c1",
+    "msid": "rxn08173",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.2073732718894007,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "F(1)-ATPase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08173_c4",
+    "msid": "rxn08173",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050689,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "F(1)-ATPase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08173_c8",
+    "msid": "rxn08173",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "F(1)-ATPase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08428_c5",
+    "msid": "rxn08428",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ethanol transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08428_c8",
+    "msid": "rxn08428",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.009216589861751142,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "ethanol transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08689_c1",
+    "msid": "rxn08689",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "h2s transport (periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08689_c3",
+    "msid": "rxn08689",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "h2s transport (periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08691_c3",
+    "msid": "rxn08691",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08691_c4",
+    "msid": "rxn08691",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn08691_c8",
+    "msid": "rxn08691",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09176_c6",
+    "msid": "rxn09176",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.08294930875576029,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "polyphosphate kinase",
+    "against_db": false,
+    "dg0": 2.26,
+    "dg_min": -9.475309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09176_c8",
+    "msid": "rxn09176",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "polyphosphate kinase",
+    "against_db": false,
+    "dg0": -2.26,
+    "dg_min": -13.995309499921595,
+    "dg_err": 0.08,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09260_c3",
+    "msid": "rxn09260",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfite transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn09260_c8",
+    "msid": "rxn09260",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "sulfite transport via diffusion (extracellular to periplasm)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10122_c1",
+    "msid": "rxn10122",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.1105990783410137,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": ">",
+    "name": "NADH dehydrogenase (ubiquinone-8 & 3.5 protons)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10471_c3",
+    "msid": "rxn10471",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methane Transport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10471_c4",
+    "msid": "rxn10471",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": 0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methane Transport",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10570_c3",
+    "msid": "rxn10570",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methanol diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10570_c5",
+    "msid": "rxn10570",
+    "member_index": 5,
+    "member": "Ochrobactrum.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "Methanol diffusion",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn10594_c6",
+    "msid": "rxn10594",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.24884792626728106,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": "=",
+    "name": "ribose 1,5-bisphosphate isomerase",
+    "against_db": false,
+    "dg0": 2.54,
+    "dg_min": -3.3276547499607974,
+    "dg_err": 0.3,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn13143_c6",
+    "msid": "rxn13143",
+    "member_index": 6,
+    "member": "Petrimonas.1",
+    "flux": -0.4147465437788018,
+    "bounds": [
+     -100.0,
+     0.0
+    ],
+    "db_reversibility": ">",
+    "name": "Threonine dehydrogenase",
+    "against_db": true,
+    "dg0": 8.49,
+    "dg_min": -0.9274997134208665,
+    "dg_err": 0.62,
+    "dg_source": "eQuilibrator",
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn13689_c1",
+    "msid": "rxn13689",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.1105990783410137,
+    "bounds": [
+     0.0,
+     100.0
+    ],
+    "db_reversibility": "?",
+    "name": "cytochrome-c reductase (ubiquinol8: 4 protons translocated)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn13974_c4",
+    "msid": "rxn13974",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.036866359447004574,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "pyruvate:ferredoxin 2-oxidoreductase (CoA-acetylating)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn14427_c8",
+    "msid": "rxn14427",
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Nitrate reductase cytochrome-c type (2 protons translocated)",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn15961_c4",
+    "msid": "rxn15961",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "=",
+    "name": "hydrogen:2-(2,3-dihydropentaprenyloxy)phenazine oxidoreductase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn15962_c3",
+    "msid": "rxn15962",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "carbon monoxide dehydrogenase/acetyl-CoA synthase (CODH/ACS)",
+    "against_db": false,
+    "dg0": -18.11,
+    "dg_min": -27.527499713420866,
+    "dg_err": 15.03,
+    "dg_source": "dGPredictor",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn15962_c4",
+    "msid": "rxn15962",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "carbon monoxide dehydrogenase/acetyl-CoA synthase (CODH/ACS)",
+    "against_db": false,
+    "dg0": -18.11,
+    "dg_min": -27.527499713420866,
+    "dg_err": 15.03,
+    "dg_source": "dGPredictor",
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn17445_c3",
+    "msid": "rxn17445",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.027649769585253427,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "formylmethanofuran-tetrahydromethanopterin formyltransferase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn24606_c3",
+    "msid": "rxn24606",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     0.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "methanol-corrinoid protein Co-methyltransferase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn24607_c3",
+    "msid": "rxn24607",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "[methyl-Co(III) methanol-specific corrinoid protein]:coenzyme M methyltransferase",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn40505_c3",
+    "msid": "rxn40505",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn40505_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn40505_c4",
+    "msid": "rxn40505",
+    "member_index": 4,
+    "member": "Methanosarcina.1",
+    "flux": -0.05529953917050688,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn40505_c4",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn42669_c3",
+    "msid": "rxn42669",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn42669_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn43076_c3",
+    "msid": "rxn43076",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.05529953917050685,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn43076_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn46184_c3",
+    "msid": "rxn46184",
+    "member_index": 3,
+    "member": "Methanobacterium.1",
+    "flux": -0.027649769585253427,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "rxn46184_c3",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "rxn48579_c1",
+    "msid": "rxn48579",
+    "member_index": 1,
+    "member": "Desulfosporosinus.1",
+    "flux": 0.03686635944700457,
+    "bounds": [
+     -1000.0,
+     1000.0
+    ],
+    "db_reversibility": "?",
+    "name": "Sulfite reductase, cytochrome c3 type ",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   },
+   {
+    "reaction": "sul00002_c8",
+    "msid": null,
+    "member_index": 8,
+    "member": "Terrisporobacter.1",
+    "flux": -0.018433179723502283,
+    "bounds": [
+     -1000.0,
+     0.0
+    ],
+    "db_reversibility": null,
+    "name": "sul00002_c8",
+    "against_db": false,
+    "dg0": null,
+    "dg_min": null,
+    "dg_err": null,
+    "dg_source": null,
+    "infeasible": false,
+    "gapfilled": false
+   }
+  ],
+  "cross_fed": {
+   "cpd00067_e0": {
+    "Methanosarcina.1": 0.055299539,
+    "Ochrobactrum.1": 0.092165899,
+    "Petrimonas.1": -0.497695853,
+    "Sedimentibacter.8": 0.175115207,
+    "Terrisporobacter.1": 0.036866359,
+    "Desulfosporosinus.1": 0.110599078,
+    "Methanobacterium.1": 0.02764977
+   },
+   "cpd00001_e0": {
+    "Methanosarcina.1": -0.036866359,
+    "Ochrobactrum.1": -0.092165899,
+    "Petrimonas.1": 0.165898618,
+    "Terrisporobacter.1": -0.036866359
+   },
+   "cpd00011_e0": {
+    "Methanobacterium.1": -0.055299539,
+    "Methanosarcina.1": -0.01843318,
+    "Petrimonas.1": 0.248847926,
+    "Sedimentibacter.8": -0.175115207
+   },
+   "cpd00020_e0": {
+    "Methanosarcina.1": -0.036866359,
+    "Ochrobactrum.1": -0.046082949,
+    "Petrimonas.1": -0.082949309,
+    "Sedimentibacter.8": 0.175115207,
+    "Terrisporobacter.1": -0.00921659
+   },
+   "cpd00029_e0": {
+    "Desulfosporosinus.1": 0.147465438,
+    "Methanobacterium.1": 0.02764977,
+    "Ochrobactrum.1": 0.147465438,
+    "Petrimonas.1": -0.414746544,
+    "Methanosarcina.1": 0.092165899
+   },
+   "cpd00047_e0": {
+    "Ochrobactrum.1": -0.00921659,
+    "Terrisporobacter.1": 0.00921659
+   },
+   "cpd00048_e0": {
+    "Desulfosporosinus.1": -0.036866359,
+    "Terrisporobacter.1": 0.036866359
+   },
+   "cpd00071_e0": {
+    "Desulfosporosinus.1": -0.147465438,
+    "Ochrobactrum.1": -0.092165899,
+    "Petrimonas.1": 0.414746544,
+    "Sedimentibacter.8": -0.175115207
+   },
+   "cpd00363_e0": {
+    "Ochrobactrum.1": -0.00921659,
+    "Terrisporobacter.1": 0.00921659
+   },
+   "cpd00239_e0": {
+    "Desulfosporosinus.1": 0.036866359,
+    "Methanobacterium.1": -0.036866359
+   },
+   "cpd11640_e0": {
+    "Methanobacterium.1": -0.055299539,
+    "Methanosarcina.1": 0.036866359,
+    "Terrisporobacter.1": 0.01843318
+   },
+   "cpd00081_e0": {
+    "Methanobacterium.1": 0.036866359,
+    "Terrisporobacter.1": -0.036866359
+   },
+   "cpd01024_e0": {
+    "Methanobacterium.1": 0.055299539,
+    "Methanosarcina.1": -0.055299539
+   },
+   "cpd00116_e0": {
+    "Methanobacterium.1": -0.055299539,
+    "Ochrobactrum.1": 0.055299539
+   }
+  },
+  "members": [
+   "Desulfosporosinus.1",
+   "Methanobacterium.1",
+   "Methanosarcina.1",
+   "Ochrobactrum.1",
+   "Petrimonas.1",
+   "Sedimentibacter.8",
+   "Terrisporobacter.1"
+  ]
+ },
+ "cut": {
+  "rules_applied": [],
+  "rounds": [
+   {
+    "round": 0,
+    "atp_from_nothing": 4257.400793650795,
+    "atp_members": 8,
+    "cycle_reactions": 112,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": [
+     "rxn00359_c1",
+     "rxn00359_c7",
+     "rxn00359_c8"
+    ]
+   },
+   {
+    "round": 1,
+    "atp_from_nothing": 4170.138888888903,
+    "atp_members": 8,
+    "cycle_reactions": 114,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ],
+    "cuts": []
+   },
+   {
+    "round": 2,
+    "atp_from_nothing": 4170.138888888888,
+    "atp_members": 9,
+    "cycle_reactions": 114,
+    "cycle_members": [
+     "Desulfosporosinus.1",
+     "Erysipelothrix.1",
+     "Methanobacterium.1",
+     "Methanosarcina.1",
+     "Ochrobactrum.1",
+     "Sedimentibacter.8",
+     "Terrisporobacter.1"
+    ]
+   }
+  ],
+  "cuts": [
+   {
+    "reaction": "rxn00359_c1",
+    "msid": "rxn00359",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 1,
+    "found_in": "rxn00359_c1",
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00359_c7",
+    "msid": "rxn00359",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 7,
+    "found_in": "rxn00359_c1",
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "gapfilled": true
+   },
+   {
+    "reaction": "rxn00359_c8",
+    "msid": "rxn00359",
+    "direction": "<",
+    "old_bounds": [
+     -100.0,
+     0.0
+    ],
+    "member_index": 8,
+    "found_in": "rxn00359_c1",
+    "dg0": 20.61,
+    "dg_min": 17.06015503653993,
+    "gapfilled": true
+   }
+  ],
+  "kept_open": [
+   {
+    "reaction": "rxn00571_c8",
+    "msid": "rxn00571",
+    "member": "Terrisporobacter.1",
+    "flux": 0.018433179723502283,
+    "dg_min": 23.084690500078406
+   },
+   {
+    "reaction": "rxn00288_c1",
+    "msid": "rxn00288",
+    "member": "Desulfosporosinus.1",
+    "flux": 0.038277511961722493,
+    "dg_min": 8.534690500078405
+   }
+  ],
+  "status": "protected",
+  "remaining_cycle": {
+   "status": "cycle",
+   "reactions": [
+    {
+     "reaction": "rxn00018_c2",
+     "msid": "rxn00018",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.2583732057416267,
+     "bounds": [
+      -100.0,
+      0.0
+     ],
+     "db_reversibility": "=",
+     "name": "3-phospho-D-glycerate carboxy-lyase (dimerizing; D-ribulose-1,5-bisphosphate-forming)",
+     "against_db": false,
+     "dg0": 5.01,
+     "dg_min": -6.725309499921595,
+     "dg_err": 1.0,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn00097_c1",
+     "msid": "rxn00097",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.03827751196172226,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ATP:AMP phosphotransferase",
+     "against_db": false,
+     "dg0": -0.04,
+     "dg_min": -11.775309499921594,
+     "dg_err": 0.04,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00097_c2",
+     "msid": "rxn00097",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.17224880382775132,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ATP:AMP phosphotransferase",
+     "against_db": false,
+     "dg0": 0.04,
+     "dg_min": -11.695309499921596,
+     "dg_err": 0.04,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00097_c8",
+     "msid": "rxn00097",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.03827751196172226,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ATP:AMP phosphotransferase",
+     "against_db": false,
+     "dg0": 0.04,
+     "dg_min": -11.695309499921596,
+     "dg_err": 0.04,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00151_c2",
+     "msid": "rxn00151",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.08612440191387548,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "ATP:pyruvate,phosphate phosphotransferase",
+     "against_db": false,
+     "dg0": 4.25,
+     "dg_min": -13.352964249882394,
+     "dg_err": 0.13,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00154_c7",
+     "msid": "rxn00154",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": -0.1818181818181817,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "pyruvate:NAD+ 2-oxidoreductase (CoA-acetylating)",
+     "against_db": false,
+     "dg0": 8.93,
+     "dg_min": -8.672964249882394,
+     "dg_err": 0.85,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00157_c5",
+     "msid": "rxn00157",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "?",
+     "name": "Acetyl-CoA:formate C-acetyltransferase",
+     "against_db": false,
+     "dg0": -4.38,
+     "dg_min": -16.115309499921594,
+     "dg_err": 0.39,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00171_c1",
+     "msid": "rxn00171",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.15311004784688997,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+     "against_db": false,
+     "dg0": -3.95,
+     "dg_min": -13.36749971342087,
+     "dg_err": 0.32,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00171_c5",
+     "msid": "rxn00171",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": 0.09569377990430625,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+     "against_db": false,
+     "dg0": -3.95,
+     "dg_min": -13.36749971342087,
+     "dg_err": 0.32,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00171_c7",
+     "msid": "rxn00171",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": 0.18181818181818174,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde:NAD+ oxidoreductase (CoA-acetylating)",
+     "against_db": false,
+     "dg0": -3.95,
+     "dg_min": -13.36749971342087,
+     "dg_err": 0.32,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00172_c1",
+     "msid": "rxn00172",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": -0.15311004784688997,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "=",
+     "name": "Acetate:CoA ligase (ADP-forming)",
+     "against_db": false,
+     "dg0": -0.86,
+     "dg_min": -18.462964249882393,
+     "dg_err": 0.1,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00172_c3",
+     "msid": "rxn00172",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "=",
+     "name": "Acetate:CoA ligase (ADP-forming)",
+     "against_db": false,
+     "dg0": -0.86,
+     "dg_min": -18.462964249882393,
+     "dg_err": 0.1,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00172_c4",
+     "msid": "rxn00172",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.09569377990430611,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "=",
+     "name": "Acetate:CoA ligase (ADP-forming)",
+     "against_db": false,
+     "dg0": -0.86,
+     "dg_min": -18.462964249882393,
+     "dg_err": 0.1,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00172_c5",
+     "msid": "rxn00172",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.15311004784689,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "=",
+     "name": "Acetate:CoA ligase (ADP-forming)",
+     "against_db": false,
+     "dg0": -0.86,
+     "dg_min": -18.462964249882393,
+     "dg_err": 0.1,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00288_c1",
+     "msid": "rxn00288",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "<",
+     "name": "Succinate:(acceptor) oxidoreductase",
+     "against_db": true,
+     "dg0": 20.27,
+     "dg_min": 8.534690500078405,
+     "dg_err": 1.87,
+     "dg_source": "eQuilibrator",
+     "infeasible": true,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00379_c1",
+     "msid": "rxn00379",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "<",
+     "name": "ATP:sulfate adenylyltransferase",
+     "against_db": true,
+     "dg0": 11.03,
+     "dg_min": -0.7053094999215954,
+     "dg_err": 0.3,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00379_c8",
+     "msid": "rxn00379",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "<",
+     "name": "ATP:sulfate adenylyltransferase",
+     "against_db": false,
+     "dg0": -11.03,
+     "dg_min": -22.765309499921592,
+     "dg_err": 0.3,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00429_c5",
+     "msid": "rxn00429",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": ">",
+     "name": "Formaldehyde:NAD+ oxidoreductase",
+     "against_db": true,
+     "dg0": 11.11,
+     "dg_min": -0.6253094999215953,
+     "dg_err": 0.5,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00430_c5",
+     "msid": "rxn00430",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.05741626794258374,
+     "bounds": [
+      -100.0,
+      0.0
+     ],
+     "db_reversibility": "=",
+     "name": "methanol:NAD+ oxidoreductase",
+     "against_db": false,
+     "dg0": -7.79,
+     "dg_min": -19.525309499921594,
+     "dg_err": 0.85,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn00459_c2",
+     "msid": "rxn00459",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.08612440191387548,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "2-phospho-D-glycerate hydro-lyase (phosphoenolpyruvate-forming)",
+     "against_db": false,
+     "dg0": 0.87,
+     "dg_min": -4.997654749960797,
+     "dg_err": 0.08,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00541_c2",
+     "msid": "rxn00541",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.43062200956937796,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "L-threonine acetaldehyde-lyase (glycine-forming)",
+     "against_db": false,
+     "dg0": 2.62,
+     "dg_min": -11.433119286422322,
+     "dg_err": 0.58,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00543_c5",
+     "msid": "rxn00543",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": 0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "ethanol:NAD+ oxidoreductase",
+     "against_db": false,
+     "dg0": 5.05,
+     "dg_min": -6.685309499921595,
+     "dg_err": 0.08,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00543_c8",
+     "msid": "rxn00543",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "ethanol:NAD+ oxidoreductase",
+     "against_db": false,
+     "dg0": -5.05,
+     "dg_min": -16.785309499921595,
+     "dg_err": 0.08,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00545_c2",
+     "msid": "rxn00545",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.08612440191387559,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "ATP:D-fructose-6-phosphate 1-phosphotransferase",
+     "against_db": false,
+     "dg0": -3.21,
+     "dg_min": -14.945309499921596,
+     "dg_err": 0.18,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00571_c8",
+     "msid": "rxn00571",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.019138755980861247,
+     "bounds": [
+      0.0,
+      100.0
+     ],
+     "db_reversibility": "<",
+     "name": "nitrite:NAD+ oxidoreductase",
+     "against_db": true,
+     "dg0": 34.82,
+     "dg_min": 23.084690500078406,
+     "dg_err": 1.09,
+     "dg_source": "eQuilibrator",
+     "infeasible": true,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn00747_c2",
+     "msid": "rxn00747",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.17224880382775115,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "D-glyceraldehyde-3-phosphate aldose-ketose-isomerase",
+     "against_db": false,
+     "dg0": 1.45,
+     "dg_min": -4.417654749960797,
+     "dg_err": 0.15,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00770_c2",
+     "msid": "rxn00770",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.2583732057416267,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "ATP:D-ribose-5-phosphate diphosphotransferase",
+     "against_db": false,
+     "dg0": 0.03,
+     "dg_min": -11.705309499921595,
+     "dg_err": 0.38,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00777_c2",
+     "msid": "rxn00777",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.17224880382775118,
+     "bounds": [
+      0.0,
+      100.0
+     ],
+     "db_reversibility": "=",
+     "name": "D-ribose-5-phosphate aldose-ketose-isomerase",
+     "against_db": false,
+     "dg0": 0.51,
+     "dg_min": -5.357654749960798,
+     "dg_err": 0.2,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn00781_c2",
+     "msid": "rxn00781",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.43062200956937796,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "<",
+     "name": "D-glyceraldehyde-3-phosphate:NAD+ oxidoreductase (phosphorylating)",
+     "against_db": true,
+     "dg0": 1.13,
+     "dg_min": -8.287499713420868,
+     "dg_err": 0.1,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00785_c2",
+     "msid": "rxn00785",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.08612440191387559,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "D-Fructose 6-phosphate:D-glyceraldehyde-3-phosphate glycolaldehyde transferase",
+     "against_db": false,
+     "dg0": -2.4,
+     "dg_min": -14.135309499921595,
+     "dg_err": 0.5,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn00786_c2",
+     "msid": "rxn00786",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.08612440191387558,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "D-fructose-1,6-bisphosphate D-glyceraldehyde-3-phosphate-lyase (glycerone-phosphate-forming)",
+     "against_db": false,
+     "dg0": 5.48,
+     "dg_min": -8.573119286422322,
+     "dg_err": 0.14,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01100_c2",
+     "msid": "rxn01100",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.43062200956937796,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "ATP:3-phospho-D-glycerate 1-phosphotransferase",
+     "against_db": false,
+     "dg0": -4.58,
+     "dg_min": -16.315309499921597,
+     "dg_err": 0.11,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01106_c2",
+     "msid": "rxn01106",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.08612440191387548,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "2-Phospho-D-glycerate 2,3-phosphomutase",
+     "against_db": false,
+     "dg0": -1.14,
+     "dg_min": -7.007654749960797,
+     "dg_err": 0.09,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01116_c2",
+     "msid": "rxn01116",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.17224880382775118,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "D-Ribulose-5-phosphate 3-epimerase",
+     "against_db": false,
+     "dg0": -0.78,
+     "dg_min": -6.647654749960798,
+     "dg_err": 0.3,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01200_c2",
+     "msid": "rxn01200",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.08612440191387559,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "Sedoheptulose-7-phosphate:D-glyceraldehyde-3-phosphate glycolaldehyde transferase",
+     "against_db": false,
+     "dg0": -0.89,
+     "dg_min": -12.625309499921595,
+     "dg_err": 0.5,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01334_c2",
+     "msid": "rxn01334",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.08612440191387559,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "Sedoheptulose 1,7-bisphosphate D-glyceraldehyde-3-phosphate-lyase",
+     "against_db": false,
+     "dg0": 3.9,
+     "dg_min": -10.153119286422323,
+     "dg_err": 0.74,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn01343_c2",
+     "msid": "rxn01343",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.08612440191387559,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ATP:Sedoheptulose 7-phosphate 1-phosphotransferase",
+     "against_db": false,
+     "dg0": -1.82,
+     "dg_min": -13.555309499921595,
+     "dg_err": 0.76,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn02480_c3",
+     "msid": "rxn02480",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "5,10-Methenyltetrahydromethanopterin 10-hydrolase (decyclizing)",
+     "against_db": false,
+     "dg0": -3.99,
+     "dg_min": -9.857654749960798,
+     "dg_err": 2.33,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn03020_c4",
+     "msid": "rxn03020",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "5-Methyl-5,6,7,8-tetrahydromethanopterin:2-mercaptoethanesulfonate 2-methyltransferas",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn03085_c3",
+     "msid": "rxn03085",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "5,10-Methylenetetrahydromethanopterin:coenzyme-F420 oxidoreductase",
+     "against_db": false,
+     "dg0": -0.34,
+     "dg_min": -12.075309499921595,
+     "dg_err": 1.96,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn03126_c4",
+     "msid": "rxn03126",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "Coenzyme B:coenzyme M:methanophenazine oxidoreductase",
+     "against_db": false,
+     "dg0": 8.12,
+     "dg_min": -1.2974997134208675,
+     "dg_err": 2.02,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn03127_c3",
+     "msid": "rxn03127",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "2-(Methylthio)ethanesulfonate:N-(7-thioheptanoyl)-3-O-phosphothreonine S-(2-sulfoethyl)thiotransferase",
+     "against_db": false,
+     "dg0": -6.2,
+     "dg_min": -17.935309499921594,
+     "dg_err": 1.05,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn03127_c4",
+     "msid": "rxn03127",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "2-(Methylthio)ethanesulfonate:N-(7-thioheptanoyl)-3-O-phosphothreonine S-(2-sulfoethyl)thiotransferase",
+     "against_db": false,
+     "dg0": 6.2,
+     "dg_min": -5.535309499921595,
+     "dg_err": 1.05,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn04651_c2",
+     "msid": "rxn04651",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.2583732057416267,
+     "bounds": [
+      0.0,
+      100.0
+     ],
+     "db_reversibility": "=",
+     "name": "ATP:ribose-1,5-bisphosphate phosphotransferase",
+     "against_db": false,
+     "dg0": 2.04,
+     "dg_min": -9.695309499921596,
+     "dg_err": 0.68,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn05209_c4",
+     "msid": "rxn05209",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.019138755980861122,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "TRANS-RXNBWI-115525.ce.maizeexp.NA+_NA+",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05319_c2",
+     "msid": "rxn05319",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.1722488038277511,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05319_c4",
+     "msid": "rxn05319",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05319_c5",
+     "msid": "rxn05319",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": 0.09569377990430626,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05319_c8",
+     "msid": "rxn05319",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.03827751196172202,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "TRANS-RXNBWI-115401.ce.maizeexp.OH_OH",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05467_c2",
+     "msid": "rxn05467",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.2583732057416267,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "CO2 transporter via diffusion",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05467_c3",
+     "msid": "rxn05467",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "CO2 transporter via diffusion",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05467_c4",
+     "msid": "rxn05467",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": 0.019138755980861122,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "CO2 transporter via diffusion",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05467_c7",
+     "msid": "rxn05467",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": 0.1818181818181817,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "CO2 transporter via diffusion",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05469_c2",
+     "msid": "rxn05469",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.08612440191387548,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "pyruvate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05469_c4",
+     "msid": "rxn05469",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "pyruvate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05469_c5",
+     "msid": "rxn05469",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": 0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "pyruvate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05469_c7",
+     "msid": "rxn05469",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": -0.1818181818181817,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "pyruvate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05488_c1",
+     "msid": "rxn05488",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": -0.15311004784688997,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05488_c2",
+     "msid": "rxn05488",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.43062200956937796,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05488_c3",
+     "msid": "rxn05488",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05488_c5",
+     "msid": "rxn05488",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.15311004784689,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetate reversible transport via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05651_c1",
+     "msid": "rxn05651",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfate transport in via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05651_c8",
+     "msid": "rxn05651",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfate transport in via proton symport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05759_c4",
+     "msid": "rxn05759",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.019138755980861122,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "hydrogen:ferredoxin oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn05759_c8",
+     "msid": "rxn05759",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "hydrogen:ferredoxin oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn06299_c3",
+     "msid": "rxn06299",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "Hydrogen:Coenzyme F420 oxidoreductase",
+     "against_db": false,
+     "dg0": -10.2,
+     "dg_min": -13.74984496346007,
+     "dg_err": 2.64,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn06696_c3",
+     "msid": "rxn06696",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.02870813397129187,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "hydrogen:N5,N10-methenyltetraydromethanopterin oxidoreductase",
+     "against_db": false,
+     "dg0": -10.93,
+     "dg_min": -14.47984496346007,
+     "dg_err": 1.2,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08032_c1",
+     "msid": "rxn08032",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": -0.15311004784688997,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08032_c2",
+     "msid": "rxn08032",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": 0.43062200956937796,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08032_c5",
+     "msid": "rxn08032",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.076555023923445,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08032_c7",
+     "msid": "rxn08032",
+     "member_index": 7,
+     "member": "Sedimentibacter.8",
+     "flux": -0.18181818181818174,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08032_c8",
+     "msid": "rxn08032",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "acetaldehyde transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08062_c4",
+     "msid": "rxn08062",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.09569377990430611,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "Na+/Acetate symport (periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08173_c1",
+     "msid": "rxn08173",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.21531100478468915,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "F(1)-ATPase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08173_c4",
+     "msid": "rxn08173",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "F(1)-ATPase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08173_c8",
+     "msid": "rxn08173",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.019138755980861424,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "F(1)-ATPase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08428_c5",
+     "msid": "rxn08428",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ethanol transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08428_c8",
+     "msid": "rxn08428",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "ethanol transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08527_c1",
+     "msid": "rxn08527",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": ">",
+     "name": "fumarate reductase",
+     "against_db": false,
+     "dg0": -14.66,
+     "dg_min": -26.395309499921595,
+     "dg_err": 1.3,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08689_c1",
+     "msid": "rxn08689",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "h2s transport (periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08689_c3",
+     "msid": "rxn08689",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "h2s transport (periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08691_c3",
+     "msid": "rxn08691",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08691_c4",
+     "msid": "rxn08691",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08691_c8",
+     "msid": "rxn08691",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "hydrogen transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn08971_c1",
+     "msid": "rxn08971",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "NADH dehydrogenase (menaquinone-8 & 0 protons)",
+     "against_db": false,
+     "dg0": -0.65,
+     "dg_min": -12.385309499921595,
+     "dg_err": 1.2,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09176_c1",
+     "msid": "rxn09176",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": -0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "polyphosphate kinase",
+     "against_db": false,
+     "dg0": 2.26,
+     "dg_min": -9.475309499921595,
+     "dg_err": 0.08,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09176_c2",
+     "msid": "rxn09176",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.08612440191387548,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "polyphosphate kinase",
+     "against_db": false,
+     "dg0": 2.26,
+     "dg_min": -9.475309499921595,
+     "dg_err": 0.08,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09176_c8",
+     "msid": "rxn09176",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "polyphosphate kinase",
+     "against_db": false,
+     "dg0": -2.26,
+     "dg_min": -13.995309499921595,
+     "dg_err": 0.08,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09260_c3",
+     "msid": "rxn09260",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfite transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn09260_c8",
+     "msid": "rxn09260",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "sulfite transport via diffusion (extracellular to periplasm)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn10122_c1",
+     "msid": "rxn10122",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.11483253588516748,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": ">",
+     "name": "NADH dehydrogenase (ubiquinone-8 & 3.5 protons)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn10471_c3",
+     "msid": "rxn10471",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "Methane Transport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn10471_c4",
+     "msid": "rxn10471",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": 0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "Methane Transport",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn10570_c3",
+     "msid": "rxn10570",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "Methanol diffusion",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn10570_c5",
+     "msid": "rxn10570",
+     "member_index": 5,
+     "member": "Ochrobactrum.1",
+     "flux": -0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "Methanol diffusion",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn10594_c2",
+     "msid": "rxn10594",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.2583732057416267,
+     "bounds": [
+      -100.0,
+      0.0
+     ],
+     "db_reversibility": "=",
+     "name": "ribose 1,5-bisphosphate isomerase",
+     "against_db": false,
+     "dg0": 2.54,
+     "dg_min": -3.3276547499607974,
+     "dg_err": 0.3,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn11934_c1",
+     "msid": "rxn11934",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": -0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "<",
+     "name": "AMP,sulfite:acceptor oxidoreductase (adenosine-5'-phosphosulfate-forming)",
+     "against_db": false,
+     "dg0": -15.2,
+     "dg_min": -35.120774036383125,
+     "dg_err": 2.04,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn13143_c2",
+     "msid": "rxn13143",
+     "member_index": 2,
+     "member": "Erysipelothrix.1",
+     "flux": -0.43062200956937796,
+     "bounds": [
+      -100.0,
+      0.0
+     ],
+     "db_reversibility": ">",
+     "name": "Threonine dehydrogenase",
+     "against_db": true,
+     "dg0": 8.49,
+     "dg_min": -0.9274997134208665,
+     "dg_err": 0.62,
+     "dg_source": "eQuilibrator",
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn13689_c1",
+     "msid": "rxn13689",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.11483253588516748,
+     "bounds": [
+      0.0,
+      100.0
+     ],
+     "db_reversibility": "?",
+     "name": "cytochrome-c reductase (ubiquinol8: 4 protons translocated)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": true
+    },
+    {
+     "reaction": "rxn13974_c4",
+     "msid": "rxn13974",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "?",
+     "name": "pyruvate:ferredoxin 2-oxidoreductase (CoA-acetylating)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn14427_c8",
+     "msid": "rxn14427",
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": 0.019138755980861247,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "Nitrate reductase cytochrome-c type (2 protons translocated)",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn15961_c4",
+     "msid": "rxn15961",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "=",
+     "name": "hydrogen:2-(2,3-dihydropentaprenyloxy)phenazine oxidoreductase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn15962_c3",
+     "msid": "rxn15962",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "?",
+     "name": "carbon monoxide dehydrogenase/acetyl-CoA synthase (CODH/ACS)",
+     "against_db": false,
+     "dg0": -18.11,
+     "dg_min": -27.527499713420866,
+     "dg_err": 15.03,
+     "dg_source": "dGPredictor",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn15962_c4",
+     "msid": "rxn15962",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "?",
+     "name": "carbon monoxide dehydrogenase/acetyl-CoA synthase (CODH/ACS)",
+     "against_db": false,
+     "dg0": -18.11,
+     "dg_min": -27.527499713420866,
+     "dg_err": 15.03,
+     "dg_source": "dGPredictor",
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn17445_c3",
+     "msid": "rxn17445",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.02870813397129187,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "formylmethanofuran-tetrahydromethanopterin formyltransferase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn24606_c3",
+     "msid": "rxn24606",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.05741626794258374,
+     "bounds": [
+      0.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "methanol-corrinoid protein Co-methyltransferase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn24607_c3",
+     "msid": "rxn24607",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "[methyl-Co(III) methanol-specific corrinoid protein]:coenzyme M methyltransferase",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn40505_c3",
+     "msid": "rxn40505",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "rxn40505_c3",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn40505_c4",
+     "msid": "rxn40505",
+     "member_index": 4,
+     "member": "Methanosarcina.1",
+     "flux": -0.057416267942583615,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "rxn40505_c4",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn42669_c3",
+     "msid": "rxn42669",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "rxn42669_c3",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn43076_c3",
+     "msid": "rxn43076",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.05741626794258374,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": "?",
+     "name": "rxn43076_c3",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn46184_c3",
+     "msid": "rxn46184",
+     "member_index": 3,
+     "member": "Methanobacterium.1",
+     "flux": -0.02870813397129187,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "rxn46184_c3",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "rxn48579_c1",
+     "msid": "rxn48579",
+     "member_index": 1,
+     "member": "Desulfosporosinus.1",
+     "flux": 0.038277511961722493,
+     "bounds": [
+      -1000.0,
+      1000.0
+     ],
+     "db_reversibility": "?",
+     "name": "Sulfite reductase, cytochrome c3 type ",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    },
+    {
+     "reaction": "sul00002_c8",
+     "msid": null,
+     "member_index": 8,
+     "member": "Terrisporobacter.1",
+     "flux": -0.019138755980861247,
+     "bounds": [
+      -1000.0,
+      0.0
+     ],
+     "db_reversibility": null,
+     "name": "sul00002_c8",
+     "against_db": false,
+     "dg0": null,
+     "dg_min": null,
+     "dg_err": null,
+     "dg_source": null,
+     "infeasible": false,
+     "gapfilled": false
+    }
+   ],
+   "cross_fed": {
+    "cpd00067_e0": {
+     "Methanosarcina.1": 0.057416268,
+     "Erysipelothrix.1": -0.516746411,
+     "Ochrobactrum.1": 0.09569378,
+     "Sedimentibacter.8": 0.181818182,
+     "Desulfosporosinus.1": 0.114832536,
+     "Methanobacterium.1": 0.028708134,
+     "Terrisporobacter.1": 0.038277512
+    },
+    "cpd00001_e0": {
+     "Erysipelothrix.1": 0.172248804,
+     "Methanosarcina.1": -0.038277512,
+     "Ochrobactrum.1": -0.09569378,
+     "Terrisporobacter.1": -0.038277512
+    },
+    "cpd00011_e0": {
+     "Erysipelothrix.1": 0.258373206,
+     "Methanobacterium.1": -0.057416268,
+     "Methanosarcina.1": -0.019138756,
+     "Sedimentibacter.8": -0.181818182
+    },
+    "cpd00020_e0": {
+     "Erysipelothrix.1": -0.086124402,
+     "Methanosarcina.1": -0.038277512,
+     "Ochrobactrum.1": -0.057416268,
+     "Sedimentibacter.8": 0.181818182
+    },
+    "cpd00029_e0": {
+     "Desulfosporosinus.1": 0.153110048,
+     "Erysipelothrix.1": -0.43062201,
+     "Methanobacterium.1": 0.028708134,
+     "Ochrobactrum.1": 0.153110048,
+     "Methanosarcina.1": 0.09569378
+    },
+    "cpd00048_e0": {
+     "Desulfosporosinus.1": -0.038277512,
+     "Terrisporobacter.1": 0.038277512
+    },
+    "cpd00071_e0": {
+     "Desulfosporosinus.1": -0.153110048,
+     "Erysipelothrix.1": 0.43062201,
+     "Ochrobactrum.1": -0.076555024,
+     "Sedimentibacter.8": -0.181818182,
+     "Terrisporobacter.1": -0.019138756
+    },
+    "cpd00363_e0": {
+     "Ochrobactrum.1": -0.019138756,
+     "Terrisporobacter.1": 0.019138756
+    },
+    "cpd00239_e0": {
+     "Desulfosporosinus.1": 0.038277512,
+     "Methanobacterium.1": -0.038277512
+    },
+    "cpd11640_e0": {
+     "Methanobacterium.1": -0.057416268,
+     "Methanosarcina.1": 0.038277512,
+     "Terrisporobacter.1": 0.019138756
+    },
+    "cpd00081_e0": {
+     "Methanobacterium.1": 0.038277512,
+     "Terrisporobacter.1": -0.038277512
+    },
+    "cpd01024_e0": {
+     "Methanobacterium.1": 0.057416268,
+     "Methanosarcina.1": -0.057416268
+    },
+    "cpd00116_e0": {
+     "Methanobacterium.1": -0.057416268,
+     "Ochrobactrum.1": 0.057416268
+    }
+   },
+   "members": [
+    "Desulfosporosinus.1",
+    "Erysipelothrix.1",
+    "Methanobacterium.1",
+    "Methanosarcina.1",
+    "Ochrobactrum.1",
+    "Sedimentibacter.8",
+    "Terrisporobacter.1"
+   ]
+  },
+  "protect_log": [
+   {
+    "cuts": [
+     "rxn00359<",
+     "rxn00571>"
+    ],
+    "members_stopped": [
+     "Terrisporobacter.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00571>"
+    ],
+    "members_stopped": [
+     "Terrisporobacter.1"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00359<"
+    ],
+    "members_stopped": [],
+    "community_growth": 19.914579207608107,
+    "accepted": true
+   },
+   {
+    "cuts": [
+     "rxn00288>"
+    ],
+    "members_stopped": [
+     "Sedimentibacter.8"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   },
+   {
+    "cuts": [
+     "rxn00288>"
+    ],
+    "members_stopped": [
+     "Sedimentibacter.8"
+    ],
+    "community_growth": 0.0,
+    "accepted": false
+   }
+  ],
+  "seconds": 16.3
+ },
+ "after": {
+  "atp_from_nothing": 4170.138888888889,
+  "atp_by_member": {
+   "1": 1000.0,
+   "3": 2.7777777777777715,
+   "4": 1000.0,
+   "5": 361.805555555555,
+   "6": 208.33333333333331,
+   "7": 233.33333333333334,
+   "8": 1000.0,
+   "9": 363.88888888888914
+  },
+  "n_atp_tests": 9,
+  "growth_from_nothing": 0.0,
+  "electrons_from_nothing": 0.0,
+  "electron_carriers": {},
+  "growth_on_medium": 19.91457920760825
+ }
+}
