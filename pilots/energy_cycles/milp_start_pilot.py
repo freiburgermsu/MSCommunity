@@ -7,6 +7,10 @@ This runs the exact loop law (LocalLoopLaw on loop_capable_reactions, ATP pinned
 started from the orient_community optimum, to see how far the incumbent and the bound move.
 
 Without a start the same MILP on these nine members found no solution above 0 in 30 min.
+
+Then the hybrid: the MILP's best solution becomes the reference of a new potential profile
+(orient_community with reference = that solution), on a fresh copy of the community, so that
+the loop-law growth the MILP found is kept in a model that needs only LPs from then on.
 Writes <out>/<name>_milp.json and the Gurobi log beside it.
 """
 import argparse
@@ -96,6 +100,23 @@ def main():
         except Exception:
             res["milp"][attr] = None
     log(f"MILP: {res['milp']}")
+    best = {r.id: r.flux for r in comm.reactions} if res["milp"].get("SolCount") else {}
+    json.dump(res, open(os.path.join(a.out, f"{a.name}_milp.json"), "w"), indent=1, default=str)
+
+    # the hybrid: one profile built on the MILP's solution
+    law.remove()
+    if best:
+        t = time.time()
+        hybrid = comm.copy()
+        boundary = {r.id for r in hybrid.boundary}
+        ref = {rid: v for rid, v in best.items() if abs(v) > 1e-9 and rid not in boundary}
+        oc = CC.orient_community(hybrid, reference=ref, rounds=1)
+        res["hybrid"] = {"growth": oc["history"][-1]["objective"], "oriented": oc["profile"]["oriented"],
+                         "against_reference": len(oc["profile"]["against_reference"]),
+                         "irreversible_blocked": len(oc["profile"]["irreversible_blocked"]),
+                         "seconds": round(time.time() - t, 1)}
+        res["hybrid"].update(CC.energy_from_nothing(hybrid))
+        log(f"hybrid: {json.dumps(res['hybrid'])}")
     json.dump(res, open(os.path.join(a.out, f"{a.name}_milp.json"), "w"), indent=1, default=str)
     log("done")
 

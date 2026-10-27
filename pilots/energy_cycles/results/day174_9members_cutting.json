@@ -1,0 +1,161 @@
+{
+ "name": "day174_9members",
+ "reactions": 11098,
+ "load_s": 30.8,
+ "start": {
+  "reference": "both",
+  "growth": 9.756497121311734,
+  "cycle_in_start": 0,
+  "seconds": 28.6
+ },
+ "cutting": {
+  "rounds": [
+   {
+    "round": 0,
+    "objective": 19.91457920760831,
+    "status": "optimal",
+    "covered": 0,
+    "started": false,
+    "seconds": 0.4,
+    "cycle": 1222,
+    "added": 1222
+   },
+   {
+    "round": 1,
+    "objective": 19.91457920725503,
+    "status": "optimal",
+    "covered": 1222,
+    "started": true,
+    "seconds": 5.4,
+    "cycle": 377,
+    "added": 226
+   },
+   {
+    "round": 2,
+    "objective": 19.914579207776764,
+    "status": "optimal",
+    "covered": 1448,
+    "started": true,
+    "seconds": 10.1,
+    "cycle": 370,
+    "added": 150
+   },
+   {
+    "round": 3,
+    "objective": 19.914579207721417,
+    "status": "optimal",
+    "covered": 1598,
+    "started": true,
+    "seconds": 13.5,
+    "cycle": 23,
+    "added": 15
+   },
+   {
+    "round": 4,
+    "objective": 19.914579207608202,
+    "status": "optimal",
+    "covered": 1613,
+    "started": true,
+    "seconds": 1.7,
+    "cycle": 31,
+    "added": 15
+   },
+   {
+    "round": 5,
+    "objective": 19.914579207608273,
+    "status": "optimal",
+    "covered": 1628,
+    "started": true,
+    "seconds": 23.7,
+    "cycle": 342,
+    "added": 95
+   },
+   {
+    "round": 6,
+    "objective": 19.91457920824249,
+    "status": "optimal",
+    "covered": 1723,
+    "started": true,
+    "seconds": 28.6,
+    "cycle": 262,
+    "added": 55
+   },
+   {
+    "round": 7,
+    "objective": 19.91457920760824,
+    "status": "optimal",
+    "covered": 1778,
+    "started": true,
+    "seconds": 2.7,
+    "cycle": 9,
+    "added": 7
+   },
+   {
+    "round": 8,
+    "objective": 19.91457920760824,
+    "status": "optimal",
+    "covered": 1785,
+    "started": true,
+    "seconds": 1.4,
+    "cycle": 4,
+    "added": 1
+   },
+   {
+    "round": 9,
+    "objective": 19.91457920760822,
+    "status": "optimal",
+    "covered": 1786,
+    "started": true,
+    "seconds": 1.3,
+    "cycle": 232,
+    "added": 23
+   },
+   {
+    "round": 10,
+    "objective": 19.914579207608234,
+    "status": "optimal",
+    "covered": 1809,
+    "started": true,
+    "seconds": 1.5,
+    "cycle": 13,
+    "added": 3
+   },
+   {
+    "round": 11,
+    "objective": 19.91457920760834,
+    "status": "optimal",
+    "covered": 1812,
+    "started": true,
+    "seconds": 1.3,
+    "cycle": 7,
+    "added": 3
+   },
+   {
+    "round": 12,
+    "objective": 19.914570094599537,
+    "status": "optimal",
+    "covered": 1815,
+    "started": true,
+    "seconds": 1.4,
+    "cycle": 0
+   }
+  ],
+  "status": "no cycle",
+  "seconds": 110.4,
+  "final_cycle": 0,
+  "ObjBound": 19.914579217198835,
+  "MIPGap": 4.580866799966011e-07
+ },
+ "hybrid": {
+  "growth": 19.91457920760822,
+  "oriented": 1492,
+  "against_reference": 3,
+  "seconds": 8.6,
+  "atp_from_nothing": 0.0,
+  "atp_by_member": {},
+  "n_atp_tests": 9,
+  "growth_from_nothing": 0.0,
+  "electrons_from_nothing": 5.411493475548923e-11,
+  "electron_carriers": {}
+ }
+}

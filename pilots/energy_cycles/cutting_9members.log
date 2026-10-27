@@ -1,0 +1,60 @@
+'' is not a valid SBML 'SId'.
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+Read LP format model from file /tmp/tmpcomiouh0.lp
+Reading time = 0.00 seconds
+: 1188 rows, 2518 columns, 10942 nonzeros
+Read LP format model from file /tmp/tmpjs51ju2k.lp
+Reading time = 0.00 seconds
+: 945 rows, 1918 columns, 8210 nonzeros
+Read LP format model from file /tmp/tmphfo2ebwj.lp
+Reading time = 0.00 seconds
+: 736 rows, 1384 columns, 6210 nonzeros
+Read LP format model from file /tmp/tmpd1ygzjdo.lp
+Reading time = 0.01 seconds
+: 1464 rows, 3440 columns, 15052 nonzeros
+Read LP format model from file /tmp/tmpf7096kg0.lp
+Reading time = 0.01 seconds
+: 1719 rows, 4190 columns, 18430 nonzeros
+Read LP format model from file /tmp/tmp94ftmdld.lp
+Reading time = 0.00 seconds
+: 1105 rows, 2290 columns, 9868 nonzeros
+Read LP format model from file /tmp/tmpa9001spu.lp
+Reading time = 0.00 seconds
+: 993 rows, 2122 columns, 9128 nonzeros
+Read LP format model from file /tmp/tmpy39pnavd.lp
+Reading time = 0.00 seconds
+: 1253 rows, 2872 columns, 12412 nonzeros
+Read LP format model from file /tmp/tmpme3l1i_8.lp
+Reading time = 0.01 seconds
+: 1325 rows, 3218 columns, 13854 nonzeros
+bio1 from Desulfosporosinus.1 becomes bio2
+bio1 from Erysipelothrix.1 becomes bio3
+bio1 from Methanobacterium.1 becomes bio4
+bio1 from Methanosarcina.1 becomes bio5
+bio1 from Ochrobactrum.1 becomes bio6
+bio1 from Petrimonas.1 becomes bio7
+bio1 from Sedimentibacter.8 becomes bio8
+bio1 from Terrisporobacter.1 becomes bio9
+bio1 from midas_g_25828.1 becomes bio10
+Community objective 1.0*bio1 - 1.0*bio1_reverse_b18f7
+[17:04:34] day174_9members: 11098 reactions (30.8s)
+Read LP format model from file /tmp/tmpi3uu5x74.lp
+Reading time = 0.04 seconds
+: 9857 rows, 22196 columns, 102336 nonzeros
+[17:05:03] start: {'reference': 'both', 'growth': 9.756497121311734, 'cycle_in_start': 0, 'seconds': 28.6}
+Set parameter OutputFlag to value 1
+Set parameter LogToConsole to value 0
+[17:06:53] cutting: no cycle; rounds [(0, 19.91457920760831, 1222, 0, 0.4), (1, 19.91457920725503, 377, 1222, 5.4), (2, 19.914579207776764, 370, 1448, 10.1), (3, 19.914579207721417, 23, 1598, 13.5), (4, 19.914579207608202, 31, 1613, 1.7), (5, 19.914579207608273, 342, 1628, 23.7), (6, 19.91457920824249, 262, 1723, 28.6), (7, 19.91457920760824, 9, 1778, 2.7), (8, 19.91457920760824, 4, 1785, 1.4), (9, 19.91457920760822, 232, 1786, 1.3), (10, 19.914579207608234, 13, 1809, 1.5), (11, 19.91457920760834, 7, 1812, 1.3), (12, 19.914570094599537, 0, 1815, 1.4)]; final cycle 0; bound 19.914579217198835; 110.4s
+[17:07:06] hybrid: {"growth": 19.91457920760822, "oriented": 1492, "against_reference": 3, "seconds": 8.6, "atp_from_nothing": 0.0, "atp_by_member": {}, "n_atp_tests": 9, "growth_from_nothing": 0.0, "electrons_from_nothing": 5.411493475548923e-11, "electron_carriers": {}}
+[17:07:06] done

@@ -43,7 +43,7 @@ def correct_nonMSID(nonMSobject, output, model_index):
 
 def build_from_species_models(org_models, model_id=None, name=None, abundances=None, standardize=False, MSmodel = False,
                               commkinetics=True, copy_models=True, climit=None, o2limit=None, printing=False,
-                              build_solver="glpk", final_solver=None):
+                              build_solver="glpk", final_solver=None, check_energy_cycles=False):
     """Merges the input list of single species metabolic models into a community metabolic model
 
     Parameters
@@ -55,6 +55,9 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
     abundances : dict<string,float> relative abundances for input models in community model
     cobra_model : bool for whether the raw COBRA model is returned
     standardize: bool for whether the exchanges of each member model will be standardized (True) or just aligned.
+    check_energy_cycles: bool; test the assembled community for ATP made from nothing
+        (commcycles.energy_from_nothing) and warn if it makes any. Members that are clean on their
+        own can close such a cycle through the shared compartment. One LP; off by default.
 
     Returns
     -------
@@ -252,6 +255,17 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
             newutl.model.solver = _restore
     except Exception:
         logger.warning("could not restore solver %s on %s", _restore, newutl.model.id)
+
+    if check_energy_cycles:
+        from mscommunity.commcycles import energy_from_nothing
+        test = energy_from_nothing(newutl.model, electrons=False, biomass=None)
+        if test["atp_from_nothing"] is None or test["atp_from_nothing"] > 1e-6:
+            logger.warning(
+                "The assembled community %s makes %s ATP with every uptake closed, in members %s: an "
+                "energy-generating cycle runs across its members. commcycles.find_energy_cycle names "
+                "it; commcycles.orient_community removes it.", newutl.model.id, test["atp_from_nothing"],
+                sorted(test["atp_by_member"]))
+            print(f"WARNING: {newutl.model.id} makes {test['atp_from_nothing']} ATP from nothing.")
 
     if MSmodel:   return newutl
     return newutl.model

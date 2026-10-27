@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """full_community_profile.py -- orient_community on a whole assembled community (SBML).
 
+--reference members | pfba | both (see orient_community).
+
 The codiffusion day-174 v7c community: 88 members, about 90k reactions. Members' references come
 from their own models (member_reference with member_models; the order of the provenance
 "abundances" is the build order, so member i is the i-th id). On the medium:
@@ -36,6 +38,7 @@ def main():
     ap.add_argument("--medium", default="Wolfe")
     ap.add_argument("--rules", default=None, help="JSON {msid: allowed direction} applied first")
     ap.add_argument("--rounds", type=int, default=3)
+    ap.add_argument("--reference", default="members", choices=("members", "pfba", "both"))
     ap.add_argument("--save", action="store_true")
     ap.add_argument("--name", default="day174_full")
     ap.add_argument("--out", default=os.path.join(HERE, "results"))
@@ -75,19 +78,19 @@ def main():
 
     t = time.time()
     members = {}
-    for i, mid in enumerate(order, 1):
+    for i, mid in (enumerate(order, 1) if a.reference in ("members", "both") else ()):
         m = read_sbml_model(f"{a.gf_dir}/{mid}_gf.xml"); m.id = mid; m.solver = "gurobi"
         members[i] = m
     res["member_load_s"] = round(time.time() - t, 1)
     t = time.time()
     comm.objective = "bio1"
-    oc = CC.orient_community(comm, rounds=a.rounds, member_models=members)
+    oc = CC.orient_community(comm, rounds=a.rounds, member_models=members, reference=a.reference)
     prof = oc["profile"]
     res["profile"] = {k: prof[k] for k in ("reactions", "metabolites", "objective", "oriented")}
     res["profile"].update(pins=len(prof["pinned"]), against_reference=prof["against_reference"],
                           irreversible_blocked=prof["irreversible_blocked"], bounds_changed=len(oc["changed"]),
                           history=oc["history"], seconds=round(time.time() - t, 1),
-                          member_growth_alone={order[i - 1]: g for i, g in oc["member_growth_alone"].items()})
+                          member_growth_alone={order[i - 1]: g for i, g in (oc["member_growth_alone"] or {}).items()})
     log(f"profile: {json.dumps({k: v for k, v in res['profile'].items() if k != 'member_growth_alone'})}")
 
     t = time.time()

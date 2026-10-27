@@ -384,6 +384,38 @@ class MSCommunity:
         assert gfresults, f"Gapfilling of {self.util.model.id} in {gfname} towards {target} failed."
         return self.gapfillings[gfname].integrate_gapfill_solution(gfresults)
 
+    def energy_cycles(self, electrons=True):
+        """ATP, growth and electrons the community makes from nothing (commcycles.energy_from_nothing).
+        Each is 0 for a community without energy-generating cycles, including the ones that run
+        across members, which no single-member test can see.
+
+        The community-kinetics rows are lifted for the test: they cap each member's flux at
+        kinetic_coeff x its growth, so with nothing coming in they hold every flux at 0 and would
+        hide the cycle -- which still runs, up to that cap, whenever the community grows."""
+        from mscommunity.commcycles import energy_from_nothing
+        kinetic = [(c, c.ub) for c in self.util.model.constraints if c.name.endswith("_commKin")]
+        try:
+            for c, _ in kinetic:
+                c.ub = 1e30  # not None: optlang's Gurobi interface refuses a free row
+            return energy_from_nothing(self.util.model, biomass=self.primary_biomass.id, electrons=electrons)
+        finally:
+            for c, ub in kinetic:
+                c.ub = ub
+
+    def orient_by_thermodynamics(self, reference="pfba", rounds=1, media=None, **profile_args):
+        """Remove every energy-generating cycle, including those across members, by giving each
+        reaction only the directions one metabolite-potential profile allows (ATP hydrolysis
+        pinned downhill): commcycles.orient_community, changing this community's bounds in place.
+        The profile is built on the community's current medium and objective, from `reference`
+        ("pfba": its own optimum; "members": each member growing alone; or a flux dict such as
+        a loop-law solution), whose objective it keeps where the reference holds no cycle.
+        Returns the report; report["changed"] lists every bound changed."""
+        from mscommunity.commcycles import orient_community
+        if media is not None:
+            self.util.add_medium(media)
+        self.set_objective()
+        return orient_community(self.util.model, reference=reference, rounds=rounds, **profile_args)
+
     def test_individual_species(self, media=None, interacting=True, run_atp=True, run_biomass=True):
         assert run_atp or run_biomass, ValueError("Either the run_atp or run_biomass arguments must be True.")
         # self.pkgmgr.getpkg("KBaseMediaPkg").build_package(media)

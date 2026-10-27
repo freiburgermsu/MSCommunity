@@ -41,6 +41,7 @@ def main():
     ap.add_argument("--medium", default="Wolfe")
     ap.add_argument("--solver", default="gurobi")
     ap.add_argument("--rounds", type=int, default=1, help="orient_community rounds")
+    ap.add_argument("--reference", default="members", choices=("members", "pfba", "both"))
     ap.add_argument("--name", default=None)
     ap.add_argument("--out", default=os.path.join(HERE, "results"))
     a = ap.parse_args()
@@ -90,7 +91,7 @@ def main():
 
     t = time.time()
     comm.objective = "bio1"
-    oc = CC.orient_community(comm, rounds=a.rounds)
+    oc = CC.orient_community(comm, rounds=a.rounds, reference=a.reference)
     report, changed = oc["profile"], oc["changed"]
     report["seconds"] = round(time.time() - t, 1)
     report["history"] = oc["history"]
@@ -103,8 +104,9 @@ def main():
         report["members_oriented"][key] = report["members_oriented"].get(key, 0) + 1
     report["changed"] = changed
     res["profile"] = report
+    against = report["against_reference"]
     log(f"profile: {report['oriented']} of {report['reactions']} reactions oriented, {len(changed)} bounds "
-        f"changed, {len(report['against_reference'])} against the reference, "
+        f"changed, {[len(x) for x in against] if against and isinstance(against[0], list) else len(against)} against the reference, "
         f"{len(report['irreversible_blocked'])} irreversible blocked, {len(report['pinned'])} pins; "
         f"{report['seconds']}s; rounds {[(h['round'], h['objective'], h['oriented']) for h in oc['history']]}")
 

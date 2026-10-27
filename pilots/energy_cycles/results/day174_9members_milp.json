@@ -1,0 +1,112 @@
+{
+ "name": "day174_9members",
+ "reactions": 11098,
+ "lp_growth": 19.91457920760825,
+ "profile": {
+  "growth": 4.963723022831646,
+  "seconds": 80.5,
+  "history": [
+   {
+    "round": 0,
+    "objective": 3.919770194717321,
+    "oriented": 1340,
+    "bounds_changed": 502,
+    "reference": 3198,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   },
+   {
+    "round": 1,
+    "objective": 4.034672372160102,
+    "oriented": 1360,
+    "bounds_changed": 497,
+    "reference": 3548,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   },
+   {
+    "round": 2,
+    "objective": 4.377275602206511,
+    "oriented": 1366,
+    "bounds_changed": 490,
+    "reference": 3620,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   },
+   {
+    "round": 3,
+    "objective": 4.470646149186989,
+    "oriented": 1386,
+    "bounds_changed": 498,
+    "reference": 3725,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   },
+   {
+    "round": 4,
+    "objective": 4.73770352538601,
+    "oriented": 1372,
+    "bounds_changed": 495,
+    "reference": 3785,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   },
+   {
+    "round": 5,
+    "objective": 4.905680282175256,
+    "oriented": 1381,
+    "bounds_changed": 496,
+    "reference": 3831,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   },
+   {
+    "round": 6,
+    "objective": 4.96372302283162,
+    "oriented": 1417,
+    "bounds_changed": 507,
+    "reference": 3858,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   },
+   {
+    "round": 7,
+    "objective": 4.963723022831646,
+    "oriented": 1418,
+    "bounds_changed": 507,
+    "reference": 3882,
+    "against_reference": 0,
+    "irreversible_blocked": 0
+   }
+  ]
+ },
+ "law": {
+  "covered": 3723,
+  "binaries": 7446,
+  "pins": 9,
+  "build_s": 63.6,
+  "start_set": true
+ },
+ "milp": {
+  "status": "optimal",
+  "seconds": 925.2,
+  "ObjVal": 19.914579207608988,
+  "ObjBound": 19.914579207608988,
+  "MIPGap": 0.0,
+  "NodeCount": 8845.0,
+  "SolCount": 10.0
+ },
+ "hybrid": {
+  "growth": 19.91457920760807,
+  "oriented": 1450,
+  "against_reference": 0,
+  "irreversible_blocked": 50,
+  "seconds": 32.3,
+  "atp_from_nothing": 0.0,
+  "atp_by_member": {},
+  "n_atp_tests": 9,
+  "growth_from_nothing": 0.0,
+  "electrons_from_nothing": 0.0,
+  "electron_carriers": {}
+ }
+}

@@ -7,13 +7,33 @@ start without the other's product. A test on a single member cannot see such a c
 the member never receives X or Y; it shows only in the assembled community, as ATP (or reduced
 products) made with every uptake closed.
 
+Finding them
     energy_from_nothing   the test: ATP, growth and electrons with nothing (or only CO2, H2O and
                           H+) coming in
     find_energy_cycle     the cycle a solver finds: its reactions by member, each one's direction
                           against the ModelSEED database and thermodynamics, and the metabolites
                           the members pass around it
-    cut_energy_cycles     removes the cycles by closing, one found cycle at a time, the reaction
-                          directions that thermodynamics rules out
+    conformal_cycle       the cycle inside a given flux distribution, if any (one LP)
+
+Removing them -- tried on the nine members of the codiffusion day-174 cycle and on the whole
+88-member community (pilots/energy_cycles/README.md has the numbers):
+    loop_law_optimum      the exact loop law (LocalLoopLaw, a MILP) on just the cycles the
+                          optimum tries to use: solve, find a cycle in the solution, cover it,
+                          solve again, warm-started from a cycle-free flux. The pilot's loop-law
+                          optimum in 110 s, where the loop law on every loop-capable reaction
+                          (loop_capable_reactions) found nothing above 0 in 30 min unstarted.
+    orient_community      one metabolite-potential profile for the whole community, with ATP
+                          hydrolysis pinned downhill; every reaction keeps only the directions the
+                          profile allows. Provably leaves no energy-generating cycle, including
+                          one that feeds biomass; LPs only. It keeps a reference flux wherever that
+                          holds no cycle: on a loop_law_optimum solution it keeps the loop-law
+                          optimum and turns every later simulation into an ordinary cycle-free LP.
+                          Without one, "both" (each member alone, and the community's pFBA
+                          optimum) is safe and "pfba" optimistic.
+    cut_energy_cycles     closes, cycle by cycle, the directions thermodynamics rules out (the gate
+                          below). It finds template curations (directions no concentrations could
+                          drive), but cannot finish: what is left runs on steps feasible one by
+                          one, and its "most_uphill" fallback over-cuts without converging.
 
 Thermodynamic gate. A direction is ruled out only when no metabolite concentrations in
 [c_min, c_max] could make it run:
@@ -26,9 +46,10 @@ kcal/mol). Reactions that cross a membrane are not gated: their dG depends on th
 potential, which the database values leave out. The defaults (1 uM - 20 mM, 2 sigma) gate only
 directions that are uphill by more than any plausible concentration ratio can pay for.
 
-A cycle that survives every gated cut runs on directions each of which is feasible alone. It can
-still be infeasible jointly (the concentrations each step needs contradict each other), but only
-loop-law constraints over the whole cycle can show that; `cut_energy_cycles` stops and says so.
+Not covered: the ATP pin is on ATP only (a cycle that makes GTP, say, and hands it to biomass is
+excluded only where GTP is linked to ATP), and electrons made by reactions that do not conserve
+charge are a curation problem, not a cycle -- electrons_from_nothing reports them, nothing here
+removes them.
 """
 import glob
 import json
@@ -43,6 +64,7 @@ from optlang.symbolics import Zero
 logger = logging.getLogger(__name__)
 
 RT = 0.0019872 * 298.15  # kcal/mol at 25 C, the units of the ModelSEED dG values
+ORIENT_TOL = 1e-5  # |dG| of a potential profile below this (x its margin) is 0: solver tolerance
 
 # electrons each reduced product carries, relative to CO2, H2O and H+:
 # H2, methane, formate, ethanol, L-lactate, D-lactate, succinate
@@ -565,6 +587,8 @@ class LocalLoopLaw:
         if res.status != 0:
             return False
         g = self.model.solver.problem
+        if not hasattr(g, "getVarByName"):  # MIP starts are set through gurobipy only
+            return False
         self.model.solver.update()
         def put(name, value):
             var = g.getVarByName(name)
@@ -765,7 +789,7 @@ def _member_reference_from_models(model, member_models, biomass_prefix, tol):
 
 
 def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, pin_atp=True,
-                      w_reference=1e4, w_irreversible=1e2):
+                      w_reference=1.0, w_irreversible=1e2, lp="auto", threads=None, flux_floor=1e-3):
     """One metabolite potential vector for the whole community, from which `orient_by_potentials`
     fixes reaction directions. With ATP hydrolysis pinned downhill (dG <= -dg_margin in every
     member), no orientation it gives can run an energy-generating cycle: around any cycle the dG
@@ -774,23 +798,28 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
     that hands its ATP to biomass. This is an LP and needs no binaries; the price is that one
     profile serves every simulation, where the loop law would find a profile per solution.
 
-    The profile minimises a weighted sum of |dG| over internal reactions, so that as many as
-    possible keep dG = 0 and both directions:
-      w_reference      on a dG against a `reference` flux direction ({reaction id: flux}; e.g.
-                       member_reference), so that the reference stays feasible
-      w_irreversible   on a dG that would block an irreversible reaction (positive for one that
-                       runs forward only, negative for reverse only)
-      1                on any other |dG| (a reversible reaction losing one direction)
-    The weights make the constraints soft: an infeasible combination (a reference containing a
-    cycle, or irreversible reactions that close one) is resolved by orienting against the
-    cheapest, and the report counts them.
+    Two LPs, lexicographically:
+      1. honour the reference: minimise the weighted dG against each `reference` flux direction
+         ({reaction id: flux}, e.g. member_reference or a loop-law solution; or a list of
+         (flux dict, weight) pairs, whose weights add up per reaction). A reference with no
+         cycle in it (conformal_cycle) is honoured exactly; one with a cycle is broken where it
+         costs least. A reference flux below flux_floor weighs in proportion to its size, so
+         numerical trickle flows lose to the fluxes that carry the solution.
+      2. holding that, orient as little as possible: minimise |dG| over the internal reactions,
+         w_irreversible on a dG that would block an irreversible reaction (positive for one that
+         runs forward only, negative for reverse only), 1 on any other (a reversible reaction
+         losing one direction). As many reactions as possible keep dG = 0 and both directions.
+    (A single weighted LP let many small orientations outweigh a large reference flux, and
+    broke a loop-law optimum that held no cycle.)
 
-    Solved with scipy's HiGHS (no solver interface needed; the community's cobra solver is not
-    touched). Returns (dG {reaction id: dG}, report)."""
+    lp: "gurobi" (gurobipy's barrier with crossover), "highs" (scipy's HiGHS, dual simplex),
+    "highs-ipm" (scipy's HiGHS interior point), or "auto": gurobi when gurobipy imports, else
+    highs-ipm. The barrier takes the 90k-reaction day-174 community in about a minute per LP;
+    HiGHS's simplex took about 20 minutes. The community's cobra solver is not touched.
+    Returns (dG {reaction id: dG}, report)."""
     import numpy as np
     import scipy.sparse as sp
-    from scipy.optimize import linprog
-    reference = reference or {}
+    refs = reference if isinstance(reference, list) else [(reference or {}, w_reference)]
     rxns = [r for r in model.reactions if not r.boundary and r.metabolites]
     mets = {m.id: i for i, m in enumerate(model.metabolites)}
     nm, nr = len(mets), len(rxns)
@@ -802,19 +831,21 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
     eye = sp.identity(nr, format="csr")
     # x = [mu (nm), p (nr), q (nr)],  dG = St mu = p - q,  p, q >= 0
     A_eq = sp.hstack([St, -eye, eye], format="csr")
-    wp, wq = np.ones(nr), np.ones(nr)
+    rp, rq = np.zeros(nr), np.zeros(nr)    # stage 1: against the reference
+    wp, wq = np.ones(nr), np.ones(nr)      # stage 2: orienting at all
     for j, r in enumerate(rxns):
-        v = reference.get(r.id, 0.0)
-        if v > 0:
-            wp[j] = w_reference
-        elif v < 0:
-            wq[j] = w_reference
+        for ref, w in refs:
+            v = ref.get(r.id, 0.0)
+            if v > 0:
+                rp[j] += w * min(1.0, v / flux_floor)
+            elif v < 0:
+                rq[j] += w * min(1.0, -v / flux_floor)
         if r.lower_bound >= 0 and r.upper_bound > 0:
-            wp[j] = max(wp[j], w_irreversible)
+            wp[j] = w_irreversible
         elif r.upper_bound <= 0 and r.lower_bound < 0:
-            wq[j] = max(wq[j], w_irreversible)
-    c = np.concatenate([np.zeros(nm), wp, wq])
-    A_ub, b_ub, pinned = None, None, []
+            wq[j] = w_irreversible
+    zeros = np.zeros(nm)
+    A_ub, b_ub, pinned = sp.csr_matrix((0, nm + 2 * nr)), np.zeros(0), []
     if pin_atp:
         prow, pcol, pval = [], [], []
         stoich = {"cpd00002": -1, "cpd00001": -1, "cpd00008": 1, "cpd00009": 1, "cpd00067": 1}
@@ -831,27 +862,86 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
         if pinned:
             A_ub = sp.csr_matrix((pval, (prow, pcol)), shape=(len(pinned), nm + 2 * nr))
             b_ub = -dg_margin * np.ones(len(pinned))
-    bounds = [(-max_potential, max_potential)] * nm + [(0, None)] * (2 * nr)
-    res = linprog(c, A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=np.zeros(nr), bounds=bounds, method="highs")
-    if res.status != 0:
-        raise RuntimeError(f"potential profile LP failed: {res.message}")
-    x = res.x
-    dg = St @ x[:nm]
-    tol = 1e-7 * max(1.0, dg_margin)
-    report = {"reactions": nr, "metabolites": nm, "pinned": pinned, "objective": float(res.fun),
+    if lp == "auto":
+        try:
+            import gurobipy  # noqa: F401
+            lp = "gurobi"
+        except ImportError:
+            lp = "highs-ipm"
+    solve = (lambda c, A, b: _profile_gurobi(c, A_eq, A, b, nm, nr, max_potential, threads)) if lp == "gurobi" \
+        else (lambda c, A, b: _profile_scipy(c, A_eq, A, b, nm, nr, max_potential, lp))
+    c1 = np.concatenate([zeros, rp, rq])
+    against = 0.0
+    if c1.any():
+        _, against = solve(c1, A_ub, b_ub)
+        A_ub = sp.vstack([A_ub, sp.csr_matrix(c1)], format="csr")
+        b_ub = np.concatenate([b_ub, [against * (1 + 1e-9) + 1e-7]])
+    x, objective = solve(np.concatenate([zeros, wp, wq]), A_ub, b_ub)
+    # dG from the LP's own split, not recomputed as St mu: with potentials up to max_potential
+    # the equality rows hold only to the solver's feasibility tolerance, and St mu then puts
+    # 1e-6-sized noise on a dG the vertex has at exactly 0 -- enough for orient_by_potentials to
+    # close a direction at random
+    dg = x[nm:nm + nr] - x[nm + nr:]
+    tol = ORIENT_TOL * max(1.0, dg_margin)
+    dg[np.abs(dg) <= tol] = 0.0
+    report = {"reactions": nr, "metabolites": nm, "pinned": pinned, "against_cost": against,
+              "objective": objective, "lp": lp,
               "oriented": int(np.sum(np.abs(dg) > tol)),
-              "against_reference": [rxns[j].id for j in range(nr)
-                                    if (reference.get(rxns[j].id, 0) > 0 and dg[j] > tol)
-                                    or (reference.get(rxns[j].id, 0) < 0 and dg[j] < -tol)],
+              "against_reference": [[rxns[j].id for j in range(nr)
+                                     if (ref.get(rxns[j].id, 0) > 0 and dg[j] > tol)
+                                     or (ref.get(rxns[j].id, 0) < 0 and dg[j] < -tol)] for ref, _ in refs],
               "irreversible_blocked": [rxns[j].id for j in range(nr)
                                        if (rxns[j].lower_bound >= 0 and rxns[j].upper_bound > 0 and dg[j] > tol)
                                        or (rxns[j].upper_bound <= 0 and rxns[j].lower_bound < 0 and dg[j] < -tol)]}
+    if not isinstance(reference, list):
+        report["against_reference"] = report["against_reference"][0]
     return {r.id: float(dg[j]) for j, r in enumerate(rxns)}, report
 
 
-def orient_by_potentials(model, dg, tol=1e-7):
+def _profile_scipy(c, A_eq, A_ub, b_ub, nm, nr, max_potential, method):
+    import numpy as np
+    from scipy.optimize import linprog
+    bounds = [(-max_potential, max_potential)] * nm + [(0, None)] * (2 * nr)
+    res = linprog(c, A_ub=A_ub if A_ub.shape[0] else None, b_ub=b_ub if A_ub.shape[0] else None,
+                  A_eq=A_eq, b_eq=np.zeros(nr), bounds=bounds, method=method)
+    if res.status != 0:
+        raise RuntimeError(f"potential profile LP failed: {res.message}")
+    return res.x, float(res.fun)
+
+
+def _profile_gurobi(c, A_eq, A_ub, b_ub, nm, nr, max_potential, threads):
+    """potential_profile's LP through gurobipy's matrix interface: barrier, then crossover to a
+    vertex. The vertex matters: the barrier alone stops at the centre of the optimal face, where a
+    dG that some optimal profiles leave at 0 comes out small but not 0 and would fix a direction
+    for nothing."""
+    import numpy as np
+    import gurobipy as gp
+    from gurobipy import GRB
+    env = gp.Env(params={"OutputFlag": 0})
+    g = gp.Model(env=env)
+    lb = np.concatenate([np.full(nm, -max_potential), np.zeros(2 * nr)])
+    ub = np.concatenate([np.full(nm, max_potential), np.full(2 * nr, GRB.INFINITY)])
+    x = g.addMVar(nm + 2 * nr, lb=lb, ub=ub, obj=c)
+    g.addMConstr(A_eq, x, "=", np.zeros(nr))
+    if A_ub is not None and A_ub.shape[0]:
+        g.addMConstr(A_ub, x, "<", b_ub)
+    g.Params.Method = 2
+    if threads:
+        g.Params.Threads = threads
+    g.optimize()
+    if g.Status != GRB.OPTIMAL:
+        raise RuntimeError(f"potential profile LP failed: Gurobi status {g.Status}")
+    out = x.X.copy(), float(g.ObjVal)
+    g.dispose(); env.dispose()
+    return out
+
+
+def orient_by_potentials(model, dg, tol=None):
     """Let each reaction run only downhill in the profile: forward only where dG < -tol, reverse
-    only where dG > tol, both ways where |dG| <= tol. Returns [(reaction id, old, new bounds)]."""
+    only where dG > tol, both ways where |dG| <= tol (default ORIENT_TOL: a profile's real dGs
+    are of the order of its margin; below that is solver tolerance, which once shut a member's
+    glucose uptake). Returns [(reaction id, old, new bounds)]."""
+    tol = ORIENT_TOL if tol is None else tol
     changed = []
     for rid, g in dg.items():
         if abs(g) <= tol:
@@ -871,6 +961,14 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
     """member_reference -> potential_profile -> orient_by_potentials on `model` (in place), on the
     model's current medium and objective.
 
+    reference  None or "members": each member growing alone (member_reference); "pfba": the
+               model's own pFBA optimum; "both": the members (weighted 10x) and the optimum; or
+               {reaction id: flux}, e.g. a loop-law MILP solution, or a list of (flux, weight).
+               The orientation keeps a reference feasible where it holds no cycle, so the
+               objective it allows is at least the reference's. On a large community, use
+               "both": the optimum alone can lean on a cycle in a way that, once the cycle is
+               oriented away, leaves some member unable to grow (day 174: growth 18.2 -> 0).
+
     With rounds > 1, each further round adds the oriented model's pFBA optimum to the reference
     and derives a new profile from the original bounds. The optimum stays feasible (the new profile
     honours it), so the objective cannot fall, and directions the first profile fixed for no
@@ -880,9 +978,23 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
     original = {r.id: tuple(r.bounds) for r in model.reactions}
     boundary = {r.id for r in model.boundary}
     grown = None
-    if reference is None:
-        reference, grown = member_reference(model, member_models=member_models)
-    reference = dict(reference)
+    optimum = None
+    if reference in ("pfba", "both"):
+        # the unoriented optimum itself: kept whole when it holds no cycle (pFBA rarely pays
+        # for one); whatever cycle it does hold, the soft weights orient against
+        optimum = {rid: f for rid, f in pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
+    if reference is None or reference in ("members", "both"):
+        members, grown = member_reference(model, member_models=member_models)
+    if reference == "both":
+        # each member alone first (cycle-free, so the community can always grow), then as much
+        # of the optimum as agrees with them
+        w = profile_args.pop("w_reference", 1e4)
+        reference = [(members, 10 * w), (optimum, w)]
+    elif reference == "pfba":
+        reference = optimum
+    elif reference is None or reference == "members":
+        reference = members
+    reference = list(reference) if isinstance(reference, list) else dict(reference)
     history, changed, profile = [], [], {}
     for k in range(rounds):
         for r in model.reactions:
@@ -890,11 +1002,105 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
         dg, profile = potential_profile(model, reference, **profile_args)
         changed = orient_by_potentials(model, dg)
         v = _value(model)
+        against = profile["against_reference"]
         history.append({"round": k, "objective": v, "oriented": profile["oriented"],
-                        "bounds_changed": len(changed), "reference": len(reference),
-                        "against_reference": len(profile["against_reference"]),
+                        "bounds_changed": len(changed),
+                        "reference": [len(r) for r, _ in reference] if isinstance(reference, list) else len(reference),
+                        "against_reference": [len(x) for x in against] if isinstance(reference, list) else len(against),
                         "irreversible_blocked": len(profile["irreversible_blocked"])})
         if k + 1 < rounds and v is not None and v > tol:
-            sol = pfba(model)
-            reference.update({rid: f for rid, f in sol.fluxes.items() if abs(f) > tol and rid not in boundary})
+            new = {rid: f for rid, f in pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
+            if isinstance(reference, list):
+                reference = reference + [(new, reference[-1][1])]
+            else:
+                reference.update(new)
     return {"history": history, "changed": changed, "profile": profile, "member_growth_alone": grown}
+
+
+def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True):
+    """The internal reactions of a cycle inside a flux distribution, or [] if it holds none.
+
+    A cycle here is a steady-state flux u through internal reactions only, each run the way
+    `fluxes` runs it (support and signs within the flux's own), plus, with pin_atp, any amount of
+    ATP hydrolysis in each member: exactly what makes `fluxes` violate the loop law with ATP
+    hydrolysis pinned downhill (no potentials can make every step of u downhill). One LP over
+    the active reactions; the support of its solution is returned."""
+    import numpy as np
+    import scipy.sparse as sp
+    from scipy.optimize import linprog
+    boundary = {r.id for r in model.boundary}
+    active = [model.reactions.get_by_id(rid) for rid, v in fluxes.items()
+              if abs(v) > tol and rid not in boundary and rid in model.reactions]
+    cols, signs = [], []
+    for r in active:
+        cols.append({m.id: c for m, c in r.metabolites.items()})
+        signs.append(1.0 if fluxes[r.id] > 0 else -1.0)
+    n_active = len(cols)
+    if pin_atp:
+        mets = {m.id for m in model.metabolites}
+        stoich = {"cpd00002": -1, "cpd00001": -1, "cpd00008": 1, "cpd00009": 1, "cpd00067": 1}
+        for m in model.metabolites:
+            mm = _COMP.match(m.compartment or "")
+            if _cpd(m) == "cpd00002" and mm and mm.group(1) == "c":
+                comp = m.compartment
+                if all(f"{k}_{comp}" in mets for k in stoich):
+                    cols.append({f"{k}_{comp}": n for k, n in stoich.items()})
+                    signs.append(1.0)
+    if not n_active:
+        return []
+    index = {}
+    rows, cidx, vals = [], [], []
+    for j, col in enumerate(cols):
+        for mid, c in col.items():
+            i = index.setdefault(mid, len(index))
+            rows.append(i); cidx.append(j); vals.append(c * signs[j])
+    A = sp.csr_matrix((vals, (rows, cidx)), shape=(len(index), len(cols)))
+    # w_j = sign_j * u_j in [0, 1]; maximise the flux through the active reactions only, so a pin
+    # alone (ATP hydrolysis with nothing making the ATP) is not a cycle
+    c = np.concatenate([-np.ones(n_active), np.zeros(len(cols) - n_active)])
+    res = linprog(c, A_eq=A, b_eq=np.zeros(len(index)), bounds=[(0, 1)] * len(cols), method="highs")
+    if res.status != 0 or -res.fun <= tol:
+        return []
+    return [active[j].id for j in range(n_active) if res.x[j] > tol]
+
+
+def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None, tol=1e-7, **law_args):
+    """The model's optimum under the loop law (ATP pinned), found by covering only the cycles the
+    optimum tries to use: solve; if the solution holds a cycle (conformal_cycle), cover its
+    reactions with LocalLoopLaw and solve again. The first solve is the plain LP; each later one
+    is a MILP whose binaries are the covered reactions only, warm-started from `start` -- a flux
+    with no cycle in it, e.g. an orient_community optimum, which every cover allows. At the end
+    the solution holds no cycle, so it is the loop-law optimum (to the MILP's gap).
+
+    Returns (fluxes, report); the law's rows stay on `model` (report["law"]) until removed."""
+    import time
+    law = law or LocalLoopLaw(model, **law_args)
+    report = {"rounds": [], "status": "max rounds", "law": law}
+    saved = model.solver.configuration.timeout
+    if time_limit is not None:
+        model.solver.configuration.timeout = time_limit
+    fluxes = {}
+    try:
+        for rnd in range(max_rounds):
+            started = bool(start) and bool(law.binaries) and law.start(start)
+            t = time.time()
+            v = _value(model)
+            row = {"round": rnd, "objective": v, "status": model.solver.status, "covered": len(law.binaries),
+                   "started": started, "seconds": round(time.time() - t, 1)}
+            report["rounds"].append(row)
+            if v is None:
+                report["status"] = f"solve failed ({model.solver.status})"
+                break
+            fluxes = {r.id: r.flux for r in model.reactions}
+            cycle = conformal_cycle(model, fluxes, tol=tol)
+            row["cycle"] = len(cycle)
+            if not cycle:
+                report["status"] = "no cycle"
+                break
+            row["added"] = law.add([model.reactions.get_by_id(rid) for rid in cycle])
+            if not row["added"]:
+                report["status"] = "cycle already covered (solver tolerance)"
+                break
+    finally:
+        model.solver.configuration.timeout = saved
+    return fluxes, report

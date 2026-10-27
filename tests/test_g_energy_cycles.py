@@ -236,3 +236,49 @@ def test_the_reference_from_member_models_matches_the_one_from_the_community():
     assert set(from_models) == set(from_comm)
     for rid, v in from_comm.items():
         assert from_models[rid] == pytest.approx(v, abs=1e-6)
+
+
+def test_the_build_warns_and_the_community_class_orients(caplog):
+    import logging
+    from mscommunity.mscommsim import MSCommunity
+    with caplog.at_level(logging.WARNING, logger="mscommunity.commhelper"):
+        model = build_from_species_models(_members(), abundances={"reducer": 0.5, "oxidizer": 0.5},
+                                          check_energy_cycles=True)
+    assert any("ATP with every uptake closed" in r.message for r in caplog.records)
+    comm = MSCommunity(model=model, ids=["reducer", "oxidizer"], kinetic_coeff=1e6)
+    assert comm.energy_cycles(electrons=False)["atp_from_nothing"] > 1.0
+    assert comm.util.model.slim_optimize() == pytest.approx(10.0)
+    report = comm.orient_by_thermodynamics(reference="pfba")
+    assert comm.energy_cycles(electrons=False)["atp_from_nothing"] == pytest.approx(0.0, abs=1e-6)
+    # this optimum ran on the cycle's ATP: the profile orients against that part of the
+    # reference and growth falls to what glycolysis pays for
+    assert report["profile"]["against_reference"]
+    assert comm.util.model.slim_optimize() == pytest.approx(10.0 / 3.5, rel=1e-6)
+
+
+def test_both_references_keep_every_member_growing():
+    from mscommunity.commcycles import orient_community
+    comm = _community()
+    report = orient_community(comm, reference="both")
+    against_members, against_optimum = report["history"][0]["against_reference"]
+    # the members' own fluxes hold no cycle and are kept; the optimum's cycle is not
+    assert against_members == 0 and against_optimum > 0
+    assert energy_from_nothing(comm, electrons=False)["atp_from_nothing"] == pytest.approx(0.0, abs=1e-6)
+    assert comm.slim_optimize() == pytest.approx(10.0 / 3.5, rel=1e-6)
+
+
+def test_the_cutting_plane_loop_law_finds_the_optimum_without_the_cycle():
+    from cobra.flux_analysis import pfba
+    from mscommunity.commcycles import conformal_cycle, loop_law_optimum, orient_community
+    comm = _community()
+    lp = {r.id: v for r, v in zip(comm.reactions, pfba(comm).fluxes)}
+    assert {"rxn90001_c1", "rxn90002_c2"} <= set(conformal_cycle(comm, lp))
+    safe = comm.copy()
+    orient_community(safe, reference="both")
+    start = pfba(safe).fluxes.to_dict()
+    assert conformal_cycle(comm, start) == []
+    fluxes, report = loop_law_optimum(comm, start=start)
+    assert report["status"] == "no cycle"
+    assert report["rounds"][0]["objective"] == pytest.approx(10.0)
+    assert report["rounds"][-1]["objective"] == pytest.approx(10.0 / 3.5, rel=1e-6)
+    assert conformal_cycle(comm, fluxes) == []

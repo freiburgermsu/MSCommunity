@@ -1,0 +1,63 @@
+'' is not a valid SBML 'SId'.
+modelseedpy 0.4.3
+Set parameter Username
+Set parameter LicenseID to value 2806771
+Academic license - for non-commercial use only - expires 2027-04-14
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+'' is not a valid SBML 'SId'.
+Read LP format model from file /tmp/tmp9d_sqpie.lp
+Reading time = 0.00 seconds
+: 1188 rows, 2518 columns, 10942 nonzeros
+Read LP format model from file /tmp/tmpdnwofp5b.lp
+Reading time = 0.00 seconds
+: 945 rows, 1918 columns, 8210 nonzeros
+Read LP format model from file /tmp/tmp2216cu_u.lp
+Reading time = 0.00 seconds
+: 736 rows, 1384 columns, 6210 nonzeros
+Read LP format model from file /tmp/tmpuz2jzmbr.lp
+Reading time = 0.01 seconds
+: 1464 rows, 3440 columns, 15052 nonzeros
+Read LP format model from file /tmp/tmpxzgfoc6j.lp
+Reading time = 0.01 seconds
+: 1719 rows, 4190 columns, 18430 nonzeros
+Read LP format model from file /tmp/tmppfrkj02r.lp
+Reading time = 0.00 seconds
+: 1105 rows, 2290 columns, 9868 nonzeros
+Read LP format model from file /tmp/tmp95p5afij.lp
+Reading time = 0.00 seconds
+: 993 rows, 2122 columns, 9128 nonzeros
+Read LP format model from file /tmp/tmp3ege30hr.lp
+Reading time = 0.01 seconds
+: 1253 rows, 2872 columns, 12412 nonzeros
+Read LP format model from file /tmp/tmpz8g00ew1.lp
+Reading time = 0.01 seconds
+: 1325 rows, 3218 columns, 13854 nonzeros
+bio1 from Desulfosporosinus.1 becomes bio2
+bio1 from Erysipelothrix.1 becomes bio3
+bio1 from Methanobacterium.1 becomes bio4
+bio1 from Methanosarcina.1 becomes bio5
+bio1 from Ochrobactrum.1 becomes bio6
+bio1 from Petrimonas.1 becomes bio7
+bio1 from Sedimentibacter.8 becomes bio8
+bio1 from Terrisporobacter.1 becomes bio9
+bio1 from midas_g_25828.1 becomes bio10
+Community objective 1.0*bio1 - 1.0*bio1_reverse_b18f7
+Read LP format model from file /tmp/tmps62xa8_v.lp
+Reading time = 0.04 seconds
+: 9857 rows, 22196 columns, 102336 nonzeros
+[15:30:59] LP growth 19.91; profile growth 4.964 (80.5s)
+Set parameter OutputFlag to value 1
+Set parameter LogToConsole to value 0
+[15:32:08] loop law on 3723 reactions (63.6s); MIP start set: True
+[15:47:34] MILP: {'status': 'optimal', 'seconds': 925.2, 'ObjVal': 19.914579207608988, 'ObjBound': 19.914579207608988, 'MIPGap': 0.0, 'NodeCount': 8845.0, 'SolCount': 10.0}
+Read LP format model from file /tmp/tmp_3311359.lp
+Reading time = 0.06 seconds
+: 9857 rows, 22196 columns, 102336 nonzeros
+[15:48:10] hybrid: {"growth": 19.91457920760807, "oriented": 1450, "against_reference": 0, "irreversible_blocked": 50, "seconds": 32.3, "atp_from_nothing": 0.0, "atp_by_member": {}, "n_atp_tests": 9, "growth_from_nothing": 0.0, "electrons_from_nothing": 0.0, "electron_carriers": {}}
+[15:48:10] done
