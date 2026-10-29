@@ -1085,13 +1085,18 @@ def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto"):
     return [active[j].id for j in range(n_active) if x[j] > tol]
 
 
-def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None, tol=1e-7, **law_args):
+def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None, tol=1e-7, time_budget=None,
+                     **law_args):
     """The model's optimum under the loop law (ATP pinned), found by covering only the cycles the
     optimum tries to use: solve; if the solution holds a cycle (conformal_cycle), cover its
     reactions with LocalLoopLaw and solve again. The first solve is the plain LP; each later one
     is a MILP whose binaries are the covered reactions only, warm-started from `start` -- a flux
     with no cycle in it, e.g. an orient_community optimum, which every cover allows. At the end
     the solution holds no cycle, so it is the loop-law optimum (to the MILP's gap).
+
+    time_limit caps each solve, time_budget the whole loop (seconds); when the budget runs out the
+    status says so and `fluxes` is the last solution, which may still hold a cycle (check it with
+    conformal_cycle before using it as a cycle-free reference).
 
     Returns (fluxes, report); the law's rows stay on `model` (report["law"]) until removed."""
     import time
@@ -1101,8 +1106,12 @@ def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None
     if time_limit is not None:
         model.solver.configuration.timeout = time_limit
     fluxes = {}
+    began = time.time()
     try:
         for rnd in range(max_rounds):
+            if time_budget is not None and time.time() - began > time_budget:
+                report["status"] = "time budget"
+                break
             started = bool(start) and bool(law.binaries) and law.start(start)
             t = time.time()
             v = _value(model)
