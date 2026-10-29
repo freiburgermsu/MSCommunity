@@ -1085,6 +1085,20 @@ def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto"):
     return [active[j].id for j in range(n_active) if x[j] > tol]
 
 
+def _incumbent(model):
+    """The objective of the last solve, also when it stopped at a limit with a solution in hand
+    (cobra's slim_optimize reports only optimal solves)."""
+    v = _value(model)
+    if v is None and model.solver.status in ("time_limit", "feasible", "suboptimal", "iteration_limit"):
+        try:
+            v = float(model.solver.objective.value)
+        except Exception:
+            v = None
+        if v is not None and (isnan(v) or abs(v) == float("inf")):
+            v = None  # stopped without any solution
+    return v
+
+
 def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None, tol=1e-7, time_budget=None,
                      **law_args):
     """The model's optimum under the loop law (ATP pinned), found by covering only the cycles the
@@ -1114,7 +1128,7 @@ def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None
                 break
             started = bool(start) and bool(law.binaries) and law.start(start)
             t = time.time()
-            v = _value(model)
+            v = _incumbent(model)
             row = {"round": rnd, "objective": v, "status": model.solver.status, "covered": len(law.binaries),
                    "started": started, "seconds": round(time.time() - t, 1)}
             report["rounds"].append(row)
