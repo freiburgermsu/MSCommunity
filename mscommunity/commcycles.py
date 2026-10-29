@@ -1108,25 +1108,29 @@ def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None
     with no cycle in it, e.g. an orient_community optimum, which every cover allows. At the end
     the solution holds no cycle, so it is the loop-law optimum (to the MILP's gap).
 
-    time_limit caps each solve, time_budget the whole loop (seconds); when the budget runs out the
-    status says so and `fluxes` is the last solution, which may still hold a cycle (check it with
+    time_limit caps each solve, time_budget the whole loop (seconds). A solve that stops at its time
+    limit with a cycle-free solution gets one more solve with all the budget left; when the budget
+    runs out the status says so and `fluxes` is the last solution, which may still hold a cycle (check it with
     conformal_cycle before using it as a cycle-free reference).
 
     Returns (fluxes, report); the law's rows stay on `model` (report["law"]) until removed."""
     import time
     law = law or LocalLoopLaw(model, **law_args)
-    report = {"rounds": [], "status": "max rounds", "law": law}
+    report = {"rounds": [], "status": "max rounds", "law": law,
+              "best_objective": float("-inf"), "best_fluxes": None}
     saved = model.solver.configuration.timeout
     if time_limit is not None:
         model.solver.configuration.timeout = time_limit
     fluxes = {}
+    resume = False
     began = time.time()
     try:
         for rnd in range(max_rounds):
             if time_budget is not None and time.time() - began > time_budget:
                 report["status"] = "time budget"
                 break
-            started = bool(start) and bool(law.binaries) and law.start(start)
+            # a resumed solve keeps its search tree: setting a start would change the model
+            started = (not resume) and bool(start) and bool(law.binaries) and law.start(start)
             t = time.time()
             v = _incumbent(model)
             row = {"round": rnd, "objective": v, "status": model.solver.status, "covered": len(law.binaries),
@@ -1138,9 +1142,23 @@ def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None
             fluxes = {r.id: r.flux for r in model.reactions}
             cycle = conformal_cycle(model, fluxes, tol=tol)
             row["cycle"] = len(cycle)
+            if not cycle and v > report["best_objective"]:
+                report["best_objective"], report["best_fluxes"] = v, fluxes
             if not cycle:
-                report["status"] = "no cycle"
+                left = None if time_budget is None else time_budget - (time.time() - began)
+                if model.solver.status != "optimal" and not resume and (left is None or left > 60):
+                    # stopped at the round's time limit with a cycle-free incumbent: unproven, so
+                    # give the same MILP one solve with all the budget left (or no limit at all),
+                    # then cover any cycle that solution holds as usual
+                    resume = True
+                    row["extended_to"] = None if left is None else round(left)
+                    model.solver.configuration.timeout = left
+                    continue
+                report["status"] = "no cycle" if model.solver.status == "optimal" else "no cycle (time budget, unproven)"
                 break
+            if resume:
+                model.solver.configuration.timeout = time_limit if time_limit is not None else saved
+                resume = False
             row["added"] = law.add([model.reactions.get_by_id(rid) for rid in cycle])
             if not row["added"]:
                 report["status"] = "cycle already covered (solver tolerance)"
