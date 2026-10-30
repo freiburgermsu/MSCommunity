@@ -800,13 +800,17 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
     that hands its ATP to biomass. This is an LP and needs no binaries; the price is that one
     profile serves every simulation, where the loop law would find a profile per solution.
 
-    Two LPs, lexicographically:
-      1. honour the reference: minimise the weighted dG against each `reference` flux direction
-         ({reaction id: flux}, e.g. member_reference or a loop-law solution; or a list of
-         (flux dict, weight) pairs, whose weights add up per reaction). A reference with no
-         cycle in it (conformal_cycle) is honoured exactly; one with a cycle is broken where it
-         costs least. A reference flux below flux_floor weighs in proportion to its size, so
-         numerical trickle flows lose to the fluxes that carry the solution.
+    LPs, lexicographically:
+      1. honour the reference: minimise the dG against the `reference` flux directions
+         ({reaction id: flux}, e.g. member_reference or a loop-law solution). `reference` can be
+         a list of (flux dict, weight) pairs: they are honoured one after another, each holding
+         what the earlier ones achieved (one LP each), so an earlier reference is never traded
+         for a later one -- the members' own growth before the community optimum, say. (Summed
+         into one LP, many small violations of the optimum outweighed one member reaction, and
+         a community could no longer grow.) A reference with no cycle in it (conformal_cycle) is
+         honoured exactly; one with a cycle is broken where it costs least. A reference flux
+         below flux_floor weighs in proportion to its size, so numerical trickle flows lose to
+         the fluxes that carry the solution.
       2. holding that, orient as little as possible: minimise |dG| over the internal reactions,
          w_irreversible on a dG that would block an irreversible reaction (positive for one that
          runs forward only, negative for reverse only), 1 on any other (a reversible reaction
@@ -833,15 +837,21 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
     eye = sp.identity(nr, format="csr")
     # x = [mu (nm), p (nr), q (nr)],  dG = St mu = p - q,  p, q >= 0
     A_eq = sp.hstack([St, -eye, eye], format="csr")
-    rp, rq = np.zeros(nr), np.zeros(nr)    # stage 1: against the reference
-    wp, wq = np.ones(nr), np.ones(nr)      # stage 2: orienting at all
-    for j, r in enumerate(rxns):
-        for ref, w in refs:
+    # stage 1, one LP per reference in order: against that reference. Below flux_floor the weight
+    # shrinks with the flux: a MILP's big-M "trickle" flows (1e-9 - 1e-6) can close a cycle, and
+    # the profile should break it there, not on a reaction that carries the solution
+    stage1 = []
+    for ref, w in refs:
+        rp, rq = np.zeros(nr), np.zeros(nr)
+        for j, r in enumerate(rxns):
             v = ref.get(r.id, 0.0)
             if v > 0:
-                rp[j] += w * min(1.0, v / flux_floor)
+                rp[j] = w * min(1.0, v / flux_floor)
             elif v < 0:
-                rq[j] += w * min(1.0, -v / flux_floor)
+                rq[j] = w * min(1.0, -v / flux_floor)
+        stage1.append((rp, rq))
+    wp, wq = np.ones(nr), np.ones(nr)      # stage 2: orienting at all
+    for j, r in enumerate(rxns):
         if r.lower_bound >= 0 and r.upper_bound > 0:
             wp[j] = w_irreversible
         elif r.upper_bound <= 0 and r.lower_bound < 0:
@@ -872,12 +882,17 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
             lp = "highs-ipm"
     solve = (lambda c, A, b: _profile_gurobi(c, A_eq, A, b, nm, nr, max_potential, threads)) if lp == "gurobi" \
         else (lambda c, A, b: _profile_scipy(c, A_eq, A, b, nm, nr, max_potential, lp))
-    c1 = np.concatenate([zeros, rp, rq])
-    against = 0.0
-    if c1.any():
-        _, against = solve(c1, A_ub, b_ub)
+    against = []
+    for rp, rq in stage1:
+        c1 = np.concatenate([zeros, rp, rq])
+        if not c1.any():
+            against.append(0.0)
+            continue
+        _, cost = solve(c1, A_ub, b_ub)
+        against.append(cost)
         A_ub = sp.vstack([A_ub, sp.csr_matrix(c1)], format="csr")
-        b_ub = np.concatenate([b_ub, [against * (1 + 1e-9) + 1e-7]])
+        b_ub = np.concatenate([b_ub, [cost * (1 + 1e-9) + 1e-7]])
+    against = against if isinstance(reference, list) else (against[0] if against else 0.0)
     x, objective = solve(np.concatenate([zeros, wp, wq]), A_ub, b_ub)
     # dG from the LP's own split, not recomputed as St mu: with potentials up to max_potential
     # the equality rows hold only to the solver's feasibility tolerance, and St mu then puts
@@ -992,7 +1007,7 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
         # each member alone first (cycle-free, so the community can always grow), then as much
         # of the optimum as agrees with them
         w = profile_args.pop("w_reference", 1e4)
-        reference = [(members, 10 * w), (optimum, w)]
+        reference = [(members, w), (optimum, w)]   # in this order: members first
     elif reference == "pfba":
         reference = optimum
     elif reference is None or reference == "members":
