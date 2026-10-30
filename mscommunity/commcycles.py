@@ -144,6 +144,21 @@ def close_uptakes(model, open_cpds=()):
             rxn.bounds = (0, max(rxn.upper_bound, 0))
 
 
+def robust_pfba(model):
+    """cobra's pfba at the full optimum, retried at 99.99% and 99.9% of it when the solver calls
+    the full-optimum problem infeasible -- which it can, numerically, on a community of 100k+
+    reactions (v7d day 168: the oriented copy's pFBA raised Infeasible). Returns the Solution."""
+    from cobra.flux_analysis import pfba
+    from cobra.exceptions import OptimizationError
+    last = None
+    for frac in (1.0, 0.9999, 0.999):
+        try:
+            return pfba(model, fraction_of_optimum=frac)
+        except (OptimizationError, Exception) as exc:  # Infeasible is an OptimizationError
+            last = exc
+    raise last
+
+
 def _value(model):
     v = model.slim_optimize(error_value=float("nan"))
     return None if isnan(v) else v
@@ -743,7 +758,7 @@ def member_reference(model, biomass_prefix="bio", tol=1e-9, member_models=None):
             grown[idx] = g
             if g <= tol:
                 continue
-            sol = pfba(model)
+            sol = robust_pfba(model)
             reference.update({rid: v for rid, v in sol.fluxes.items()
                               if abs(v) > tol and owner.get(rid) == idx})
     return reference, grown
@@ -778,7 +793,7 @@ def _member_reference_from_models(model, member_models, biomass_prefix, tol):
             grown[idx] = g
             if g <= tol:
                 continue
-            for rid, v in pfba(mm).fluxes.items():
+            for rid, v in robust_pfba(mm).fluxes.items():
                 if abs(v) <= tol or rid.startswith("EX_"):
                     continue
                 if rid == bio.id:
@@ -1000,7 +1015,7 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
     if reference in ("pfba", "both"):
         # the unoriented optimum itself: kept whole when it holds no cycle (pFBA rarely pays
         # for one); whatever cycle it does hold, the soft weights orient against
-        optimum = {rid: f for rid, f in pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
+        optimum = {rid: f for rid, f in robust_pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
     if reference is None or reference in ("members", "both"):
         members, grown = member_reference(model, member_models=member_models)
     if reference == "both":
@@ -1027,7 +1042,7 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
                         "against_reference": [len(x) for x in against] if isinstance(reference, list) else len(against),
                         "irreversible_blocked": len(profile["irreversible_blocked"])})
         if k + 1 < rounds and v is not None and v > tol:
-            new = {rid: f for rid, f in pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
+            new = {rid: f for rid, f in robust_pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
             if isinstance(reference, list):
                 reference = reference + [(new, reference[-1][1])]
             else:
