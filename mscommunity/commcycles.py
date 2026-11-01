@@ -806,7 +806,7 @@ def _member_reference_from_models(model, member_models, biomass_prefix, tol):
 
 
 def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, pin_atp=True,
-                      w_reference=1.0, w_irreversible=1e2, lp="auto", threads=None, flux_floor=1e-3):
+                      w_reference=1.0, w_irreversible=1e2, lp="auto", threads=None, flux_floor=None):
     """One metabolite potential vector for the whole community, from which `orient_by_potentials`
     fixes reaction directions. With ATP hydrolysis pinned downhill (dG <= -dg_margin in every
     member), no orientation it gives can run an energy-generating cycle: around any cycle the dG
@@ -823,9 +823,7 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
          for a later one -- the members' own growth before the community optimum, say. (Summed
          into one LP, many small violations of the optimum outweighed one member reaction, and
          a community could no longer grow.) A reference with no cycle in it (conformal_cycle) is
-         honoured exactly; one with a cycle is broken where it costs least. A reference flux
-         below flux_floor weighs in proportion to its size, so numerical trickle flows lose to
-         the fluxes that carry the solution.
+         honoured exactly; one with a cycle is broken where it costs least.
       2. holding that, orient as little as possible: minimise |dG| over the internal reactions,
          w_irreversible on a dG that would block an irreversible reaction (positive for one that
          runs forward only, negative for reverse only), 1 on any other (a reversible reaction
@@ -852,18 +850,22 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
     eye = sp.identity(nr, format="csr")
     # x = [mu (nm), p (nr), q (nr)],  dG = St mu = p - q,  p, q >= 0
     A_eq = sp.hstack([St, -eye, eye], format="csr")
-    # stage 1, one LP per reference in order: against that reference. Below flux_floor the weight
-    # shrinks with the flux: a MILP's big-M "trickle" flows (1e-9 - 1e-6) can close a cycle, and
-    # the profile should break it there, not on a reaction that carries the solution
+    # stage 1, one LP per reference in order: against that reference. Every reference flux weighs
+    # the same by default. flux_floor (off by default) shrinks the weight below it in proportion
+    # to the flux -- meant for a MILP's big-M "trickle" flows, but it also cheapens real trace
+    # fluxes (a cofactor at 1e-6 that some member's biomass needs) until breaking one costs less
+    # than the next stage's tolerance: v7d/v7e days 147 and 149 reoriented to growth 0 that way.
+    # Clean a MILP reference instead (drop |v| below its integrality leak) before passing it.
     stage1 = []
     for ref, w in refs:
         rp, rq = np.zeros(nr), np.zeros(nr)
         for j, r in enumerate(rxns):
             v = ref.get(r.id, 0.0)
+            scale = 1.0 if not flux_floor else min(1.0, abs(v) / flux_floor)
             if v > 0:
-                rp[j] = w * min(1.0, v / flux_floor)
+                rp[j] = w * scale
             elif v < 0:
-                rq[j] = w * min(1.0, -v / flux_floor)
+                rq[j] = w * scale
         stage1.append((rp, rq))
     wp, wq = np.ones(nr), np.ones(nr)      # stage 2: orienting at all
     for j, r in enumerate(rxns):
