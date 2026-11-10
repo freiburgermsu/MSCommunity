@@ -19,4 +19,5 @@ from mscommunity.batched_lp import (
     register_batched_solver,
     solve_batch,
 )
+from mscommunity.commsurrogate import FBASurrogate, community_to_nn, sample_fba, train_surrogate
 import mscommunity.backends  # auto-registers numpy-pdhg / jax-pdhg / cupy-pdhg / pdlp

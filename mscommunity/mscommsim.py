@@ -416,6 +416,18 @@ class MSCommunity:
         self.set_objective()
         return orient_community(self.util.model, reference=reference, rounds=rounds, **profile_args)
 
+    def to_neural_network(self, inputs=None, media=None, **surrogate_args):
+        """This community as the ANN surrogate of Song et al. (2025): uptake limits on the shared
+        e0 exchanges in, each member's biomass, the community biomass and the actual exchange
+        fluxes out, as one closed-form tanh network trained on sampled FBA solutions
+        (commsurrogate.community_to_nn). `inputs` defaults to every exchange of the medium; the
+        community is sampled as configured, objective and constraints included. Returns the
+        FBASurrogate, whose `scores` hold the R^2 of each output on held-out samples."""
+        from mscommunity.commsurrogate import community_to_nn
+        if media is not None:
+            self.util.add_medium(media)
+        return community_to_nn(self, inputs, **surrogate_args)
+
     def test_individual_species(self, media=None, interacting=True, run_atp=True, run_biomass=True):
         assert run_atp or run_biomass, ValueError("Either the run_atp or run_biomass arguments must be True.")
         # self.pkgmgr.getpkg("KBaseMediaPkg").build_package(media)
