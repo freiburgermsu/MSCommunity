@@ -41,9 +41,84 @@ def correct_nonMSID(nonMSobject, output, model_index):
     return "_".join([nonMSobject.id.replace(comp.group(), ""), nonMSobject.compartment])
 
 
+SHARED_BOUNDS_RULES = ("union", "first")
+_EXAMPLES = 5          # how many conflicting ids a merge warning quotes
+
+
+def _missing(value):
+    """An unset formula or charge: None, '' or NaN."""
+    return value is None or value == "" or (isinstance(value, float) and value != value)
+
+
+def _stoichiometry(rxn):
+    return {met.id: float(coef) for met, coef in rxn.metabolites.items()}
+
+
+def _merge_shared_ids(rxn_versions, met_versions, shared_bounds):
+    """Settle every id that more than one member brings (the shared e0 exchanges and metabolites).
+
+    `rxn_versions` / `met_versions` map each final id to [(member id, object), ...] in member order;
+    the first object is the one the community keeps. Returns a JSON-able record of what differed and
+    what was done about it (also stored on the community as notes["shared_id_merge"])."""
+    record = {"rule": shared_bounds, "bounds": {}, "stoichiometry": {}, "formula": {}, "charge": {},
+              "filled": {"formula": [], "charge": []}}
+    for rid, versions in rxn_versions.items():
+        if len(versions) < 2:
+            continue
+        kept = versions[0][1]
+        stoich = _stoichiometry(kept)
+        same_stoich = all(_stoichiometry(r) == stoich for _, r in versions[1:])
+        if not same_stoich:
+            # not one reaction under one id: nothing can be merged, so the first member's stands
+            record["stoichiometry"][rid] = [[mid, r.build_reaction_string()] for mid, r in versions]
+        if len({r.bounds for _, r in versions}) > 1:
+            entry = {"members": [mid for mid, _ in versions], "bounds": [list(r.bounds) for _, r in versions]}
+            if shared_bounds == "union" and same_stoich:
+                kept.bounds = (min(r.lower_bound for _, r in versions), max(r.upper_bound for _, r in versions))
+            entry["kept"] = list(kept.bounds)
+            record["bounds"][rid] = entry
+    for mid_, versions in met_versions.items():
+        if len(versions) < 2:
+            continue
+        kept = versions[0][1]
+        for attr in ("formula", "charge"):
+            given = [(mid, getattr(met, attr)) for mid, met in versions if not _missing(getattr(met, attr))]
+            if len({value for _, value in given}) > 1:
+                record[attr][mid_] = [[mid, value] for mid, value in given]
+            if _missing(getattr(kept, attr)) and given:
+                # a member that leaves it unset does not disagree with one that sets it
+                setattr(kept, attr, given[0][1])
+                record["filled"][attr].append(mid_)
+    return record
+
+
+def _warn_merge(record, community_id):
+    def quote(entries):
+        ids = sorted(entries)
+        return ", ".join(f"{i}: {entries[i]}" for i in ids[:_EXAMPLES]) + (" ..." if len(ids) > _EXAMPLES else "")
+    if record["bounds"]:
+        rule = ("each takes the union of the members' bounds (lowest lower, highest upper bound)"
+                if record["rule"] == "union" else "each keeps the bounds of the first member that has it")
+        logger.warning("%s: %d reaction ids that several members share carry different bounds in different "
+                       "members; %s. Set the community medium explicitly if it should be something else. %s",
+                       community_id, len(record["bounds"]), rule,
+                       quote({rid: dict(zip(e["members"], map(tuple, e["bounds"]))) for rid, e in record["bounds"].items()}))
+    if record["stoichiometry"]:
+        logger.warning("%s: %d reaction ids that several members share have different stoichiometry in different "
+                       "members, so they are not the same reaction; the first member's is kept and the others are "
+                       "dropped. %s", community_id, len(record["stoichiometry"]),
+                       quote({rid: dict(v) for rid, v in record["stoichiometry"].items()}))
+    for attr in ("formula", "charge"):
+        if record[attr]:
+            logger.warning("%s: %d shared metabolites have different %ss in different members; the one of "
+                           "the first member that sets it is kept. %s", community_id, len(record[attr]), attr,
+                           quote({mid: dict(v) for mid, v in record[attr].items()}))
+
+
 def build_from_species_models(org_models, model_id=None, name=None, abundances=None, standardize=False, MSmodel = False,
                               commkinetics=True, copy_models=True, climit=None, o2limit=None, printing=False,
-                              build_solver="glpk", final_solver=None, check_energy_cycles=False):
+                              build_solver="glpk", final_solver=None, check_energy_cycles=False,
+                              shared_bounds="union"):
     """Merges the input list of single species metabolic models into a community metabolic model
 
     Parameters
@@ -58,6 +133,25 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
     check_energy_cycles: bool; test the assembled community for ATP made from nothing
         (commcycles.energy_from_nothing) and warn if it makes any. Members that are clean on their
         own can close such a cycle through the shared compartment. One LP; off by default.
+    shared_bounds: "union" (default) or "first"; the bounds of a reaction id that several members
+        bring, which are the shared e0 exchanges (and any reaction wholly in e0). The community has
+        one such reaction, so the members' bounds must be reconciled:
+          "union"  lower bound = the lowest of the members' lower bounds, upper bound = the highest
+                   of their upper bounds. The shared pool then offers whatever any member's own
+                   medium offered, no member loses an uptake it had alone, and the result does not
+                   depend on the order of `org_models`.
+          "first"  the bounds of the first member in `org_models` that has the reaction.
+        Either way the merge is deterministic and a warning lists every shared id whose bounds
+        differ between members. An exchange bound is a property of the environment, not of one
+        member: a member-specific uptake capacity belongs on that member's transporter, and the
+        community medium is best set explicitly after the merge.
+
+    Every other property of a shared id comes from the first member (in `org_models` order) that has
+    it: the reaction object, its stoichiometry and name, and the metabolite object with its name. A
+    formula or charge that the first member leaves unset is filled from the next member that sets
+    it. A warning names shared reactions whose stoichiometry differs between members (the first is
+    kept, the others dropped) and shared metabolites whose members set different formulas or charges.
+    What was reconciled is recorded in `model.notes["shared_id_merge"]`.
 
     Returns
     -------
@@ -66,12 +160,19 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
     Raises
     ------
     """
+    if shared_bounds not in SHARED_BOUNDS_RULES:
+        raise ValueError(f"shared_bounds must be one of {SHARED_BOUNDS_RULES}, not {shared_bounds!r}")
     # construct the new model
     models = [mdl.copy() for mdl in org_models] #if not standardize else GEMCompatibility.standardize(
         #org_models, exchanges=True, conflicts_file_name='exchanges_conflicts.json')
     biomass_indices = []
     biomass_index = minimal_biomass_index = 2
-    new_metabolites, new_reactions = set(), set()
+    # Every object a member brings, by its final (renamed) id, in member order; the first is kept.
+    # These must not be sets: cobra objects hash by identity, so a set's order -- and with it which
+    # same-id duplicate survives -- changed from one merge to the next.
+    rxn_versions, met_versions = {}, {}
+    def _collect(versions, obj, member_id):
+        versions.setdefault(obj.id, []).append((member_id, obj))
     member_biomasses = {}
     models = models if not abundances else [mdl for mdl in models if mdl.id in abundances]
     # print(models)
@@ -103,7 +204,7 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
                 else:
                     met.compartment = compartment + str(index)
                     met.id = name + "_" + met.compartment
-            new_metabolites.add(met)
+            _collect(met_versions, met, org_model.id)
             if "cpd11416_c" in met.id or "biomass" in met.name or "biomass" in met.id:
                 met.name = f"{met.id}_{org_model.id}"
                 member_biomasses.setdefault(org_model.id, []).append(met)
@@ -112,7 +213,7 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
         if printing: print(len(org_model.reactions), "reactions of", org_model.id, "are being processed")
         for rxn in org_model.reactions: #model_util.model.reactions:
             if rxn.id[0:3] == "EX_":
-                new_reactions.add(rxn)
+                _collect(rxn_versions, rxn, org_model.id)
                 continue
             ## biomass reactions
             if re.search('^(bio)(\d+)$', rxn.id) or "biomass" in rxn.id:
@@ -165,7 +266,7 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
                 # if "compartment" not in locals():  print(f"the {rxn.id} with a {output} output is not defined with a compartment.")
                 if string_diff != f"_{compartment}{model_index}" or not FBAHelper.isnumber(string_diff) and printing:
                     logger.debug(f"The ID {initialID} is changed with {string_diff} to create the final ID {finalID}")
-            new_reactions.add(rxn)
+            _collect(rxn_versions, rxn, org_model.id)
         # else:
         #     # TODO develop a method for compartmentalizing models without editing all reaction IDs or assuming their syntax
         #     pass
@@ -213,16 +314,27 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
             newmodel.solver = build_solver
         except Exception:
             logger.warning("build_solver %s unavailable; building on the default interface", build_solver)
-    # DETERMINISM FIX: new_reactions / new_metabolites are Python sets (see ~L67),
-    # so their iteration order varies between otherwise-identical builds (it depends
-    # on per-object hashes, and every build re-.copy()s fresh objects). That
-    # nondeterministic order then (a) randomizes the community model's variable
-    # order, so an LP solver returns DIFFERENT alternate-optima vertices run-to-run,
-    # and (b) randomizes `other_biomass_cpds` in MSCommunity.__init__, scrambling
-    # which member id maps to compartment c1 vs c2 — so memGrowths["EC"] could read
-    # PP's biomass flux. Sort by id before adding so construction is reproducible.
-    newmodel.add_reactions(sorted(FBAHelper.filter_cobra_set(new_reactions), key=lambda r: r.id))
-    newmodel.add_metabolites(sorted(FBAHelper.filter_cobra_set(new_metabolites), key=lambda m: m.id))
+    # DETERMINISM. Which object stands for a shared id is settled by member order
+    # (_merge_shared_ids), and the reactions go in sorted by id, so the variable order
+    # is fixed too: an unsorted order made an LP solver return different alternate
+    # optima run to run and scrambled `other_biomass_cpds` in MSCommunity.__init__
+    # (memGrowths["EC"] could read PP's biomass flux). The chosen metabolites go in
+    # before the reactions -- add_reactions repoints a reaction to the model's object
+    # of the same id, so otherwise whichever member's reaction sorted first would
+    # decide -- in the order the sorted reactions first touch them, which is the row
+    # order add_reactions has always produced; metabolites no reaction uses follow,
+    # sorted by id.
+    merge_record = _merge_shared_ids(rxn_versions, met_versions, shared_bounds)
+    _warn_merge(merge_record, model_id or "+".join([model.id for model in models]))
+    reactions = sorted((versions[0][1] for versions in rxn_versions.values()), key=lambda r: r.id)
+    row_order = {}
+    for rxn in reactions:
+        for met in rxn.metabolites:
+            row_order.setdefault(met.id, None)
+    orphans = sorted(mid for mid in met_versions if mid not in row_order)
+    newmodel.add_metabolites([met_versions[mid][0][1] for mid in list(row_order) + orphans
+                              if mid in met_versions])
+    newmodel.add_reactions(reactions)
     newmodel.add_reactions([comm_biorxn])
     newutl = MSModelUtil(newmodel, False, climit=climit, o2limit=o2limit)
     newutl.add_objective(comm_biorxn.flux_expression)
@@ -233,6 +345,7 @@ def build_from_species_models(org_models, model_id=None, name=None, abundances=N
     if hasattr(newutl.model, "_context"):  newutl.model._contents.append(member_biomasses)
     elif hasattr(newutl.model, "notes"):
         newutl.model.notes.update({"member_biomass_cpds": member_biomasses, "modelIndex_names": model_tracking})
+    newutl.model.notes["shared_id_merge"] = merge_record
     # print([cons.name for cons in newutl.model.constraints])
 
     # Cross-feeding can only happen through a shared extracellular compartment.
