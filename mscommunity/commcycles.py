@@ -24,8 +24,9 @@ Removing them -- tried on the nine members of the codiffusion day-174 cycle and 
                           (loop_capable_reactions) found nothing above 0 in 30 min unstarted.
     orient_community      one metabolite-potential profile for the whole community, with ATP
                           hydrolysis pinned downhill; every reaction keeps only the directions the
-                          profile allows. Provably leaves no energy-generating cycle, including
-                          one that feeds biomass; LPs only. It keeps a reference flux wherever that
+                          profile allows. Provably leaves no ATP-generating cycle, including
+                          one that feeds biomass (not one charging another nucleotide: see
+                          "Not covered"); LPs only. It keeps a reference flux wherever that
                           holds no cycle: on a loop_law_optimum solution it keeps the loop-law
                           optimum and turns every later simulation into an ordinary cycle-free LP.
                           Without one: "pfba" (the community's own optimum) keeps more when that
@@ -48,16 +49,43 @@ kcal/mol). Reactions that cross a membrane are not gated: their dG depends on th
 potential, which the database values leave out. The defaults (1 uM - 20 mM, 2 sigma) gate only
 directions that are uphill by more than any plausible concentration ratio can pay for.
 
-Not covered: the ATP pin is on ATP only (a cycle that makes GTP, say, and hands it to biomass is
-excluded only where GTP is linked to ATP), and electrons made by reactions that do not conserve
-charge are a curation problem, not a cycle -- electrons_from_nothing reports them, nothing here
-removes them.
+Not covered by default: the pin is on ATP hydrolysis only, so "energy-generating" above means
+ATP-generating. A cycle that charges another nucleotide -- GTP, say -- and hands it straight to
+biomass is not excluded, not even where nucleoside-diphosphate kinase links GTP to ATP: the
+potentials can put GTP's phosphorylation potential below ATP's, which orients the kinase
+ATP -> GTP and leaves the GTP loop downhill. The link only lets energy_from_nothing see such a
+loop (as ATP made through the kinase) and lets the pin stop that ATP-making use. In the
+planted-cycle validation (tests/test_i_cycle_validation.py, 50 seeds per type) the ATP-pinned loop
+law exceeded the ATP+GTP-pinned optimum on every GTP-loop instance, linked or not (growth up to
+1.28x and 1.56x), and orient_community ("pfba", "both") kept all of that excess on the unlinked
+loops and part of it on the linked ones (mean 1.18x; 1.04-1.06x). pins="ntp" (LocalLoopLaw,
+loop_law_optimum, potential_profile, orient_community, conformal_cycle, energy_from_nothing) pins
+GTP, CTP, UTP and pyrophosphate hydrolysis downhill as well and adds their hydrolysis tests; it is
+opt-in because it changes the default orientations and costs a few more rows.
+
+The sealed tests close every uptake, so they cannot see a route that draws free energy through a
+boundary ion -- phosphate and protons taken in, pyrophosphate sent out, say (811 mmol ATP/gDW/h on
+one 88-member orientation that passes the sealed gate). energy_from_nothing(boundary_ions=True)
+adds arms that reopen H+ and Pi (and optionally the medium's inorganic uptakes), and net_atp_yield
+gives the ATP yield of a substrate net of what the same test makes without it. Electrons made by
+reactions that do not conserve charge are a curation problem, not a cycle -- electrons_from_nothing
+reports them, nothing here removes them.
+
+Reproducibility. orient_community, cut_energy_cycles, robust_pfba(canonical=True) and
+member_reference(canonical=True) solve on canonical_copy(model): a copy whose rows are rebuilt in
+reaction order, started from a defined state (GLPK's standard basis; a fresh Gurobi model with
+Threads, Presolve and Method set explicitly). Which optimal vertex a simplex returns follows its
+start and the stored order of the rows' terms, and the profile honours whichever pFBA vertex it is
+given; on the Kp/Bt merges three fresh builds gave three orientations per reference before this.
+It makes the result reproducible for one solver configuration and thread count, not better: the
+vertex it reproduces is no more right than the others.
 """
 import glob
 import json
 import logging
 import os
 import re
+from contextlib import contextmanager
 from math import log as ln, isnan
 
 from cobra import Reaction
@@ -77,6 +105,90 @@ NOT_IN_CONCENTRATION_TERM = {"cpd00001", "cpd00067"}  # water, H+ (fixed by the 
 THERMO_SOURCES = ("eQuilibrator", "dGPredictor", "Group contribution")
 _COMP = re.compile(r"^([a-z]+)(\d+)$")
 _MSID = re.compile(r"^(rxn\d{5})")
+
+# phosphoanhydride hydrolysis pins: (triphosphate, diphosphate); diphosphate None is pyrophosphate
+# (PPi + H2O -> 2 Pi + H+). Each pin is NTP + H2O -> NDP + Pi + H+ in every member cytosol
+# holding all five metabolites.
+ATP, ADP, PI, PPI, H2O, PROTON = "cpd00002", "cpd00008", "cpd00009", "cpd00012", "cpd00001", "cpd00067"
+ATP_PINS = ((ATP, ADP),)
+NTP_PINS = ((ATP, ADP), ("cpd00038", "cpd00031"),   # ATP/ADP, GTP/GDP
+            ("cpd00052", "cpd00096"), ("cpd00062", "cpd00014"),  # CTP/CDP, UTP/UDP
+            (PPI, None))                             # pyrophosphate
+TEST_PREFIXES = ("ATPtest_", "NTPtest_")
+KINETIC_ROW_SUFFIX = "_commKin"
+# boundary-ion arms of energy_from_nothing; the yield test's background uptakes
+BOUNDARY_ION_ARMS = (("H+", (PROTON,)), ("H+,Pi", (PROTON, PI)))
+YIELD_OPEN = (H2O, PROTON, PI, "cpd00011")  # H2O, H+, Pi, CO2
+# left out of the "medium" ion arm: electron acceptors (a donor-free test cannot use them, but
+# they are not ions in the sense meant here) and inorganic electron donors (H2 + CO2 is a real
+# energy source for methanogens and acetogens)
+ELECTRON_ACCEPTORS = {"cpd00007", "cpd00209", "cpd00075", "cpd00048", "cpd00106", "cpd00659",
+                      "cpd10516", "cpd00268"}
+INORGANIC_DONORS = {"cpd11640", "cpd00239", "cpd10515"}  # H2, H2S, Fe2+
+INORGANIC_CARBON = {"cpd00011", "cpd00242"}  # CO2, HCO3-
+
+
+def _resolve_pins(pins=None, pin_atp=True):
+    """pins: None (ATP_PINS, or none with pin_atp=False), "atp", "ntp" (NTP_PINS), or an
+    iterable of (triphosphate, diphosphate-or-None) compound ids."""
+    if pins is None:
+        return ATP_PINS if pin_atp else ()
+    if isinstance(pins, str):
+        if pins.lower() == "ntp":
+            return NTP_PINS
+        if pins.lower() == "atp":
+            return ATP_PINS
+        raise ValueError(f"pins must be None, 'atp', 'ntp' or a list of pairs, not {pins!r}")
+    return tuple((tri, di) for tri, di in pins)
+
+
+def _hydrolysis(tri, di):
+    """{compound: coefficient} of tri + H2O -> di + Pi + H+ (di None: PPi + H2O -> 2 Pi + H+)."""
+    if di is None:
+        return {tri: -1, H2O: -1, PI: 2, PROTON: 1}
+    return {tri: -1, H2O: -1, di: 1, PI: 1, PROTON: 1}
+
+
+def hydrolysis_sites(model, pins=ATP_PINS):
+    """[(triphosphate, compartment, {metabolite id: coefficient})]: every member cytosol (c<i>)
+    that holds all the metabolites of a pin's hydrolysis, in pin order, then model order."""
+    mets = {m.id for m in model.metabolites}
+    out = []
+    for tri, di in pins:
+        st = _hydrolysis(tri, di)
+        for met in model.metabolites:
+            m = _COMP.match(met.compartment or "")
+            if _cpd(met) != tri or not m or m.group(1) != "c":
+                continue
+            comp = met.compartment
+            if all(f"{c}_{comp}" in mets for c in st):
+                out.append((tri, comp, {f"{c}_{comp}": n for c, n in st.items()}))
+    return out
+
+
+@contextmanager
+def lifted_kinetic_rows(model, lift=True, suffix=KINETIC_ROW_SUFFIX):
+    """Lift the community-kinetics rows (names ending in `suffix`, as MSCommunity.add_commkinetics
+    and CommKineticPkg write them) for the duration of the block: they cap each member's flux at
+    kappa x its growth, so with nothing coming in they hold every flux at 0 and hide every cycle
+    -- which still runs, up to that cap, whenever the community grows. Bounds go to +-1e30, not
+    None (optlang's Gurobi interface refuses a free row), and come back on exit. `with model:`
+    does not track row bounds, so this restores them itself. Yields the lifted rows' names."""
+    rows = [c for c in model.constraints if c.name.endswith(suffix)] if lift else []
+    saved = [(c, c.lb, c.ub) for c in rows]
+    try:
+        for c in rows:
+            if c.ub is not None:
+                c.ub = 1e30
+            if c.lb is not None:
+                c.lb = -1e30
+        yield [c.name for c in rows]
+    finally:
+        for c, lb, ub in saved:  # only the bounds changed above (not None) go back
+            if ub is not None:
+                c.ub = ub
+            if lb is not None:
+                c.lb = lb
 
 
 # --------------------------------------------------------------------------- model helpers
@@ -108,52 +220,154 @@ def _cpd(met):
     return met.id.split("_")[0]
 
 
-def add_atp_tests(model):
+def add_atp_tests(model, pins=None):
     """One ATP hydrolysis reaction per member compartment that has ATP, ADP, phosphate, water and
     H+ (ATP + H2O -> ADP + Pi + H+, id ATPtest_c<i>). Call inside `with model:` so they go again.
-    Returns {member index: reaction}."""
+    Returns {member index: reaction}.
+
+    pins="ntp" (or a list of (triphosphate, diphosphate) pairs, see NTP_PINS) adds a hydrolysis
+    test for each other pinned compound too (GTP, CTP, UTP; PPi + H2O -> 2 Pi + H+), id
+    NTPtest_<compound>_c<i>, keyed (compound, member index) in the returned dict. A GTP loop
+    that feeds biomass is invisible to the ATP tests alone."""
     mets = {met.id: met for met in model.metabolites}
+    by_cpd = {}
+    for tri, comp, st in hydrolysis_sites(model, _resolve_pins(pins)):
+        idx = int(_COMP.match(comp).group(2))
+        rid = f"ATPtest_{comp}" if tri == ATP else f"NTPtest_{tri}_{comp}"
+        rxn = Reaction(rid, name=f"{'ATP' if tri == ATP else tri} hydrolysis test {comp}",
+                       lower_bound=0, upper_bound=1000)
+        rxn.add_metabolites({mets[mid]: n for mid, n in st.items()})
+        by_cpd.setdefault(tri, {})[idx] = rxn
     tests = {}
-    for met in model.metabolites:
-        m = _COMP.match(met.compartment or "")
-        if _cpd(met) != "cpd00002" or not m or m.group(1) != "c":
-            continue
-        comp = met.compartment
-        need = {c: mets.get(f"{c}_{comp}") for c in ("cpd00002", "cpd00001", "cpd00008", "cpd00009", "cpd00067")}
-        if any(v is None for v in need.values()):
-            continue
-        rxn = Reaction(f"ATPtest_{comp}", name=f"ATP hydrolysis test {comp}", lower_bound=0, upper_bound=1000)
-        rxn.add_metabolites({need["cpd00002"]: -1, need["cpd00001"]: -1,
-                             need["cpd00008"]: 1, need["cpd00009"]: 1, need["cpd00067"]: 1})
-        tests[int(m.group(2))] = rxn
-    # c0 is the community compartment in a community and the cytosol in a single model
-    if len(tests) > 1:
-        tests.pop(0, None)
+    for tri, found in by_cpd.items():
+        # c0 is the community compartment in a community and the cytosol in a single model
+        if len(found) > 1:
+            found.pop(0, None)
+        for idx, rxn in found.items():
+            tests[idx if tri == ATP else (tri, idx)] = rxn
     model.add_reactions(list(tests.values()))
     return tests
 
 
-def close_uptakes(model, open_cpds=()):
+def _summary_by_test(tests, tol):
+    """atp_by_member {member index: flux} and ntp_by_test {"<compound>_c<i>": flux} above tol."""
+    atp = {k: r.flux for k, r in tests.items() if not isinstance(k, tuple) and r.flux > tol}
+    ntp = {f"{k[0]}_c{k[1]}": r.flux for k, r in tests.items() if isinstance(k, tuple) and r.flux > tol}
+    return atp, ntp
+
+
+def close_uptakes(model, open_cpds=(), strict=False, biomass_outlet=True):
     """Every boundary reaction (exchange, sink, demand) may only remove matter, except the
-    shared-pool exchanges of `open_cpds`, which may also supply up to 1000. Call inside `with model:`."""
+    shared-pool exchanges of `open_cpds`, which may also supply up to 1000. Call inside `with model:`.
+
+    strict=True closes removal as well: every boundary reaction gets (0, 0), except `open_cpds`
+    and, with biomass_outlet, the outlets of the biomass pseudo-metabolite (cpd11416), so that a
+    growth test can still measure something. With biomass_outlet=False strict is literal and any
+    growth from nothing is 0 by construction."""
     for rxn in model.boundary:
         met = next(iter(rxn.metabolites))
         if open_cpds and _cpd(met) in open_cpds and met.compartment == "e0":
             rxn.bounds = (-1000, max(rxn.upper_bound, 0))
+        elif strict and not (biomass_outlet and _cpd(met) == "cpd11416"):
+            rxn.bounds = (0, 0)
         else:
             rxn.bounds = (0, max(rxn.upper_bound, 0))
 
 
-def robust_pfba(model):
+def release_forced_fluxes(model):
+    """Let every non-boundary reaction stop: a positive lower bound (a maintenance-ATP floor, a
+    measured rate fixed as an equality) goes to 0, and so does a negative upper bound. A test of
+    what the community makes from nothing has to do this first: a forced flux cannot run with
+    every uptake closed, so with it in place the sealed LP is infeasible rather than 0 (the
+    published SynCom: both ATPM floors in place, infeasible; released, 0.0 and 0.0). Call inside
+    `with model:`. Returns {reaction id: (old lower bound, old upper bound)} of those released."""
+    released = {}
+    for rxn in model.reactions:
+        if rxn.boundary:
+            continue
+        lb, ub = rxn.bounds
+        if lb > 0 or ub < 0:
+            released[rxn.id] = (lb, ub)
+            rxn.bounds = (min(lb, 0), max(ub, 0))
+    return released
+
+
+def _seal(model, closure="lax", release_floors=True, open_cpds=(), biomass_outlet=True):
+    """release_forced_fluxes (if release_floors) and close_uptakes with the given closure
+    ("lax": boundaries may only remove matter; "strict": every boundary closed). Call inside
+    `with model:`. Returns the released bounds."""
+    if closure not in ("lax", "strict"):
+        raise ValueError(f"closure must be 'lax' or 'strict', not {closure!r}")
+    released = release_forced_fluxes(model) if release_floors else {}
+    close_uptakes(model, open_cpds=open_cpds, strict=closure == "strict", biomass_outlet=biomass_outlet)
+    return released
+
+
+def _interface(model):
+    return model.solver.interface.__name__.rsplit(".", 1)[-1]
+
+
+def reset_start(model, threads=None):
+    """Put the model's solver on a defined starting state for its next solve: GLPK on its standard
+    basis (glp_std_basis), Gurobi with every earlier solution and warm start discarded
+    (Model.reset()) and Threads set if `threads` is given. Other solvers are left as they are.
+    Returns the model."""
+    name = _interface(model)
+    prob = model.solver.problem
+    if name.startswith("glpk"):
+        import swiglpk
+        swiglpk.glp_std_basis(prob)
+    elif name == "gurobi_interface":
+        if threads:
+            prob.Params.Threads = int(threads)
+        prob.update()
+        prob.reset()
+    return model
+
+
+def canonical_copy(model, threads=None):
+    """model.copy() on a defined starting state, for solves whose optimal vertex has to be
+    reproducible: the copy's rows are rebuilt from the reactions in model order (two builds of
+    one community whose rows store their terms in different orders give identical copies), and
+    its solver starts from reset_start. On Gurobi the copy is a fresh model read back from LP
+    text, which drops raw parameters set outside optlang; Threads, Presolve and Method are set on
+    it explicitly from the original (Threads from `threads` if given). The same configuration
+    and thread count then give the same vertex -- reproducible, not more right."""
+    prob = model.solver.problem
+    params = {}
+    if _interface(model) == "gurobi_interface":
+        for p in ("Threads", "Presolve", "Method", "Seed"):
+            try:
+                params[p] = getattr(prob.Params, p)
+            except Exception:
+                pass
+        if threads:
+            params["Threads"] = int(threads)
+    work = model.copy()
+    if params:
+        for p, v in params.items():
+            setattr(work.solver.problem.Params, p, v)
+    return reset_start(work, threads)
+
+
+def robust_pfba(model, canonical=False, threads=None):
     """cobra's pfba at the full optimum, retried at 99.99% and 99.9% of it when the solver calls
     the full-optimum problem infeasible -- which it can, numerically, on a community of 100k+
-    reactions (v7d day 168: the oriented copy's pFBA raised Infeasible). Returns the Solution."""
+    reactions (v7d day 168: the oriented copy's pFBA raised Infeasible). Returns the Solution.
+
+    canonical=True solves on canonical_copy(model, threads), each attempt from reset_start, so
+    the vertex returned does not depend on what was solved on `model` before (pFBA's optimum is
+    seldom unique, and a simplex returns the vertex nearest its start). The default solves on
+    `model` from whatever state it is in, as before."""
     from cobra.flux_analysis import pfba
     from cobra.exceptions import OptimizationError
+    work = canonical_copy(model, threads) if canonical else model
     last = None
     for frac in (1.0, 0.9999, 0.999):
         try:
-            return pfba(model, fraction_of_optimum=frac)
+            if canonical:
+                reset_start(work, threads)
+            return pfba(work, fraction_of_optimum=frac)
         except (OptimizationError, Exception) as exc:  # Infeasible is an OptimizationError
             last = exc
     raise last
@@ -164,39 +378,140 @@ def _value(model):
     return None if isnan(v) else v
 
 
-def energy_from_nothing(model, biomass="bio1", electrons=True, tol=1e-6):
+def _maximise_tests(model, tests):
+    model.objective = model.problem.Objective(sum(r.flux_expression for r in tests.values()), direction="max")
+    return _value(model)
+
+
+def medium_inorganic_uptakes(model, formulas=None, exclude=None):
+    """The shared-pool (e0) compounds the model's current medium lets in (lower bound < 0) that
+    are inorganic -- no carbon in the formula, or CO2 / HCO3- -- other than electron acceptors and
+    inorganic electron donors (ELECTRON_ACCEPTORS, INORGANIC_DONORS; `exclude` replaces both).
+    formulas: {compound: formula}, e.g. from the ModelSEED database, for metabolites that carry
+    none. Returns (compounds, compounds with no formula, left out)."""
+    exclude = (ELECTRON_ACCEPTORS | INORGANIC_DONORS) if exclude is None else set(exclude)
+    formulas = formulas or {}
+    ions, unknown = set(), set()
+    for rxn in model.boundary:
+        met = next(iter(rxn.metabolites))
+        if met.compartment != "e0" or rxn.lower_bound >= 0:
+            continue
+        cpd = _cpd(met)
+        if cpd in exclude:
+            continue
+        formula = formulas.get(cpd) or met.formula or ""
+        if not formula:
+            unknown.add(cpd)
+            continue
+        if re.search(r"C(?![a-z])", formula) and cpd not in INORGANIC_CARBON:
+            continue
+        ions.add(cpd)
+    return sorted(ions), sorted(unknown)
+
+
+def _boundary_ion_arms(model, arms, release_floors, pins, tol):
+    """ATP made (summed tests) with every uptake closed except each arm's compounds (lax)."""
+    out = {}
+    for label, cpds in arms:
+        with model:
+            _seal(model, "lax", release_floors, open_cpds=tuple(cpds))
+            tests = add_atp_tests(model, pins)
+            v = _maximise_tests(model, tests)
+            rec = {"open": list(cpds), "atp": v}
+            if v is not None and v > tol:
+                rec["atp_by_member"], ntp = _summary_by_test(tests, tol)
+                if ntp:
+                    rec["ntp_by_test"] = ntp
+                rec["boundary"] = {r.id: r.flux for r in model.boundary if abs(r.flux) > tol}
+        out[label] = rec
+    return out
+
+
+def energy_from_nothing(model, biomass="bio1", electrons=True, tol=1e-6, release_floors=True,
+                        closure="lax", biomass_outlet=True, lift_kinetics=True, boundary_ions=False,
+                        pins=None, formulas=None):
     """What the community makes from nothing.
 
     atp_from_nothing        max total ATP hydrolysis over the members with every uptake closed
+                            (with pins="ntp": ATP, GTP, CTP, UTP and PPi hydrolysis summed)
     atp_by_member           {member index: flux} at that optimum (members above `tol`)
+    ntp_by_test             {"<compound>_c<i>": flux}, the other hydrolysis tests (pins="ntp")
     growth_from_nothing     max `biomass` flux with every uptake closed (skipped if it is None)
     electrons_from_nothing  max electrons exported in REDUCED_PRODUCTS with only CO2, H2O and H+
                             coming in; a clean community makes none, since reducing CO2 with
                             electrons from water needs an energy source
-    All three are 0 for a community without energy-generating cycles. None means the LP failed
-    (e.g. a reaction forced above 0 cannot run on nothing)."""
-    out = {}
-    with model:
-        tests = add_atp_tests(model)
-        close_uptakes(model)
-        model.objective = model.problem.Objective(sum(r.flux_expression for r in tests.values()), direction="max")
-        out["atp_from_nothing"] = _value(model)
-        out["atp_by_member"] = ({i: r.flux for i, r in tests.items() if r.flux > tol}
-                                if out["atp_from_nothing"] is not None else {})
-        out["n_atp_tests"] = len(tests)
-        if biomass is not None and biomass in model.reactions:
-            model.objective = biomass
-            out["growth_from_nothing"] = _value(model)
-    if electrons:
-        out.update(electrons_from_nothing(model))
+    released                {reaction id: old bounds} of the forced fluxes released for the test
+    kinetic_rows_lifted     names of the community-kinetics rows lifted for the test
+    All three are 0 for a community without energy-generating cycles. None means the LP failed.
+
+    release_floors  first let every forced non-boundary flux stop (release_forced_fluxes): a
+                    maintenance-ATP floor cannot run on nothing, so with it in place the test is
+                    infeasible, not 0. False keeps the bounds as they are (the earlier behaviour).
+    closure         "lax": every boundary reaction may still remove matter (the default and the
+                    earlier behaviour); "strict": every boundary reaction closed both ways. They
+                    differ only where reactions make matter from nothing, which "lax" lets out.
+    biomass_outlet  with "strict", keep the biomass outlets able to remove biomass; False makes
+                    growth_from_nothing 0 by construction (the electron test keeps its own
+                    closure: CO2, H2O and H+ in, anything out).
+    lift_kinetics   lift the *_commKin rows for the tests (lifted_kinetic_rows). With them in
+                    place every member flux is capped at kappa x its growth, 0 on nothing, and the
+                    test reads 0 on a community that makes ATP at the flux bounds (the CommPhitting
+                    merges: 0 against 250). False keeps them (the earlier behaviour).
+    boundary_ions   False (default); True adds arms that reopen H+ ("H+") and H+ with phosphate
+                    ("H+,Pi") and report the ATP made through them, the boundary fluxes at that
+                    optimum and atp_from_boundary_ions (the largest). A clean community makes none:
+                    taking in Pi and H+ and sending out, say, pyrophosphate is uphill. The sealed
+                    test cannot see such a route, because it closes every uptake. "medium" adds an
+                    arm "ions" with the medium's inorganic uptakes too (medium_inorganic_uptakes,
+                    with `formulas` for metabolites that carry none); a list of compounds adds that
+                    arm with those compounds.
+    pins            None (ATP tests only) or "ntp": hydrolysis tests for GTP, CTP, UTP and PPi too
+                    (add_atp_tests)."""
+    out = {"closure": closure}
+    pins = _resolve_pins(pins)
+    arms = []
+    if boundary_ions is not False and boundary_ions is not None:
+        arms = list(BOUNDARY_ION_ARMS)
+        extra = []
+        if isinstance(boundary_ions, str):
+            if boundary_ions != "medium":
+                raise ValueError(f"boundary_ions must be True, 'medium' or a list of compounds, not {boundary_ions!r}")
+            extra, out["ions_without_formula"] = medium_inorganic_uptakes(model, formulas)
+        elif boundary_ions is not True:
+            extra = list(boundary_ions)
+        if extra:
+            arms.append(("ions", tuple(dict.fromkeys((PROTON, PI) + tuple(extra)))))
+    with lifted_kinetic_rows(model, lift_kinetics) as lifted:
+        out["kinetic_rows_lifted"] = lifted
+        with model:
+            out["released"] = _seal(model, closure, release_floors, biomass_outlet=biomass_outlet)
+            tests = add_atp_tests(model, pins)
+            out["atp_from_nothing"] = _maximise_tests(model, tests)
+            out["atp_by_member"], ntp = (_summary_by_test(tests, tol) if out["atp_from_nothing"] is not None
+                                         else ({}, {}))
+            if pins != ATP_PINS:
+                out["ntp_by_test"] = ntp
+            out["n_atp_tests"] = sum(1 for k in tests if not isinstance(k, tuple))
+            if biomass is not None and biomass in model.reactions:
+                model.objective = biomass
+                out["growth_from_nothing"] = _value(model)
+        if arms:
+            out["boundary_ions"] = _boundary_ion_arms(model, arms, release_floors, pins, tol)
+            vals = [a["atp"] for a in out["boundary_ions"].values() if a["atp"] is not None]
+            out["atp_from_boundary_ions"] = max(vals) if vals else None
+        if electrons:
+            e = electrons_from_nothing(model, release_floors=release_floors, lift_kinetics=False)
+            e.pop("kinetic_rows_lifted", None)
+            out.update(e)
     return out
 
 
-def electrons_from_nothing(model):
+def electrons_from_nothing(model, release_floors=True, lift_kinetics=True):
     """Max electrons exported in REDUCED_PRODUCTS with only CO2, H2O and H+ coming in, and the
-    reduced products carrying them ({compound: export flux})."""
-    with model:
-        close_uptakes(model, open_cpds=ELECTRON_TEST_INPUTS)
+    reduced products carrying them ({compound: export flux}). release_floors and lift_kinetics as
+    in energy_from_nothing."""
+    with lifted_kinetic_rows(model, lift_kinetics) as lifted, model:
+        _seal(model, "lax", release_floors, open_cpds=ELECTRON_TEST_INPUTS)
         coefs, exports = {}, {}
         for rxn in model.exchanges:
             met = next(iter(rxn.metabolites))
@@ -206,12 +521,58 @@ def electrons_from_nothing(model):
                 coefs[rxn.forward_variable], coefs[rxn.reverse_variable] = w, -w
                 exports[_cpd(met)] = rxn
         if not coefs:
-            return {"electrons_from_nothing": 0.0, "electron_carriers": {}}
+            return {"electrons_from_nothing": 0.0, "electron_carriers": {}, "kinetic_rows_lifted": lifted}
         model.objective = model.problem.Objective(Zero, direction="max")
         model.objective.set_linear_coefficients(coefs)
         v = _value(model)
         carriers = {c: r.flux for c, r in exports.items() if abs(r.flux) > 1e-9} if v is not None else {}
-    return {"electrons_from_nothing": v, "electron_carriers": carriers}
+    return {"electrons_from_nothing": v, "electron_carriers": carriers, "kinetic_rows_lifted": lifted}
+
+
+def net_atp_yield(model, substrate, acceptor="cpd00007", open_cpds=YIELD_OPEN, rate=1.0,
+                  release_floors=True, lift_kinetics=True, pins=None):
+    """The ATP yield of `substrate` net of what the same test makes without it.
+
+    The test: every uptake closed except `open_cpds` (default H2O, H+, Pi, CO2), the `acceptor`
+    (a compound, a list, or None) and the substrate at up to `rate` (mmol/gDW/h); forced fluxes
+    released, kinetic rows lifted, the members' ATP tests summed and maximised. gross is that
+    maximum per mmol of the allowed substrate; substrate_closed the same test with the substrate
+    shut, per the same mmol; net = gross - substrate_closed. A model that makes ATP from H+ and
+    Pi alone (a boundary route the sealed gate cannot see) counts it in the gross yield; the net
+    yield does not. A cycle-free model can still be too efficient, which only the net yield
+    shows against the biochemistry (24 per glucose aerobically, say).
+
+    Returns {substrate, rate, open, atp_with_substrate, atp_without (mmol ATP/gDW/h),
+    substrate_uptake (mmol/gDW/h), gross, substrate_closed, net (mmol ATP per mmol substrate)}."""
+    acc = (acceptor,) if isinstance(acceptor, str) else tuple(acceptor or ())
+    opened = tuple(dict.fromkeys(tuple(open_cpds) + acc))
+    sid = f"{substrate}_e0"
+    exs = [r for r in model.boundary if any(m.id == sid for m in r.metabolites)]
+    if not exs:
+        raise ValueError(f"no boundary reaction for {sid}")
+
+    def run(with_substrate):
+        with model:
+            _seal(model, "lax", release_floors, open_cpds=opened)
+            for ex in exs:
+                coef = ex.metabolites[model.metabolites.get_by_id(sid)]
+                if with_substrate:  # uptake of up to `rate`, whichever way the reaction is written
+                    ex.bounds = (-rate, max(ex.upper_bound, 0)) if coef < 0 else (min(ex.lower_bound, 0), rate)
+                else:
+                    ex.bounds = (0, max(ex.upper_bound, 0)) if coef < 0 else (min(ex.lower_bound, 0), 0)
+            tests = add_atp_tests(model, pins)
+            v = _maximise_tests(model, tests)
+            up = sum(-ex.flux * -ex.metabolites[model.metabolites.get_by_id(sid)] for ex in exs) if v is not None else None
+        return v, up
+
+    with lifted_kinetic_rows(model, lift_kinetics) as lifted:
+        g, up = run(True)
+        c, _ = run(False)
+    out = {"substrate": substrate, "rate": rate, "open": list(opened), "kinetic_rows_lifted": lifted,
+           "atp_with_substrate": g, "atp_without": c, "substrate_uptake": up,
+           "gross": None if g is None else g / rate, "substrate_closed": None if c is None else c / rate}
+    out["net"] = None if g is None or c is None else (g - c) / rate
+    return out
 
 
 # --------------------------------------------------------------------------- thermodynamics
@@ -259,21 +620,34 @@ def direction_thermo(rxn, direction, entry, c_min=1e-6, c_max=0.02, n_sigma=2.0)
 
 # --------------------------------------------------------------------------- the cycle
 def find_energy_cycle(model, flux=1.0, member=None, thermo=None, names=None, gapfilled=None,
-                      tol=1e-7, **gate):
+                      tol=1e-7, release_floors=True, lift_kinetics=True, pins=None, **gate):
     """The smallest-flux cycle that makes `flux` ATP with every uptake closed.
 
     member     make the ATP in this member (index); default any member
     thermo     load_msdb_thermo() output, for each reaction's database direction and dG
     names      {member index: member id}
     gapfilled  {member index or id: set of ModelSEED reaction ids gapfilled into that member}
+    release_floors  release forced fluxes first (release_forced_fluxes), as energy_from_nothing
+    lift_kinetics   lift the *_commKin rows first (lifted_kinetic_rows), as energy_from_nothing
+    pins       None (ATP tests) or "ntp" (the other hydrolysis tests count too; add_atp_tests)
     gate       c_min, c_max, n_sigma for direction_thermo
 
-    Returns {status, reactions: [...], cross_fed: {e0 metabolite: {member: net production}}};
-    status is "no cycle" when the community cannot make the ATP."""
+    Returns {status, reactions: [...], cross_fed: {e0 metabolite: {member: net production}},
+    kinetic_rows_lifted}; status is "no cycle" when the community cannot make the ATP, and
+    "infeasible" when the sealed community cannot run at all (a forced flux kept with
+    release_floors=False, say) -- which says nothing about cycles."""
     names, gapfilled, thermo = names or {}, gapfilled or {}, thermo or {}
+    with lifted_kinetic_rows(model, lift_kinetics) as lifted:
+        out = _find_energy_cycle(model, flux, member, thermo, names, gapfilled, tol, release_floors,
+                                 _resolve_pins(pins), gate)
+    out["kinetic_rows_lifted"] = lifted
+    return out
+
+
+def _find_energy_cycle(model, flux, member, thermo, names, gapfilled, tol, release_floors, pins, gate):
     with model:
-        tests = add_atp_tests(model)
-        close_uptakes(model)
+        _seal(model, "lax", release_floors)
+        tests = add_atp_tests(model, pins)
         made = tests[member].flux_expression if member is not None else sum(r.flux_expression for r in tests.values())
         con = model.problem.Constraint(made, lb=flux, ub=flux, name="energy_cycle_atp")
         model.add_cons_vars(con)
@@ -281,7 +655,9 @@ def find_energy_cycle(model, flux=1.0, member=None, thermo=None, names=None, gap
         model.objective.set_linear_coefficients(
             {v: 1 for r in model.reactions for v in (r.forward_variable, r.reverse_variable)})
         if _value(model) is None:
-            return {"status": "no cycle", "reactions": [], "cross_fed": {}}
+            con.lb, con.ub = 0, 0
+            status = "no cycle" if _value(model) is not None else "infeasible"
+            return {"status": status, "reactions": [], "cross_fed": {}}
         fluxes = {r.id: r.flux for r in model.reactions if abs(r.flux) > tol}
         boundary = {r.id for r in model.boundary}
         rows, cross_fed = [], {}
@@ -293,7 +669,7 @@ def find_energy_cycle(model, flux=1.0, member=None, thermo=None, names=None, gap
                     mem = names.get(idx, idx)
                     cross_fed.setdefault(met.id, {}).setdefault(mem, 0.0)
                     cross_fed[met.id][mem] += coef * v
-            if rid.startswith("ATPtest_"):
+            if rid.startswith(TEST_PREFIXES):
                 continue
             base = msid(rxn)
             entry = thermo.get(base) if base else None
@@ -351,8 +727,19 @@ def apply_direction_rules(model, rules):
 
 def cut_energy_cycles(model, thermo=None, msdb_path=None, rules=None, auto=True, scope="all_members",
                       protect=None, max_rounds=25, tol=1e-6, names=None, gapfilled=None,
-                      c_min=1e-6, c_max=0.02, n_sigma=2.0, fallback=None, fallback_min_dg0=0.0):
+                      c_min=1e-6, c_max=0.02, n_sigma=2.0, fallback=None, fallback_min_dg0=0.0,
+                      canonical=True, threads=None, lift_kinetics=True):
     """Remove the community's energy-generating cycles, changing `model` in place.
+
+    canonical  run the sealed tests (energy_from_nothing, find_energy_cycle) on canonical_copy(
+               model, threads), its bounds kept equal to `model`'s after every round, so the cycle
+               found -- one optimal vertex of a minimum-flux LP -- does not depend on the
+               solver's history or on the stored order of the rows' terms. Cuts, `protect` and
+               the report act on `model` itself. False tests `model` directly (the earlier
+               behaviour).
+    lift_kinetics  lift the *_commKin rows for the sealed tests (energy_from_nothing); with them
+               in place the community makes nothing on nothing and the report says "clean"
+               whatever cycles it holds.
 
     Each round tests ATP from nothing; if any is made, finds the cycle (find_energy_cycle) and
     closes the directions in it that thermodynamics rules out (direction_thermo), most uphill
@@ -387,12 +774,24 @@ def cut_energy_cycles(model, thermo=None, msdb_path=None, rules=None, auto=True,
     if not thermo:
         raise ValueError("cut_energy_cycles needs thermodynamic data: pass thermo= or msdb_path=")
     gate = {"c_min": c_min, "c_max": c_max, "n_sigma": n_sigma}
-    report = {"rules_applied": [], "rounds": [], "cuts": [], "kept_open": [], "status": "max rounds"}
+    report = {"rules_applied": [], "rounds": [], "cuts": [], "kept_open": [], "status": "max rounds",
+              "canonical": bool(canonical)}
     if rules:
         report["rules_applied"] = apply_direction_rules(model, rules)
+    work = canonical_copy(model, threads) if canonical else model
+
+    def sync():
+        if work is not model:
+            for r in model.reactions:
+                w = work.reactions.get_by_id(r.id)
+                if w.bounds != r.bounds:
+                    w.bounds = r.bounds
+
     refused = set()
     for rnd in range(max_rounds):
-        test = energy_from_nothing(model, electrons=False, biomass=None, tol=tol)
+        sync()  # the last round's cuts (and undos) onto the copy the tests run on
+        test = energy_from_nothing(work, electrons=False, biomass=None, tol=tol, lift_kinetics=lift_kinetics)
+        report.setdefault("kinetic_rows_lifted", test["kinetic_rows_lifted"])
         atp = test["atp_from_nothing"]
         entry = {"round": rnd, "atp_from_nothing": atp, "atp_members": len(test["atp_by_member"])}
         report["rounds"].append(entry)
@@ -402,7 +801,8 @@ def cut_energy_cycles(model, thermo=None, msdb_path=None, rules=None, auto=True,
         if atp <= tol:
             report["status"] = "clean"
             break
-        cycle = find_energy_cycle(model, thermo=thermo, names=names, gapfilled=gapfilled, **gate)
+        cycle = find_energy_cycle(work, thermo=thermo, names=names, gapfilled=gapfilled,
+                                  lift_kinetics=lift_kinetics, **gate)
         entry.update(cycle_reactions=len(cycle["reactions"]), cycle_members=cycle.get("members"))
         cands = [r for r in cycle["reactions"] if r["infeasible"] and (r["msid"], r["flux"] > 0) not in refused]
         # most uphill first; among equals, gapfilled reactions first
@@ -512,17 +912,22 @@ class LocalLoopLaw:
     living cell, and the pin makes any covered cycle whose net is ATP synthesis infeasible in every
     medium -- including one that would hand its ATP to biomass instead of to a test reaction.
 
+    pins="ntp" pins GTP, CTP, UTP and pyrophosphate hydrolysis the same way (NTP_PINS; or a
+    list of (triphosphate, diphosphate) pairs): without it a covered cycle that charges GTP and
+    hands it to biomass stays allowed, NDK-linked to ATP or not (the T3/T3L validation).
+
     The rows go on `model` and stay until remove(); solves become MILPs with two binaries per
     covered reaction. `lazy_loop_law` or `loop_capable_reactions` chooses the reactions."""
 
-    def __init__(self, model, dg_margin=1.0, max_potential=1000.0, pin_atp=True):
+    def __init__(self, model, dg_margin=1.0, max_potential=1000.0, pin_atp=True, pins=None):
         if dg_margin <= 0:
             raise ValueError("dg_margin must be > 0: with 0 the potentials can all be equal and every cycle passes")
         self.model, self.eps, self.M = model, float(dg_margin), float(max_potential)
-        self.potentials, self.binaries, self.pinned = {}, {}, []
+        self.potentials, self.binaries, self.pinned, self.pinned_all = {}, {}, [], []
+        self.pins = _resolve_pins(pins, pin_atp)
         self._objs = []
-        if pin_atp:
-            self._pin_atp()
+        if self.pins:
+            self._pin()
 
     def _mu(self, met, new):
         var = self.potentials.get(met.id)
@@ -532,22 +937,22 @@ class LocalLoopLaw:
             new.append(var)
         return var
 
-    def _pin_atp(self):
+    def _pin(self):
+        """dG(hydrolysis) <= -eps for every pin in every member cytosol that has it. `pinned` lists
+        the compartments with the ATP pin (as before), `pinned_all` every (compound, compartment)."""
         mets = {met.id: met for met in self.model.metabolites}
         new, rows = [], []
-        for met in self.model.metabolites:
-            m = _COMP.match(met.compartment or "")
-            if _cpd(met) != "cpd00002" or not m or m.group(1) != "c":
-                continue
-            comp = met.compartment
-            stoich = {"cpd00002": -1, "cpd00001": -1, "cpd00008": 1, "cpd00009": 1, "cpd00067": 1}
-            if any(f"{c}_{comp}" not in mets for c in stoich):
-                continue
-            expr = sum(n * self._mu(mets[f"{c}_{comp}"], new) for c, n in stoich.items())
-            rows.append(self.model.problem.Constraint(expr, ub=-self.eps, name=f"llpin_atp_{comp}"))
-            self.pinned.append(comp)
+        for tri, comp, st in hydrolysis_sites(self.model, self.pins):
+            expr = sum(n * self._mu(mets[mid], new) for mid, n in st.items())
+            name = f"llpin_atp_{comp}" if tri == ATP else f"llpin_ntp_{tri}_{comp}"
+            rows.append(self.model.problem.Constraint(expr, ub=-self.eps, name=name))
+            if tri == ATP:
+                self.pinned.append(comp)
+            self.pinned_all.append((tri, comp))
         self.model.add_cons_vars(new + rows)
         self._objs += new + rows
+
+    _pin_atp = _pin  # the earlier name
 
     def add(self, reactions):
         """Cover `reactions` (boundary reactions and those already covered are skipped).
@@ -594,7 +999,7 @@ class LocalLoopLaw:
                 rows.append(len(rhs)); cols.append(col[met.id]); vals.append(sign * c)
             rhs.append(-self.eps)
         for row in self.model.constraints:
-            if row.name.startswith("llpin_atp_"):
+            if row.name.startswith("llpin_"):  # every hydrolysis pin, whoever added it
                 for var, c in row.get_linear_coefficients(row.variables).items():
                     rows.append(len(rhs)); cols.append(col[var.name[len("llmu_"):]]); vals.append(c)
                 rhs.append(row.ub)
@@ -623,10 +1028,11 @@ class LocalLoopLaw:
 
     def remove(self):
         self.model.remove_cons_vars(self._objs)
-        self._objs, self.potentials, self.binaries, self.pinned = [], {}, {}, []
+        self._objs, self.potentials, self.binaries, self.pinned, self.pinned_all = [], {}, {}, [], []
 
 
-def loop_capable_reactions(model, tol=1e-6, seeds=8, processes=None, seed=0):
+def loop_capable_reactions(model, tol=1e-6, seeds=8, processes=None, seed=0, lift_kinetics=True,
+                           pins=None, report=None):
     """The internal reactions that can carry flux with every boundary reaction shut and an ATP
     hydrolysis reaction in each member (add_atp_tests): the only ones a cycle can use, counting
     the cycles that would make ATP if something consumed it -- which LocalLoopLaw's ATP pin
@@ -635,16 +1041,26 @@ def loop_capable_reactions(model, tol=1e-6, seeds=8, processes=None, seed=0):
     binary for each of them instead of each of the community's reactions.
 
     `seeds` LPs with random objectives mark most of them; flux variability analysis settles the
-    rest (`processes` workers)."""
+    rest (`processes` workers). The *_commKin rows are lifted meanwhile (lift_kinetics; they
+    would hold every flux at 0); pins="ntp" adds the other hydrolysis tests (use the same pins
+    as the LocalLoopLaw). `report`, a dict, receives kinetic_rows_lifted."""
+    with lifted_kinetic_rows(model, lift_kinetics) as lifted:
+        if report is not None:
+            report["kinetic_rows_lifted"] = lifted
+        return _loop_capable(model, tol, seeds, processes, seed, _resolve_pins(pins))
+
+
+def _loop_capable(model, tol, seeds, processes, seed, pins):
     import random
     from cobra.flux_analysis import flux_variability_analysis
     rng = random.Random(seed)
     internal = [r for r in model.reactions if not r.boundary]
     found = set()
     with model:
+        release_forced_fluxes(model)
         for r in model.boundary:
             r.bounds = (0, 0)
-        add_atp_tests(model)
+        add_atp_tests(model, pins)
         for _ in range(seeds):
             coefs = {}
             for r in internal:
@@ -675,43 +1091,56 @@ def lazy_loop_law(model, max_rounds=50, tol=1e-6, time_limit=None, law=None, **l
     ends; in practice it stops at a small fraction of the community's reactions, which is what keeps
     the MILP tractable where the full loop law (one binary per reaction) is not.
 
+    The *_commKin rows are lifted for the tests (lift_kinetics; they would hold every flux at 0,
+    and the law would cover nothing) and are back on `model` afterwards. The tests are the law's
+    pins: ATP, or every pinned nucleotide and PPi with pins="ntp".
+
     Returns (law, report); the law's rows stay on `model` for the simulations that follow."""
     import time
+    lift = law_args.pop("lift_kinetics", True)
     law = law or LocalLoopLaw(model, **law_args)
     report = {"rounds": [], "status": "max rounds", "pinned": list(law.pinned)}
     saved = model.solver.configuration.timeout
     if time_limit is not None:
         model.solver.configuration.timeout = time_limit
     try:
-        for rnd in range(max_rounds):
-            with model:
-                tests = add_atp_tests(model)
-                close_uptakes(model)
-                model.objective = model.problem.Objective(sum(r.flux_expression for r in tests.values()),
-                                                          direction="max")
-                t = time.time()
-                v = _value(model)
-                status = model.solver.status
-                active = ([r for r in model.reactions if abs(r.flux) > tol and not r.boundary
-                           and not r.id.startswith("ATPtest_")] if v is not None and v > tol else [])
-            row = {"round": rnd, "atp_from_nothing": v, "status": status, "covered": len(law.binaries),
-                   "seconds": round(time.time() - t, 2)}
-            report["rounds"].append(row)
-            if v is None:
-                report["status"] = f"solve failed ({status})"
-                break
-            if v <= tol:
-                report["status"] = "clean"
-                break
-            row["added"] = law.add(active)
+        with lifted_kinetic_rows(model, lift) as lifted:
+            report["kinetic_rows_lifted"] = lifted
+            _lazy_rounds(model, law, report, max_rounds, tol)
     finally:
         model.solver.configuration.timeout = saved
     report["covered"] = len(law.binaries)
     return law, report
 
 
+def _lazy_rounds(model, law, report, max_rounds, tol):
+    import time
+    for rnd in range(max_rounds):
+        with model:
+            release_forced_fluxes(model)
+            tests = add_atp_tests(model, law.pins or ATP_PINS)
+            close_uptakes(model)
+            model.objective = model.problem.Objective(sum(r.flux_expression for r in tests.values()),
+                                                      direction="max")
+            t = time.time()
+            v = _value(model)
+            status = model.solver.status
+            active = ([r for r in model.reactions if abs(r.flux) > tol and not r.boundary
+                       and not r.id.startswith(TEST_PREFIXES)] if v is not None and v > tol else [])
+        row = {"round": rnd, "atp_from_nothing": v, "status": status, "covered": len(law.binaries),
+               "seconds": round(time.time() - t, 2)}
+        report["rounds"].append(row)
+        if v is None:
+            report["status"] = f"solve failed ({status})"
+            break
+        if v <= tol:
+            report["status"] = "clean"
+            break
+        row["added"] = law.add(active)
+
+
 # --------------------------------------------------------------------------- one potential profile
-def member_reference(model, biomass_prefix="bio", tol=1e-9, member_models=None):
+def member_reference(model, biomass_prefix="bio", tol=1e-9, member_models=None, canonical=False, threads=None):
     """Each member growing alone on the model's current medium, by pFBA, the other members shut:
     {reaction id: flux} over all members (their reactions are disjoint), and {member index:
     growth}. A member that is free of energy-generating cycles alone gives a pFBA flux with no
@@ -722,10 +1151,15 @@ def member_reference(model, biomass_prefix="bio", tol=1e-9, member_models=None):
     member_models  {member index: the member's own cobra model} -- much faster on a large
                    community: each member is solved on its own model, with the community's
                    shared-pool uptake bounds, and its reaction ids are mapped the way
-                   build_from_species_models renames them (rxn..._c0 -> rxn..._c<i>)."""
+                   build_from_species_models renames them (rxn..._c0 -> rxn..._c<i>).
+    canonical      solve on canonical_copy(model, threads) (each member's pFBA vertex then does not
+                   depend on the solver's history); orient_community passes its own canonical
+                   copy instead."""
     from cobra.flux_analysis import pfba
     if member_models:
         return _member_reference_from_models(model, member_models, biomass_prefix, tol)
+    if canonical:
+        model = canonical_copy(model, threads)
     biomass = {}
     for rxn in model.reactions:
         if re.match(rf"^{biomass_prefix}\d+$", rxn.id) and rxn.id != f"{biomass_prefix}1":
@@ -806,7 +1240,8 @@ def _member_reference_from_models(model, member_models, biomass_prefix, tol):
 
 
 def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, pin_atp=True,
-                      w_reference=1.0, w_irreversible=1e2, lp="auto", threads=None, flux_floor=None):
+                      w_reference=1.0, w_irreversible=1e2, lp="auto", threads=None, flux_floor=None,
+                      pins=None):
     """One metabolite potential vector for the whole community, from which `orient_by_potentials`
     fixes reaction directions. With ATP hydrolysis pinned downhill (dG <= -dg_margin in every
     member), no orientation it gives can run an energy-generating cycle: around any cycle the dG
@@ -835,6 +1270,11 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
     "highs-ipm" (scipy's HiGHS interior point), or "auto": gurobi when gurobipy imports, else
     highs-ipm. The barrier takes the 90k-reaction day-174 community in about a minute per LP;
     HiGHS's simplex took about 20 minutes. The community's cobra solver is not touched.
+    threads goes to Gurobi (None: its default, i.e. gurobi.env or all cores); give it for a
+    reproducible profile, since the barrier's vertex can change with the thread count.
+    pins="ntp" pins GTP, CTP, UTP and PPi hydrolysis downhill too (NTP_PINS), which extends the
+    guarantee to cycles that charge those nucleotides; report["pinned"] lists the compartments
+    with the ATP pin, report["pins"] every (compound, compartment).
     Returns (dG {reaction id: dG}, report)."""
     import numpy as np
     import scipy.sparse as sp
@@ -875,22 +1315,16 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
             wq[j] = w_irreversible
     zeros = np.zeros(nm)
     A_ub, b_ub, pinned = sp.csr_matrix((0, nm + 2 * nr)), np.zeros(0), []
-    if pin_atp:
+    sites = hydrolysis_sites(model, _resolve_pins(pins, pin_atp))
+    if sites:
         prow, pcol, pval = [], [], []
-        stoich = {"cpd00002": -1, "cpd00001": -1, "cpd00008": 1, "cpd00009": 1, "cpd00067": 1}
-        for met in model.metabolites:
-            m = _COMP.match(met.compartment or "")
-            if _cpd(met) != "cpd00002" or not m or m.group(1) != "c":
-                continue
-            comp = met.compartment
-            if any(f"{k}_{comp}" not in mets for k in stoich):
-                continue
-            for k, n in stoich.items():
-                prow.append(len(pinned)); pcol.append(mets[f"{k}_{comp}"]); pval.append(n)
-            pinned.append(comp)
-        if pinned:
-            A_ub = sp.csr_matrix((pval, (prow, pcol)), shape=(len(pinned), nm + 2 * nr))
-            b_ub = -dg_margin * np.ones(len(pinned))
+        for k, (tri, comp, st) in enumerate(sites):
+            for mid, n in st.items():
+                prow.append(k); pcol.append(mets[mid]); pval.append(n)
+            if tri == ATP:
+                pinned.append(comp)
+        A_ub = sp.csr_matrix((pval, (prow, pcol)), shape=(len(sites), nm + 2 * nr))
+        b_ub = -dg_margin * np.ones(len(sites))
     if lp == "auto":
         try:
             import gurobipy  # noqa: F401
@@ -918,7 +1352,8 @@ def potential_profile(model, reference=None, dg_margin=1.0, max_potential=1e4, p
     dg = x[nm:nm + nr] - x[nm + nr:]
     tol = ORIENT_TOL * max(1.0, dg_margin)
     dg[np.abs(dg) <= tol] = 0.0
-    report = {"reactions": nr, "metabolites": nm, "pinned": pinned, "against_cost": against,
+    report = {"reactions": nr, "metabolites": nm, "pinned": pinned,
+              "pins": [(tri, comp) for tri, comp, _ in sites], "against_cost": against,
               "objective": objective, "lp": lp,
               "oriented": int(np.sum(np.abs(dg) > tol)),
               "against_reference": [[rxns[j].id for j in range(nr)
@@ -951,7 +1386,7 @@ def _profile_gurobi(c, A_eq, A_ub, b_ub, nm, nr, max_potential, threads):
     import numpy as np
     import gurobipy as gp
     from gurobipy import GRB
-    env = gp.Env(params={"OutputFlag": 0})
+    env = gp.Env(params={"OutputFlag": 0, **({"Threads": int(threads)} if threads else {})})
     g = gp.Model(env=env)
     lb = np.concatenate([np.full(nm, -max_potential), np.zeros(2 * nr)])
     ub = np.concatenate([np.full(nm, max_potential), np.full(2 * nr, GRB.INFINITY)])
@@ -991,35 +1426,74 @@ def orient_by_potentials(model, dg, tol=None):
     return changed
 
 
-def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=None, **profile_args):
+def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=None, canonical=True,
+                     no_growth_fallback="both", **profile_args):
     """member_reference -> potential_profile -> orient_by_potentials on `model` (in place), on the
     model's current medium and objective.
 
-    reference  None or "members": each member growing alone (member_reference); "pfba": the
-               model's own pFBA optimum; "both": the members (weighted 10x) and the optimum; or
-               {reaction id: flux}, e.g. a loop-law MILP solution, or a list of (flux, weight).
-               The orientation keeps a reference feasible where it holds no cycle, so the
-               objective it allows is at least the reference's, and "both" always leaves
-               every member able to grow. Where the optimum leans on cycles, "both" keeps more
-               (day 174, 88 members: 11.83 vs 6.17 for "pfba", of 18.21); where it holds few,
-               "pfba" does (the nine cycle members: 19.61 vs 11.02, of 19.91).
+    reference  "pfba" or "both" (recommended), "members" / None, a flux dict, or a list of (flux,
+               weight) pairs:
+               "pfba"     the model's own pFBA optimum. Kept whole where it holds no cycle; never
+                          lost growth on the cycle-free controls of the planted-cycle validation
+                          (100/100) and keeps more where the optimum holds few cycles (the nine
+                          day-174 cycle members: 19.61 vs 11.02 for "both", of 19.91).
+               "both"     each member growing alone first (weighted 1e4), then the optimum as far
+                          as it agrees with them: every member that grows alone keeps growing;
+                          never lost growth on the cycle-free controls (100/100); keeps more where
+                          the optimum leans on cycles (day 174, 88 members: 11.83 vs 6.17 for
+                          "pfba", of 18.21).
+               "members"  each member alone only (member_reference). Not recommended: it shuts
+                          most cross-feeding, and on the cycle-free controls it lost growth in
+                          19/100 instances, down to 0 where a member lives on another's product
+                          (CommPhitting maltose: P. fluorescens grows 0 alone, and the community
+                          went to 0). When a member cannot grow alone, the reference now
+                          falls back (no_growth_fallback, below, with a warning).
+               a dict     {reaction id: flux}, e.g. a loop-law MILP solution, honoured where it
+                          holds no cycle, so the objective it allows is at least the reference's.
+    no_growth_fallback  for reference "members" (or None) when some member grows <= tol alone:
+               "both" (default) adds the whole community pFBA optimum after the members' own
+               fluxes -- the "both" reference; "optimum" adds the optimum restricted to the
+               reactions of the members that cannot grow alone; None keeps the earlier behaviour
+               (they get nothing, and the profile may shut their uptake). On the planted-cycle
+               controls (N1, 50 seeds: 6 with such a member, each with an energy-neutral ATP
+               shuttle between two other members that no member uses alone) "both" kept the LP
+               optimum on all 6, "optimum" on none (it raised two from 0, 1.383 and 5.057 of
+               1.768 and 5.915, and lowered two that had kept it, 4.897 and 3.919 of 6.443 and
+               5.440), the earlier behaviour on 2. The report's "fallback" names the members and
+               the mode.
+    canonical  True (default): every solve (member references, pFBA, the objective of each
+               round) runs on canonical_copy(model, threads) -- rows rebuilt in reaction order,
+               GLPK's standard basis or a fresh Gurobi model with Threads/Presolve/Method set --
+               and the bounds found are written back to `model`. Before this, the orientation
+               followed the solver's warm start and the rows' stored term order (three fresh
+               Kp/Bt builds gave three orientations per reference). It makes the result
+               reproducible for one solver configuration and thread count, not better. False
+               solves on `model` as it is (the earlier behaviour).
+    profile_args go to potential_profile: threads (also used for the canonical copy's Gurobi),
+               lp, pins ("ntp" pins GTP, CTP, UTP and PPi hydrolysis too), w_reference, ...
 
     With rounds > 1, each further round adds the oriented model's pFBA optimum to the reference
     and derives a new profile from the original bounds. The optimum stays feasible (the new profile
     honours it), so the objective cannot fall, and directions the first profile fixed for no
     reason can reopen. member_models goes to member_reference. Returns a report with the
     objective of each round."""
-    from cobra.flux_analysis import pfba
-    original = {r.id: tuple(r.bounds) for r in model.reactions}
-    boundary = {r.id for r in model.boundary}
+    threads = profile_args.get("threads")
+    work = canonical_copy(model, threads) if canonical else model
+    original = {r.id: tuple(r.bounds) for r in work.reactions}
+    boundary = {r.id for r in work.boundary}
     grown = None
     optimum = None
+    fallback = None
+
+    def pfba_optimum():
+        return {rid: f for rid, f in robust_pfba(work).fluxes.items() if abs(f) > tol and rid not in boundary}
+
     if reference in ("pfba", "both"):
         # the unoriented optimum itself: kept whole when it holds no cycle (pFBA rarely pays
         # for one); whatever cycle it does hold, the soft weights orient against
-        optimum = {rid: f for rid, f in robust_pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
+        optimum = pfba_optimum()
     if reference is None or reference in ("members", "both"):
-        members, grown = member_reference(model, member_models=member_models)
+        members, grown = member_reference(work, member_models=member_models)
     if reference == "both":
         # each member alone first (cycle-free, so the community can always grow), then as much
         # of the optimum as agrees with them
@@ -1028,15 +1502,32 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
     elif reference == "pfba":
         reference = optimum
     elif reference is None or reference == "members":
-        reference = members
+        stuck = sorted(i for i, g in (grown or {}).items() if g <= tol)
+        if stuck and no_growth_fallback:
+            if no_growth_fallback not in ("optimum", "both"):
+                raise ValueError(f"no_growth_fallback must be 'optimum', 'both' or None, not {no_growth_fallback!r}")
+            optimum = pfba_optimum()
+            if no_growth_fallback == "both":
+                second = optimum
+            else:
+                owner = {r.id: member_index(r) for r in work.reactions}
+                second = {rid: f for rid, f in optimum.items() if owner.get(rid) in stuck}
+            logger.warning("orient_community(reference='members'): member(s) %s cannot grow alone on this "
+                           "medium; their reactions follow the community optimum instead (%s, %d reactions). "
+                           "reference='pfba' or 'both' is recommended.", stuck, no_growth_fallback, len(second))
+            fallback = {"members": stuck, "mode": no_growth_fallback, "reactions": len(second)}
+            w = profile_args.pop("w_reference", 1e4)
+            reference = [(members, w), (second, w)]
+        else:
+            reference = members
     reference = list(reference) if isinstance(reference, list) else dict(reference)
     history, changed, profile = [], [], {}
     for k in range(rounds):
-        for r in model.reactions:
+        for r in work.reactions:
             r.bounds = original[r.id]
-        dg, profile = potential_profile(model, reference, **profile_args)
-        changed = orient_by_potentials(model, dg)
-        v = _value(model)
+        dg, profile = potential_profile(work, reference, **profile_args)
+        changed = orient_by_potentials(work, dg)
+        v = _value(work)
         against = profile["against_reference"]
         history.append({"round": k, "objective": v, "oriented": profile["oriented"],
                         "bounds_changed": len(changed),
@@ -1044,15 +1535,21 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
                         "against_reference": [len(x) for x in against] if isinstance(reference, list) else len(against),
                         "irreversible_blocked": len(profile["irreversible_blocked"])})
         if k + 1 < rounds and v is not None and v > tol:
-            new = {rid: f for rid, f in robust_pfba(model).fluxes.items() if abs(f) > tol and rid not in boundary}
+            new = pfba_optimum()
             if isinstance(reference, list):
                 reference = reference + [(new, reference[-1][1])]
             else:
                 reference.update(new)
-    return {"history": history, "changed": changed, "profile": profile, "member_growth_alone": grown}
+    if work is not model:
+        for r in model.reactions:
+            b = work.reactions.get_by_id(r.id).bounds
+            if tuple(r.bounds) != tuple(b):
+                r.bounds = b
+    return {"history": history, "changed": changed, "profile": profile, "member_growth_alone": grown,
+            "fallback": fallback, "canonical": bool(canonical)}
 
 
-def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto"):
+def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto", threads=None, pins=None):
     """The internal reactions of a cycle inside a flux distribution, or [] if it holds none.
 
     A cycle here is a steady-state flux u through internal reactions only, each run the way
@@ -1060,7 +1557,10 @@ def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto"):
     ATP hydrolysis in each member: exactly what makes `fluxes` violate the loop law with ATP
     hydrolysis pinned downhill (no potentials can make every step of u downhill). One LP over
     the active reactions; the support of its solution is returned. lp: "gurobi", "highs" or
-    "auto" (gurobi when gurobipy imports)."""
+    "auto" (gurobi when gurobipy imports); threads goes to the Gurobi environment (None: gurobi.env
+    or Gurobi's default). pins="ntp" allows hydrolysis of every pinned nucleotide and PPi as well
+    (NTP_PINS), matching a LocalLoopLaw with the same pins: a GTP loop that feeds biomass is then a
+    cycle here too."""
     import numpy as np
     import scipy.sparse as sp
     from scipy.optimize import linprog
@@ -1072,16 +1572,9 @@ def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto"):
         cols.append({m.id: c for m, c in r.metabolites.items()})
         signs.append(1.0 if fluxes[r.id] > 0 else -1.0)
     n_active = len(cols)
-    if pin_atp:
-        mets = {m.id for m in model.metabolites}
-        stoich = {"cpd00002": -1, "cpd00001": -1, "cpd00008": 1, "cpd00009": 1, "cpd00067": 1}
-        for m in model.metabolites:
-            mm = _COMP.match(m.compartment or "")
-            if _cpd(m) == "cpd00002" and mm and mm.group(1) == "c":
-                comp = m.compartment
-                if all(f"{k}_{comp}" in mets for k in stoich):
-                    cols.append({f"{k}_{comp}": n for k, n in stoich.items()})
-                    signs.append(1.0)
+    for _, _, st in hydrolysis_sites(model, _resolve_pins(pins, pin_atp)):
+        cols.append(dict(st))
+        signs.append(1.0)
     if not n_active:
         return []
     index = {}
@@ -1102,7 +1595,7 @@ def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto"):
             lp = "highs"
     if lp == "gurobi":
         import gurobipy as gp
-        env = gp.Env(params={"OutputFlag": 0})
+        env = gp.Env(params={"OutputFlag": 0, **({"Threads": int(threads)} if threads else {})})
         g = gp.Model(env=env)
         w = g.addMVar(len(cols), lb=0, ub=1, obj=c)
         g.addMConstr(A, w, "=", np.zeros(len(index)))
@@ -1131,8 +1624,19 @@ def _incumbent(model):
     return v
 
 
+def _mip_info(model):
+    """(relative MIP gap, best bound) of the last solve when it was a Gurobi MIP, else (None, None)."""
+    prob = model.solver.problem
+    try:
+        if not prob.IsMIP:
+            return None, None
+        return float(prob.MIPGap), float(prob.ObjBound)
+    except Exception:
+        return None, None
+
+
 def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None, tol=1e-7, time_budget=None,
-                     **law_args):
+                     threads=None, clean=True, **law_args):
     """The model's optimum under the loop law (ATP pinned), found by covering only the cycles the
     optimum tries to use: solve; if the solution holds a cycle (conformal_cycle), cover its
     reactions with LocalLoopLaw and solve again. The first solve is the plain LP; each later one
@@ -1145,16 +1649,36 @@ def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None
     runs out the status says so and `fluxes` is the last solution, which may still hold a cycle (check it with
     conformal_cycle before using it as a cycle-free reference).
 
+    law_args go to LocalLoopLaw (pins="ntp" pins GTP, CTP, UTP and PPi hydrolysis as well; the
+    cycle test, conformal_cycle, then uses the same pins, and `start` must come from an
+    orientation made with them too, else it is not a valid MIP start). threads goes to
+    conformal_cycle's Gurobi environment.
+
+    The report gives, per MILP round, "mip_gap" and "objective_bound" (Gurobi; None on other
+    solvers), and for the best cycle-free solution "mip_gap", "objective_bound" and, with clean,
+    a cleaned flux: a MILP lets a binary sit at its integrality tolerance, so a reaction whose
+    binary is "0" can still carry up to IntFeasTol x its bound (1e-5 x 1000 = 0.01 on Gurobi's
+    defaults) -- a trickle that is not in the orientation the solution claims. The clean solve
+    fixes every binary at the best solution's rounded value (reactions covered after that round:
+    by the sign of their flux) and solves once more, then takes the minimum-total-flux solution
+    at that optimum (pFBA; a plain re-solve can return a vertex with a free loop through
+    uncovered reactions): "clean_orientation" {reaction: (forward, reverse)}, "clean_objective"
+    (the optimum in that orientation), "clean_fluxes" (exactly 0 on every reaction the
+    orientation shuts), "clean_fraction" (of the optimum the pFBA held: 1.0, else 0.9999),
+    "clean_cycle" (conformal_cycle of it, [] when none) and "clean_status". The binaries are
+    freed again afterwards.
+
     Returns (fluxes, report); the law's rows stay on `model` (report["law"]) until removed."""
     import time
     law = law or LocalLoopLaw(model, **law_args)
     report = {"rounds": [], "status": "max rounds", "law": law,
-              "best_objective": float("-inf"), "best_fluxes": None}
+              "best_objective": float("-inf"), "best_fluxes": None, "mip_gap": None, "objective_bound": None}
     saved = model.solver.configuration.timeout
     if time_limit is not None:
         model.solver.configuration.timeout = time_limit
     fluxes = {}
     resume = False
+    best_binaries = {}
     began = time.time()
     try:
         for rnd in range(max_rounds):
@@ -1167,15 +1691,19 @@ def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None
             v = _incumbent(model)
             row = {"round": rnd, "objective": v, "status": model.solver.status, "covered": len(law.binaries),
                    "started": started, "seconds": round(time.time() - t, 1)}
+            row["mip_gap"], row["objective_bound"] = _mip_info(model) if law.binaries else (None, None)
             report["rounds"].append(row)
             if v is None:
                 report["status"] = f"solve failed ({model.solver.status})"
                 break
             fluxes = {r.id: r.flux for r in model.reactions}
-            cycle = conformal_cycle(model, fluxes, tol=tol)
+            cycle = conformal_cycle(model, fluxes, tol=tol, pins=law.pins, threads=threads)
             row["cycle"] = len(cycle)
             if not cycle and v > report["best_objective"]:
                 report["best_objective"], report["best_fluxes"] = v, fluxes
+                report["mip_gap"], report["objective_bound"] = row["mip_gap"], row["objective_bound"]
+                best_binaries = {rid: (int(round(f.primal or 0.0)), int(round(b.primal or 0.0)))
+                                 for rid, (f, b) in law.binaries.items()}
             if not cycle:
                 left = None if time_budget is None else time_budget - (time.time() - began)
                 if model.solver.status != "optimal" and not resume and (left is None or left > 60):
@@ -1195,6 +1723,55 @@ def loop_law_optimum(model, start=None, law=None, max_rounds=50, time_limit=None
             if not row["added"]:
                 report["status"] = "cycle already covered (solver tolerance)"
                 break
+        if clean and report["best_fluxes"] is not None and law.binaries:
+            model.solver.configuration.timeout = time_limit if time_limit is not None else saved
+            _clean_loop_law(model, law, report, best_binaries, tol, threads)
     finally:
         model.solver.configuration.timeout = saved
     return fluxes, report
+
+
+def _clean_loop_law(model, law, report, best_binaries, tol, threads):
+    """loop_law_optimum's final solve with every binary fixed at the best solution's value."""
+    best = report["best_fluxes"]
+    orient = {}
+    for rid in law.binaries:
+        if rid in best_binaries:
+            orient[rid] = best_binaries[rid]
+        else:  # covered after the best round: that solution had no binary here, so its sign
+            v = best.get(rid, 0.0)
+            orient[rid] = (int(v > tol), int(v < -tol))
+    saved = [(var, var.lb, var.ub) for fb in law.binaries.values() for var in fb]
+    try:
+        for rid, (f, b) in law.binaries.items():
+            fv, bv = orient[rid]
+            f.set_bounds(fv, fv)
+            b.set_bounds(bv, bv)
+        v = _incumbent(model)
+        report["clean_status"] = model.solver.status
+        report["clean_objective"] = v
+        report["clean_orientation"] = orient
+        report["clean_fluxes"], report["clean_cycle"], report["clean_fraction"] = None, None, None
+        if v is not None:
+            # the optimum in this orientation, at minimum total flux: a plain re-solve can return a
+            # vertex in which reactions the law does not cover run a free loop at no cost (49 of
+            # 200 cleaned fluxes in the planted-cycle sweep held such a cycle); pFBA drops them
+            from cobra.flux_analysis import pfba
+            clean = None
+            for frac in (1.0, 0.9999):
+                try:
+                    sol = pfba(model, fraction_of_optimum=frac)
+                    clean, report["clean_fraction"] = sol.fluxes.to_dict(), frac
+                    break
+                except Exception:  # infeasible at the full optimum, numerically
+                    continue
+            if clean is None:
+                clean = {r.id: r.flux for r in model.reactions}
+            for rid, (fv, bv) in orient.items():
+                if not fv and not bv:
+                    clean[rid] = 0.0  # held at 0 by its binaries; drop the solver's +-1e-12 noise
+            report["clean_fluxes"] = clean
+            report["clean_cycle"] = conformal_cycle(model, clean, tol=tol, pins=law.pins, threads=threads)
+    finally:
+        for var, lb, ub in saved:
+            var.set_bounds(lb, ub)

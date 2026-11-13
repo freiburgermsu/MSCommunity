@@ -131,9 +131,40 @@ in a first LP of its own (a single weighted LP let many small orientations outwe
    or `"pfba"` (better when it holds few), and compare their growth with the unoriented LP.
 3. `cut_energy_cycles(auto=False)` to list the directions thermodynamics rules out, as template
    curations; members that need them to grow have to be regapfilled.
+4. On the oriented model, `energy_from_nothing(model, boundary_ions=True)` (a route through H+ and
+   Pi passes the sealed test) and `net_atp_yield` per substrate against the biochemistry.
 
-Not covered: the ATP pin is on ATP only (a cycle making GTP and handing it to biomass is excluded
-only where GTP is linked to ATP), and electrons created by reactions that do not conserve charge
-are a curation problem, which `electrons_from_nothing` reports but nothing here removes. One
-profile serves one set of conditions; build it again when the medium or the measured constraints
-change.
+`reference="members"` is not recommended: it shuts cross-feeding no member uses alone. When a
+member cannot grow alone it now falls back to "both" with a warning (`no_growth_fallback`).
+The sealed tests lift the `*_commKin` rows themselves (with them in place every flux is 0 on
+nothing, and the CommPhitting merges read 0 against 250).
+
+Not covered by default: the pin is on ATP hydrolysis only, and a cycle that charges GTP and hands
+it to biomass is **not** excluded, whether or not nucleoside-diphosphate kinase links GTP to ATP.
+(An earlier version of this README said it was excluded where GTP is linked to ATP; the
+planted-cycle validation refuted that: the ATP-pinned loop law exceeded the ATP+GTP-pinned
+optimum on 50/50 unlinked and 50/50 NDK-linked GTP-loop instances, and `orient_community` with
+"pfba" / "both" kept growth above that optimum on 50/50 / 50/50 unlinked and 27/50 / 31/50 linked
+ones; `Metabolic_modeling/data/multisystem3/cycle_validation/properties.md`.) The link only lets
+`energy_from_nothing` see such a loop, as ATP made through the kinase. `pins="ntp"` (in
+`LocalLoopLaw`, `loop_law_optimum`, `potential_profile`, `orient_community`, `conformal_cycle`,
+`energy_from_nothing`) pins GTP, CTP, UTP and pyrophosphate hydrolysis as well; with it the
+loop law equals the ATP+GTP-pinned optimum on 50/50 and 50/50 of those instances and no
+reference leaks (`data/multisystem3/package_fixes/validation.md`). Electrons created by
+reactions that do not conserve charge are a curation problem, which `electrons_from_nothing`
+reports but nothing here removes. One profile serves one set of conditions; build it again when
+the medium or the measured constraints change.
+
+The sealed test closes every uptake, so it cannot see free energy drawn through a boundary ion:
+the 88-member "both" orientation above passes it (ATP 0) and still makes 811 mmol ATP/gDW/h from
+phosphate and protons taken in and pyrophosphate sent out.
+`energy_from_nothing(..., boundary_ions=True)` adds arms that reopen H+ and Pi and reports the ATP
+made through them (on that model: H+ 0, H+ and Pi 811.0;
+`data/multisystem3/package_fixes/day174_boundary_ions.json`); `net_atp_yield(model, substrate)`
+gives a substrate's ATP yield net of what the same test makes without it.
+
+Reproducibility: which optimal vertex orient_community lands on followed the solver's warm start
+and the stored order of the rows' terms (three fresh Kp/Bt builds gave three orientations per
+reference). It now solves on `canonical_copy(model)` by default, so one solver configuration and
+thread count give one orientation. That makes the result reproducible, not better. Pass
+`threads=` explicitly.

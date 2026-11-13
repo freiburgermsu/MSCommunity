@@ -384,31 +384,36 @@ class MSCommunity:
         assert gfresults, f"Gapfilling of {self.util.model.id} in {gfname} towards {target} failed."
         return self.gapfillings[gfname].integrate_gapfill_solution(gfresults)
 
-    def energy_cycles(self, electrons=True):
+    def energy_cycles(self, electrons=True, release_floors=True, closure="lax", biomass_outlet=True,
+                      boundary_ions=False, pins=None):
         """ATP, growth and electrons the community makes from nothing (commcycles.energy_from_nothing).
         Each is 0 for a community without energy-generating cycles, including the ones that run
         across members, which no single-member test can see.
 
-        The community-kinetics rows are lifted for the test: they cap each member's flux at
+        The community-kinetics rows are lifted for the test (energy_from_nothing does it itself
+        now, and lists them in report["kinetic_rows_lifted"]): they cap each member's flux at
         kinetic_coeff x its growth, so with nothing coming in they hold every flux at 0 and would
-        hide the cycle -- which still runs, up to that cap, whenever the community grows."""
+        hide the cycle -- which still runs, up to that cap, whenever the community grows.
+        Forced fluxes (maintenance-ATP floors) are released for the test too (release_floors),
+        else the sealed community is infeasible rather than 0; report["released"] lists them.
+        closure "lax" lets the boundary still remove matter, "strict" closes it both ways.
+        boundary_ions=True adds the arms that reopen H+ and Pi (a route through them is invisible
+        to the sealed test); pins="ntp" adds GTP, CTP, UTP and PPi hydrolysis tests."""
         from mscommunity.commcycles import energy_from_nothing
-        kinetic = [(c, c.ub) for c in self.util.model.constraints if c.name.endswith("_commKin")]
-        try:
-            for c, _ in kinetic:
-                c.ub = 1e30  # not None: optlang's Gurobi interface refuses a free row
-            return energy_from_nothing(self.util.model, biomass=self.primary_biomass.id, electrons=electrons)
-        finally:
-            for c, ub in kinetic:
-                c.ub = ub
+        return energy_from_nothing(self.util.model, biomass=self.primary_biomass.id, electrons=electrons,
+                                   release_floors=release_floors, closure=closure,
+                                   biomass_outlet=biomass_outlet, boundary_ions=boundary_ions, pins=pins)
 
     def orient_by_thermodynamics(self, reference="pfba", rounds=1, media=None, **profile_args):
         """Remove every energy-generating cycle, including those across members, by giving each
         reaction only the directions one metabolite-potential profile allows (ATP hydrolysis
         pinned downhill): commcycles.orient_community, changing this community's bounds in place.
         The profile is built on the community's current medium and objective, from `reference`
-        ("pfba": its own optimum; "members": each member growing alone; or a flux dict such as
-        a loop-law solution), whose objective it keeps where the reference holds no cycle.
+        ("pfba": its own optimum; "both": each member alone, then the optimum; "members": each
+        member alone only, not recommended; or a flux dict such as a loop-law solution), whose
+        objective it keeps where the reference holds no cycle. "pfba" and "both" are the
+        recommended references. The solves run on a canonical copy (canonical=True), so the
+        same configuration and threads give the same orientation; pass threads= for that.
         Returns the report; report["changed"] lists every bound changed."""
         from mscommunity.commcycles import orient_community
         if media is not None:
