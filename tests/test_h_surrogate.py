@@ -14,6 +14,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from cobra import Metabolite, Model, Reaction
+from pandas import DataFrame
 
 from mscommunity.commhelper import build_from_species_models
 from mscommunity.commsurrogate import (FBASurrogate, community_outputs, community_to_nn, sample_fba,
@@ -126,6 +127,68 @@ def test_infeasible_draws_are_dropped_or_recorded_as_zero():
     assert below.sum() == 300 - len(X) and (Yz.loc[below, "bio1"] == 0).all()
 
 
+def test_sampling_statistics_travel_with_the_samples_and_the_surrogate(tmp_path):
+    org = _organism(maintenance=1.0)          # ~10% of draws from [0, 10] are infeasible
+    box = {f"EX_{GLC}_e0": 10}
+    X, Y = sample_fba(org, box, ["bio1"], n_samples=300, seed=1)
+    stats = X.attrs["sampling"]
+    assert stats == Y.attrs["sampling"]
+    assert stats["n_draws"] == 300 and stats["n_kept"] == stats["n_optimal"] == len(X) < 300
+    assert sum(stats["statuses"].values()) == 300 and stats["statuses"]["optimal"] == len(X)
+    # pfba raises on an infeasible LP, which the cpu backend records as "error:Infeasible"
+    assert sum(n for s, n in stats["statuses"].items() if s != "optimal") == 300 - len(X)
+    assert set(stats["statuses"]) == {"optimal", "error:Infeasible"}
+    assert stats["box"] == {f"EX_{GLC}_e0": [0.0, 10.0]}
+    # the network never sees below the maintenance demand, whatever the box says
+    lo, hi = stats["kept_range"][f"EX_{GLC}_e0"]
+    assert lo >= 1 - 1e-9 and lo == X[f"EX_{GLC}_e0"].min() and hi == X[f"EX_{GLC}_e0"].max()
+    Xz, _ = sample_fba(org, box, ["bio1"], n_samples=300, seed=1, infeasible="zero")
+    zs = Xz.attrs["sampling"]
+    assert zs["n_kept"] == 300 and zs["n_optimal"] == len(X) and zs["statuses"] == stats["statuses"]
+    assert zs["infeasible"] == "zero"
+    # train_surrogate and community_to_nn carry it, and so does the JSON
+    surr = train_surrogate(X, Y, hidden_layers=1, nodes=3)
+    assert surr.sampling == stats
+    surr.save(tmp_path / "s.json")
+    assert FBASurrogate.load(tmp_path / "s.json").sampling == stats
+    surr2 = community_to_nn(org, inputs=box, n_samples=100, seed=1, hidden_layers=1, nodes=3)
+    assert surr2.sampling["n_draws"] == 100 and surr2.sampling["n_kept"] == surr2.sampling["n_optimal"] < 100
+    # frames that did not come from sample_fba (e.g. read back from a CSV) have none
+    bare = train_surrogate(DataFrame(X.to_numpy(), columns=X.columns), DataFrame(Y.to_numpy(), columns=Y.columns),
+                           hidden_layers=1, nodes=3)
+    assert bare.sampling is None
+
+
+def _pinned(bounds, flipped=False):
+    """The organism with its glucose exchange bounds set to `bounds`; `flipped` writes the
+    exchange as `<=> glc_e0`, so that its uptake runs on the upper bound."""
+    org = _organism()
+    ex = org.reactions.get_by_id(f"EX_{GLC}_e0")
+    if flipped:
+        ex.add_metabolites({org.metabolites.get_by_id(f"{GLC}_e0"): 2})
+    ex.bounds = bounds
+    return org
+
+
+def test_a_pinned_input_is_refused_instead_of_silently_truncating_the_box():
+    ex = f"EX_{GLC}_e0"
+    # the validated-uptake equality, a forced minimum, and the same on a `<=> met` exchange
+    for org, forced in ((_pinned((-5.0, -5.0)), 5), (_pinned((-10.0, -2.0)), 2), (_pinned((2.0, 10.0), True), 2)):
+        with pytest.raises(ValueError, match=rf"force an uptake of at least {forced}.*lower bound > upper bound"):
+            sample_fba(org, {ex: 10}, ["bio1"], n_samples=20)
+        with pytest.raises(ValueError, match="Lift the pin"):
+            community_to_nn(org, inputs={ex: 10}, n_samples=20)
+    # a bare id samples [0, current uptake limit], which a pin makes [0, pin]: refused too
+    with pytest.raises(ValueError, match="force an uptake"):
+        sample_fba(_pinned((-5.0, -5.0)), [ex], ["bio1"], n_samples=20)
+    # starting the range at the pin is fine, and so is an exchange that merely forbids secretion
+    X, Y = sample_fba(_pinned((-5.0, -5.0)), {ex: (5.0, 10.0)}, ["bio1"], n_samples=50)
+    assert len(X) == 50 and X.attrs["sampling"]["statuses"] == {"optimal": 50}
+    assert np.allclose(Y["bio1"], X[ex], atol=1e-6)
+    X, _ = sample_fba(_pinned((-10.0, 0.0)), {ex: 10}, ["bio1"], n_samples=50)
+    assert len(X) == 50 and X[ex].min() < 1
+
+
 # --- the network ------------------------------------------------------------------
 
 def test_the_surrogate_is_the_closed_form_of_the_fitted_network(tmp_path):
@@ -150,6 +213,48 @@ def test_the_surrogate_is_the_closed_form_of_the_fitted_network(tmp_path):
     assert loaded.input_bounds == surr.input_bounds == {f"EX_{GLC}_e0": (float(X.min().iloc[0]), float(X.max().iloc[0]))}
     # linear in u on this model, so near-perfect everywhere
     assert (surr.scores["test"] > 0.9999).all()
+
+
+def test_clip_and_the_exhaustion_guard_bound_what_the_network_answers(tmp_path):
+    comm = _community()
+    inputs = [f"EX_{GLC}_e0", f"EX_{XYL}_e0"]
+    X, Y = sample_fba(comm.util.model, inputs, community_outputs(comm, inputs), n_samples=300, seed=2)
+    surr = train_surrogate(X, Y, hidden_layers=1, nodes=4)
+    lo, hi = surr.output_limits()
+    assert surr.output_bounds and np.all(lo <= hi)
+    assert np.all(lo >= Y.min().to_numpy() - 1e-12) and np.all(hi <= Y.max().to_numpy() + 1e-12)
+    # well outside the box the network extrapolates; clipped, it stays inside what the LP produced
+    far = np.array([[40.0, 20.0], [-5.0, -5.0], [0.0, 0.0]])
+    raw, clipped = surr.predict(far), surr.predict(far, clip="training")
+    assert np.all((clipped >= lo - 1e-12) & (clipped <= hi + 1e-12))
+    assert not np.allclose(raw, clipped)
+    # the guard zeroes every output where every named substrate is exhausted, and only there
+    guard = {f"EX_{GLC}_e0": 0.0, f"EX_{XYL}_e0": 0.0}
+    pts = np.array([[0.0, 0.0], [0.0, 3.0], [5.0, 0.0], [5.0, 3.0]])
+    raw, guarded = surr.predict(pts), surr.predict(pts, exhausted=guard)
+    assert np.all(guarded[0] == 0.0) and np.allclose(guarded[1:], raw[1:])
+    # a threshold above 0 cuts in below it; a list of inputs means threshold 0
+    assert np.all(surr.predict(np.array([0.05, 0.05]), exhausted={f"EX_{GLC}_e0": 0.1, f"EX_{XYL}_e0": 0.1}) == 0)
+    assert np.all(surr.predict(np.array([0.0, 0.0]), exhausted=inputs) == 0)
+    # one rule for every input form, and the guard wins over the clip
+    as_dict = surr.predict({inputs[0]: pts[:, 0], inputs[1]: pts[:, 1]}, clip="training", exhausted=guard)
+    as_frame = surr.predict(DataFrame(pts, columns=inputs), clip="training", exhausted=guard)
+    as_array = surr.predict(pts, clip="training", exhausted=guard)
+    assert np.allclose(np.column_stack([as_dict[o] for o in surr.outputs]), as_array)
+    assert np.allclose(as_frame.to_numpy(), as_array) and np.all(as_array[0] == 0)
+    with pytest.raises(ValueError, match="clip"):
+        surr.predict(pts, clip="box")
+    with pytest.raises(KeyError, match="exhausted"):
+        surr.predict(pts, exhausted={"EX_cpd00007_e0": 0.0})
+    # output_bounds survive JSON; a surrogate saved before it existed recovers it from mapminmax
+    surr.save(tmp_path / "s.json")
+    loaded = FBASurrogate.load(tmp_path / "s.json")
+    assert loaded.output_bounds == surr.output_bounds
+    legacy = surr.to_dict()
+    del legacy["output_bounds"], legacy["sampling"]
+    old = FBASurrogate.from_dict(legacy)
+    assert old.output_bounds == {} and old.sampling is None
+    assert np.allclose(np.vstack(old.output_limits()), np.vstack(surr.output_limits()), rtol=1e-12, atol=1e-12)
 
 
 def test_grid_search_keeps_the_smallest_network_within_tolerance():

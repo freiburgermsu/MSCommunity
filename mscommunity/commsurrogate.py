@@ -31,6 +31,12 @@ Two departures from the paper, both deliberate:
 
 The cybernetic combination of substrate-specific surrogates (their u_Lac, u_Pyr, u_Ace) is
 downstream of this module: train one surrogate per growth mode by narrowing `inputs`.
+
+For use in an ODE, `FBASurrogate.predict` takes two optional guards the paper did not need:
+`clip="training"` keeps every output inside the range the LP produced in training, and
+`exhausted={substrate: threshold}` returns all-zero outputs once every named substrate limit is
+at or below its threshold -- without it a network trained on [0, max] still answers a small
+growth at zero substrate, which an ODE integrates into biomass made from nothing.
 """
 from __future__ import annotations
 
@@ -163,6 +169,30 @@ def _steps(steps) -> List[Tuple[Optional[str], Optional[float]]]:
     return out
 
 
+def _check_pins(rxns, on_lb, static, box) -> None:
+    """Refuse inputs whose fixed bound forces an uptake larger than the bottom of their range.
+
+    Each draw moves only an input's uptake bound. If the other bound forces uptake -- an equality
+    pin such as (-1.33, -1.33), or a forced minimum such as (-10, -2) -- every draw below the forced
+    uptake has lower bound > upper bound. Those LPs fail and were dropped with only a log line,
+    while `input_bounds` still claimed the whole range, so the box was silently truncated."""
+    bad = []
+    for rxn, lb, other in zip(rxns, on_lb, static):
+        lo, hi = box[rxn.id]
+        forced = -other if lb else other          # the uptake the fixed bound forces, if positive
+        if forced > lo + 1e-9:
+            share = min(1.0, (forced - lo) / (hi - lo)) if hi > lo else 1.0
+            bad.append(f"{rxn.id} has bounds {tuple(rxn.bounds)}, which force an uptake of at least "
+                       f"{forced:g}, so the {share:.0%} of draws from its range [{lo:g}, {hi:g}] below "
+                       f"{forced:g} would have lower bound > upper bound")
+    if bad:
+        raise ValueError(
+            "sample_fba varies only the uptake bound of each input and keeps its other bound, but "
+            + "; ".join(bad) + ". Lift the pin before sampling (e.g. `rxn.bounds = (-max_uptake, 1000)`, "
+            "or an upper bound of 0 to forbid secretion), or sample only above it by passing "
+            "{id: (forced uptake, max uptake)}.")
+
+
 def sample_fba(model: Model, inputs, outputs, n_samples: int = 5000, steps=None, pfba: bool = True,
                seed: int = 0, infeasible: str = "drop", backend: str = "cpu", workers: int = 1,
                batch_size: Optional[int] = None) -> Tuple[DataFrame, DataFrame]:
@@ -172,7 +202,11 @@ def sample_fba(model: Model, inputs, outputs, n_samples: int = 5000, steps=None,
                 constraint a package added (an MSCommunity's CommKinetics, closed member
                 drains, element-uptake limits) shape the samples. It is not changed.
     inputs      the exchanges to vary: {id: max uptake}, {id: (min, max)}, or ids, whose range
-                is then [0, current uptake limit]. Uptakes are positive magnitudes.
+                is then [0, current uptake limit]. Uptakes are positive magnitudes. Each draw
+                moves an input's uptake bound only, so an input whose other bound forces uptake
+                (an equality pin such as (-1.33, -1.33), or a forced minimum) raises ValueError
+                when its range starts below the forced uptake: those draws would have lower
+                bound > upper bound. Lift the pin first, or start the range at the pin.
     outputs     what to record: reaction ids, or {label: reaction id | {reaction id: coef}}.
                 Fluxes are net and signed (uptake < 0), as the LP reports them.
     steps       None maximises the model's own objective. Otherwise the multi-step LP of the
@@ -190,7 +224,11 @@ def sample_fba(model: Model, inputs, outputs, n_samples: int = 5000, steps=None,
                 constraint is -- so for an MSCommunity they solve a relaxation.
 
     Returns (X, Y): DataFrames of the drawn uptake limits (columns = input exchanges) and the
-    recorded outputs (columns = output labels), one row per kept draw.
+    recorded outputs (columns = output labels), one row per kept draw. Both carry
+    `attrs["sampling"]`: n_draws, n_kept (rows returned), n_optimal, statuses ({LP status:
+    number of draws}, every draw counted once, "optimal" included), the infeasible policy, the
+    sampled box and kept_range, the [min, max] of each input over the optimal draws -- narrower
+    than the box when draws were dropped. `train_surrogate` copies it to `FBASurrogate.sampling`.
     """
     if infeasible not in ("drop", "zero"):
         raise ValueError("infeasible must be 'drop' or 'zero'")
@@ -209,6 +247,7 @@ def sample_fba(model: Model, inputs, outputs, n_samples: int = 5000, steps=None,
     # each input exchange's uptake bound moves with the draw; its other bound stays put
     on_lb = [bool(r.reactants) for r in rxns]
     static = [r.upper_bound if lb else r.lower_bound for r, lb in zip(rxns, on_lb)]
+    _check_pins(rxns, on_lb, static, box)
 
     def patch(row):
         return {r.id: ((-u, s) if lb else (s, u)) for r, u, lb, s in zip(rxns, row, on_lb, static)}
@@ -229,7 +268,7 @@ def sample_fba(model: Model, inputs, outputs, n_samples: int = 5000, steps=None,
 
     Y = np.zeros((len(X), len(outmap)))
     ok = np.ones(len(X), dtype=bool)
-    statuses: Dict[str, int] = {}
+    status = ["optimal"] * len(X)
     for start in range(0, len(X), batch_size):
         idx = range(start, min(start + batch_size, len(X)))
         bounds = {i: patch(X[i]) for i in idx}
@@ -243,7 +282,7 @@ def sample_fba(model: Model, inputs, outputs, n_samples: int = 5000, steps=None,
             for i, sol in zip(alive, solver.solve(problem, instances)):
                 if sol.status != "optimal":
                     ok[i] = False
-                    statuses[sol.status] = statuses.get(sol.status, 0) + 1
+                    status[i] = sol.status if len(plan) == 1 else f"{sol.status} (step {k})"
                 elif last:
                     Y[i] = [sum(c * sol.fluxes[r] for r, c in spec.items()) for spec in outmap.values()]
                 else:
@@ -253,15 +292,25 @@ def sample_fba(model: Model, inputs, outputs, n_samples: int = 5000, steps=None,
             alive = survivors if not last else alive
         logger.info("sample_fba(%s): %d/%d draws solved", model.id, idx.stop, len(X))
 
+    statuses: Dict[str, int] = {}
+    for s in status:
+        statuses[s] = statuses.get(s, 0) + 1
     if not ok.all():
         logger.warning("sample_fba(%s): %d of %d draws had no optimal LP (%s); %s.", model.id,
-                       int((~ok).sum()), len(X), statuses,
+                       int((~ok).sum()), len(X), {s: n for s, n in statuses.items() if s != "optimal"},
                        "dropped" if infeasible == "drop" else "recorded as zero outputs")
+    kept_range = {n: ([float(X[ok, j].min()), float(X[ok, j].max())] if ok.any() else None)
+                  for j, n in enumerate(names)}
     if infeasible == "drop":
         X, Y = X[ok], Y[ok]
     else:
         Y[~ok] = 0.0
-    return DataFrame(X, columns=names), DataFrame(Y, columns=list(outmap))
+    sampling = {"n_draws": int(len(ok)), "n_kept": int(len(X)), "n_optimal": int(ok.sum()),
+                "statuses": statuses, "infeasible": infeasible,
+                "box": {n: [float(box[n][0]), float(box[n][1])] for n in names}, "kept_range": kept_range}
+    X, Y = DataFrame(X, columns=names), DataFrame(Y, columns=list(outmap))
+    X.attrs["sampling"], Y.attrs["sampling"] = sampling, json.loads(json.dumps(sampling))
+    return X, Y
 
 
 # --- the network --------------------------------------------------------------
@@ -284,7 +333,15 @@ class FBASurrogate:
     `predict` (or calling the object) evaluates it with numpy alone, which is what lets it sit
     inside an ODE right-hand side; `to_dict` exposes the constants for porting it elsewhere.
     It takes uptake limits in the units and sign of `sample_fba` (positive magnitudes) and is
-    only trained inside `input_bounds`; outside, it extrapolates.
+    only trained inside `input_bounds`; outside, it extrapolates. `output_bounds` is the
+    [min, max] of each output over the training rows (what `predict(clip="training")` clips to)
+    and `sampling` the statistics of the `sample_fba` call the samples came from (None when the
+    samples did not come straight from it).
+
+    The network is smooth and does not know that no substrate means no activity: near the edge of
+    the box its small absolute error reads as activity from nothing (0.0029 /h of growth at zero
+    maltose on the CommPhitting maltose community, whose LP gives exactly 0 there). In an ODE that
+    makes biomass after the substrate is gone; see `predict`'s `exhausted` guard.
     """
 
     inputs: Tuple[str, ...]
@@ -300,6 +357,8 @@ class FBASurrogate:
     grid: Optional[DataFrame] = None        # validation error of every hyperparameter tried
     samples: Optional[Tuple[DataFrame, DataFrame]] = field(default=None, repr=False)
     estimator: Optional[object] = field(default=None, repr=False)
+    output_bounds: Dict[str, Box] = field(default_factory=dict)
+    sampling: Optional[dict] = field(default=None, repr=False)
 
     @property
     def hidden_layers(self) -> Tuple[int, ...]:
@@ -316,19 +375,78 @@ class FBASurrogate:
             a = np.tanh(a @ W + b)
         return (a @ self.weights[-1] + self.biases[-1] + 1.0) / self.y_gain + self.y_offset
 
-    def predict(self, X):
+    def output_limits(self) -> Tuple[np.ndarray, np.ndarray]:
+        """(lower, upper) arrays of each output's training range, in `outputs` order.
+
+        `output_bounds` when it was stored (by `train_surrogate`). A surrogate saved before it was,
+        recovers it from the mapminmax constants, which are the training rows' minimum (y_offset)
+        and 2 / span (y_gain; 1 for a constant output) -- exact unless a span was exactly 2.0."""
+        if self.output_bounds:
+            lo, hi = zip(*(self.output_bounds[name] for name in self.outputs))
+            return np.asarray(lo, float), np.asarray(hi, float)
+        span = np.where(self.y_gain != 1.0, 2.0 / self.y_gain, 0.0)
+        return np.asarray(self.y_offset, float), np.asarray(self.y_offset + span, float)
+
+    def _guard(self, exhausted) -> Tuple[np.ndarray, np.ndarray]:
+        """(column indices, thresholds) of the limiting inputs an `exhausted` guard names."""
+        if isinstance(exhausted, Mapping):
+            items = [(name, float(t)) for name, t in exhausted.items()]
+        else:
+            items = [(name, 0.0) for name in ([exhausted] if isinstance(exhausted, str) else exhausted)]
+        unknown = [name for name, _ in items if name not in self.inputs]
+        if unknown or not items:
+            raise KeyError(f"exhausted must name inputs of the surrogate {list(self.inputs)}, not {unknown or items}")
+        return (np.array([self.inputs.index(name) for name, _ in items]), np.array([t for _, t in items]))
+
+    def _evaluate(self, X: np.ndarray, clip, exhausted) -> np.ndarray:
+        Y = self._forward(X)
+        if clip is not None:
+            if clip != "training":
+                raise ValueError(f"clip must be None or 'training', not {clip!r}")
+            Y = np.clip(Y, *self.output_limits())
+        if exhausted is not None:
+            cols, thresholds = self._guard(exhausted)
+            Y = np.where(np.all(X[:, cols] <= thresholds, axis=1)[:, None], 0.0, Y)
+        return Y
+
+    def predict(self, X, clip: Optional[str] = None, exhausted=None):
         """Outputs at uptake limits `X`: an array (one row per point, or a single point), a
-        DataFrame or a {input: value(s)} dict -- answered in the same kind."""
+        DataFrame or a {input: value(s)} dict -- answered in the same kind.
+
+        clip       None, or "training": clip each output to the [min, max] it took over the
+                   training rows (`output_limits`). It stops the network from answering what the
+                   LP never did -- negative growth, an uptake past the largest sampled, a
+                   secretion of the wrong sign -- but not a small positive growth at zero
+                   substrate, because growth that small is inside the training range. It can
+                   even raise a negative growth there to the smallest growth sampled, which is
+                   above 0 unless the zero-substrate corner was drawn (CommPhitting maltose
+                   demo, maltose 0 and O2 0: -0.0021 /h raw, +0.0014 /h clipped).
+        exhausted  a guard for substrate exhaustion: the limiting inputs as {input: threshold}
+                   (or a list of inputs, threshold 0). Wherever EVERY named input is <= its
+                   threshold, every output is set to 0 -- the LP's answer when nothing it could
+                   grow on is offered and no maintenance demand forces flux (with a forced
+                   maintenance flux the LP has no solution there at all, and 0 is a choice).
+                   Name the substrates without which nothing happens: the carbon sources, not
+                   O2 (with maltose and no O2 a fermenting community still grows). Threshold 0
+                   catches the exact zero an ODE reaches when the uptake limit is capped by what
+                   is left (min(vmax S/(K+S), S/(X dt)) once S hits 0). When the limit only
+                   approaches 0 (a Monod limit with a large K), 0 never fires: set the threshold
+                   to the input below which the network's error at zero substrate (compare
+                   `predict` at 0 with the LP's 0) outweighs the LP's own output, and accept the
+                   step that cuts in there -- or train with the zero-substrate corner of the box
+                   added as extra rows, which shrinks the error but does not remove it.
+        The guard is applied after the clip, so it wins.
+        """
         if isinstance(X, DataFrame):
-            return DataFrame(self._forward(X[list(self.inputs)].to_numpy(float)),
+            return DataFrame(self._evaluate(X[list(self.inputs)].to_numpy(float), clip, exhausted),
                              columns=list(self.outputs), index=X.index)
         if isinstance(X, Mapping):
             cols = np.broadcast_arrays(*(np.asarray(X[name], float) for name in self.inputs))
-            Y = self._forward(np.stack([c.ravel() for c in cols], axis=1))
+            Y = self._evaluate(np.stack([c.ravel() for c in cols], axis=1), clip, exhausted)
             shape = cols[0].shape
             return {name: (float(y[0]) if not shape else y.reshape(shape)) for name, y in zip(self.outputs, Y.T)}
         X = np.asarray(X, float)
-        return self._forward(X[None, :])[0] if X.ndim == 1 else self._forward(X)
+        return self._evaluate(X[None, :], clip, exhausted)[0] if X.ndim == 1 else self._evaluate(X, clip, exhausted)
 
     __call__ = predict
 
@@ -338,15 +456,21 @@ class FBASurrogate:
                 "weights": [W.tolist() for W in self.weights], "biases": [b.tolist() for b in self.biases],
                 "y_offset": self.y_offset.tolist(), "y_gain": self.y_gain.tolist(),
                 "input_bounds": {k: list(v) for k, v in self.input_bounds.items()},
+                "output_bounds": {k: list(v) for k, v in self.output_bounds.items()},
+                "sampling": self.sampling,
                 "scores": None if self.scores is None else self.scores.to_dict()}
 
     @classmethod
     def from_dict(cls, d: dict) -> "FBASurrogate":
+        """The inverse of `to_dict`; a dict saved before output_bounds and sampling existed loads
+        with output_bounds {} (`output_limits` then recovers it) and sampling None."""
         arr = lambda v: np.asarray(v, float)
         return cls(inputs=tuple(d["inputs"]), outputs=tuple(d["outputs"]), x_offset=arr(d["x_offset"]),
                    x_gain=arr(d["x_gain"]), weights=[arr(W) for W in d["weights"]],
                    biases=[arr(b) for b in d["biases"]], y_offset=arr(d["y_offset"]), y_gain=arr(d["y_gain"]),
                    input_bounds={k: tuple(v) for k, v in d.get("input_bounds", {}).items()},
+                   output_bounds={k: tuple(v) for k, v in (d.get("output_bounds") or {}).items()},
+                   sampling=d.get("sampling"),
                    scores=None if d.get("scores") is None else DataFrame(d["scores"]))
 
     def save(self, path: str) -> None:
@@ -382,7 +506,9 @@ def train_surrogate(X: DataFrame, Y: DataFrame, hidden_layers: Union[int, Sequen
     split                  train / validation / test fractions. The test rows are set aside
                            once, before any search, and only scored.
 
-    The result's `scores` holds R^2 per output on each part of the split, and `grid` the search.
+    The result's `scores` holds R^2 per output on each part of the split, `grid` the search,
+    `output_bounds` each output's [min, max] over the training rows, and `sampling` the
+    `attrs["sampling"]` statistics `sample_fba` attached to X (None for frames without them).
     """
     if not np.isclose(sum(split), 1.0):
         raise ValueError(f"split fractions must sum to 1, not {split}")
@@ -452,6 +578,10 @@ def train_surrogate(X: DataFrame, Y: DataFrame, hidden_layers: Union[int, Sequen
     surrogate.samples = (X, Y)
     surrogate.input_bounds = dict(input_bounds) if input_bounds is not None else \
         {c: (float(X[c].min()), float(X[c].max())) for c in X.columns}
+    # the training rows' range, the same rows the output mapminmax settings come from
+    surrogate.output_bounds = {c: (float(Ya[tr, j].min()), float(Ya[tr, j].max())) for j, c in enumerate(Y.columns)}
+    sampling = X.attrs.get("sampling") or Y.attrs.get("sampling")
+    surrogate.sampling = json.loads(json.dumps(sampling)) if sampling else None
     return surrogate
 
 
@@ -475,8 +605,10 @@ def community_to_nn(community, inputs=None, extra_outputs=None, member_exchanges
     train_args  hidden_layers, nodes, alpha, split, repeats, tolerance, max_iter; see
                 `train_surrogate`.
 
-    Returns the trained `FBASurrogate`; its `scores` say how far to trust it and its `samples`
-    let `train_surrogate` refit it without solving the LPs again.
+    Returns the trained `FBASurrogate`; its `scores` say how far to trust it, its `sampling`
+    how many draws were solved, kept and dropped (and why), and its `samples` let
+    `train_surrogate` refit it without solving the LPs again. Its `input_bounds` are the sampled
+    box; when draws were dropped, `sampling["kept_range"]` is the part the network actually saw.
     """
     if isinstance(community, Model):
         model = community
