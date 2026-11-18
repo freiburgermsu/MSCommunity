@@ -1,4 +1,5 @@
-from modelseedpy.core import minimizeFlux_withGrowth, bioFlux_check, NoFluxError, ObjectiveError
+from modelseedpy.core.msminimalmedia import bioFlux_check
+from modelseedpy.core import NoFluxError, ObjectiveError
 from modelseedpy.fbapkg.mspackagemanager import MSPackageManager
 from modelseedpy.core.msmodelutl import MSModelUtil
 from modelseedpy.core.fbahelper import FBAHelper
