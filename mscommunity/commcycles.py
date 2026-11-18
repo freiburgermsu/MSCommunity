@@ -220,9 +220,12 @@ def energy_from_nothing(model, biomass="bio1", electrons=True, tol=1e-6, release
     All three are 0 for a community without energy-generating cycles. None means the LP failed.
     Fluxes in mmol/gDW/h.
 
-    release_floors  first let every forced non-boundary flux stop (release_forced_fluxes): a
-                    maintenance-ATP floor cannot run on nothing, so with it in place the test is
-                    infeasible, not 0. False keeps the bounds as they are (the earlier behaviour).
+    release_floors  first let every forced non-boundary flux stop (release_forced_fluxes):
+                    a positive lower bound (a maintenance-ATP floor, a measured rate fixed as an
+                    equality) goes to 0, and so does a negative upper bound. A floor cannot run
+                    on nothing, so with it in place the test is infeasible, not 0. Only bounds
+                    change; constraint rows are lifted by lift_kinetics. False keeps the bounds
+                    as they are (the earlier behaviour).
     closure         "lax": every boundary reaction may still remove matter (the default and the
                     earlier behaviour); "strict": every boundary reaction closed both ways. They
                     differ only where reactions make matter from nothing, which "lax" lets out.
@@ -2380,3 +2383,13 @@ msid = _ea.msid
 load_msdb_thermo = _ea.load_msdb_thermo
 direction_thermo = _ea.direction_thermo
 conformal_cycle = _ea.conformal_cycle
+
+# Private names this module had before the audit moved, kept because analysis scripts outside
+# the package import them (_seal and _maximise_tests: 3H11_R12_SynCom's kpbt and cyclebench
+# scripts, codiffusion_bioreactor's energy_leak_check_v7eo2). Each takes the arguments the old
+# one took. _summary_by_test, _boundary_ion_arms and _find_energy_cycle are not kept: their
+# arguments changed and no caller was found.
+_seal = _ea.seal  # (model, closure="lax", release_floors=True, open_cpds=(), biomass_outlet=True)
+_maximise_tests = _ea._maximise_tests  # (model, tests): reads tests.values() only
+_hydrolysis = _ea.hydrolysis_stoichiometry
+_MSID = _ea._MSID

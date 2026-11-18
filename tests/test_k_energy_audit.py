@@ -113,3 +113,24 @@ def test_the_own_copy_offers_what_the_module_offers_and_reads_the_same():
     assert cycle == first[1]
     assert gross == first[2]
     assert loop == first[3] and loop
+
+
+def test_the_private_names_scripts_import_are_still_there():
+    """Analysis scripts outside the package import _seal and _maximise_tests (and read _MSID,
+    _hydrolysis) from commcycles; they must take the arguments they took before the move."""
+    model = _community()
+    expected = commcycles.energy_from_nothing(model, electrons=False, biomass=None)
+    with model:
+        released = commcycles._seal(model, "lax", True)
+        tests = commcycles.add_atp_tests(model)
+        made = commcycles._maximise_tests(model, tests)
+    assert released == expected["released"]
+    assert made == pytest.approx(expected["atp_from_nothing"]) and made > 0
+    with model:
+        commcycles._seal(model, "strict", True, open_cpds=("cpd00067",), biomass_outlet=False)
+        opened = [r for r in model.boundary if next(iter(r.metabolites)).id == "cpd00067_e0"]
+        assert all(r.lower_bound == -1000 for r in opened)
+        assert all(r.bounds == (0, 0) for r in model.boundary if r not in opened)
+    assert commcycles._hydrolysis("cpd00002", "cpd00008") == {
+        "cpd00002": -1, "cpd00001": -1, "cpd00008": 1, "cpd00009": 1, "cpd00067": 1}
+    assert commcycles._MSID.match("rxn00571_c16").group(1) == "rxn00571"
