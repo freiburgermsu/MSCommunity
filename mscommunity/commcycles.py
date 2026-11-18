@@ -79,116 +79,34 @@ start and the stored order of the rows' terms, and the profile honours whichever
 given; on the Kp/Bt merges three fresh builds gave three orientations per reference before this.
 It makes the result reproducible for one solver configuration and thread count, not better: the
 vertex it reproduces is no more right than the others.
+
+Where the code lives. The single-model audit -- the hydrolysis tests and their pins, sealing
+(lax / strict), the floor release, energy_from_nothing, electrons_from_nothing, net_atp_yield,
+the cycle LP of find_energy_cycle, the dG gate and conformal_cycle -- is
+modelseedpy.core.msenergyaudit. This module calls it with what a community adds: a test in
+each member cytosol rather than the community compartment c0, results by member index, the
+*_commKin rows lifted (lift_kinetics), and a cycle's members and the metabolites they pass
+around it. A ModelSEEDpy without that module gets one warning and MSCommunity's own copy
+(_fallback_energy_audit, at the end of this file), which is to be removed once the
+ModelSEEDpy MSCommunity needs has the module.
 """
-import glob
-import json
+import importlib
 import logging
-import os
 import re
-from contextlib import contextmanager
-from math import log as ln, isnan
+import warnings
+from math import isnan
+from types import SimpleNamespace
 
 from cobra import Reaction
 from optlang.symbolics import Zero
 
 logger = logging.getLogger(__name__)
 
-RT = 0.0019872 * 298.15  # kcal/mol at 25 C, the units of the ModelSEED dG values
 ORIENT_TOL = 1e-5  # |dG| of a potential profile below this (x its margin) is 0: solver tolerance
-
-# electrons each reduced product carries, relative to CO2, H2O and H+:
-# H2, methane, formate, ethanol, L-lactate, D-lactate, succinate
-REDUCED_PRODUCTS = {"cpd11640": 2, "cpd01024": 8, "cpd00047": 2, "cpd00363": 12,
-                    "cpd00159": 12, "cpd00221": 12, "cpd00036": 14}
-ELECTRON_TEST_INPUTS = ("cpd00011", "cpd00001", "cpd00067")  # CO2, H2O, H+
-NOT_IN_CONCENTRATION_TERM = {"cpd00001", "cpd00067"}  # water, H+ (fixed by the pH of dG'0)
-THERMO_SOURCES = ("eQuilibrator", "dGPredictor", "Group contribution")
-_COMP = re.compile(r"^([a-z]+)(\d+)$")
-_MSID = re.compile(r"^(rxn\d{5})")
-
-# phosphoanhydride hydrolysis pins: (triphosphate, diphosphate); diphosphate None is pyrophosphate
-# (PPi + H2O -> 2 Pi + H+). Each pin is NTP + H2O -> NDP + Pi + H+ in every member cytosol
-# holding all five metabolites.
-ATP, ADP, PI, PPI, H2O, PROTON = "cpd00002", "cpd00008", "cpd00009", "cpd00012", "cpd00001", "cpd00067"
-ATP_PINS = ((ATP, ADP),)
-NTP_PINS = ((ATP, ADP), ("cpd00038", "cpd00031"),   # ATP/ADP, GTP/GDP
-            ("cpd00052", "cpd00096"), ("cpd00062", "cpd00014"),  # CTP/CDP, UTP/UDP
-            (PPI, None))                             # pyrophosphate
-TEST_PREFIXES = ("ATPtest_", "NTPtest_")
 KINETIC_ROW_SUFFIX = "_commKin"
-# boundary-ion arms of energy_from_nothing; the yield test's background uptakes
-BOUNDARY_ION_ARMS = (("H+", (PROTON,)), ("H+,Pi", (PROTON, PI)))
-YIELD_OPEN = (H2O, PROTON, PI, "cpd00011")  # H2O, H+, Pi, CO2
-# left out of the "medium" ion arm: electron acceptors (a donor-free test cannot use them, but
-# they are not ions in the sense meant here) and inorganic electron donors (H2 + CO2 is a real
-# energy source for methanogens and acetogens)
-ELECTRON_ACCEPTORS = {"cpd00007", "cpd00209", "cpd00075", "cpd00048", "cpd00106", "cpd00659",
-                      "cpd10516", "cpd00268"}
-INORGANIC_DONORS = {"cpd11640", "cpd00239", "cpd10515"}  # H2, H2S, Fe2+
-INORGANIC_CARBON = {"cpd00011", "cpd00242"}  # CO2, HCO3-
-
-
-def _resolve_pins(pins=None, pin_atp=True):
-    """pins: None (ATP_PINS, or none with pin_atp=False), "atp", "ntp" (NTP_PINS), or an
-    iterable of (triphosphate, diphosphate-or-None) compound ids."""
-    if pins is None:
-        return ATP_PINS if pin_atp else ()
-    if isinstance(pins, str):
-        if pins.lower() == "ntp":
-            return NTP_PINS
-        if pins.lower() == "atp":
-            return ATP_PINS
-        raise ValueError(f"pins must be None, 'atp', 'ntp' or a list of pairs, not {pins!r}")
-    return tuple((tri, di) for tri, di in pins)
-
-
-def _hydrolysis(tri, di):
-    """{compound: coefficient} of tri + H2O -> di + Pi + H+ (di None: PPi + H2O -> 2 Pi + H+)."""
-    if di is None:
-        return {tri: -1, H2O: -1, PI: 2, PROTON: 1}
-    return {tri: -1, H2O: -1, di: 1, PI: 1, PROTON: 1}
-
-
-def hydrolysis_sites(model, pins=ATP_PINS):
-    """[(triphosphate, compartment, {metabolite id: coefficient})]: every member cytosol (c<i>)
-    that holds all the metabolites of a pin's hydrolysis, in pin order, then model order."""
-    mets = {m.id for m in model.metabolites}
-    out = []
-    for tri, di in pins:
-        st = _hydrolysis(tri, di)
-        for met in model.metabolites:
-            m = _COMP.match(met.compartment or "")
-            if _cpd(met) != tri or not m or m.group(1) != "c":
-                continue
-            comp = met.compartment
-            if all(f"{c}_{comp}" in mets for c in st):
-                out.append((tri, comp, {f"{c}_{comp}": n for c, n in st.items()}))
-    return out
-
-
-@contextmanager
-def lifted_kinetic_rows(model, lift=True, suffix=KINETIC_ROW_SUFFIX):
-    """Lift the community-kinetics rows (names ending in `suffix`, as MSCommunity.add_commkinetics
-    and CommKineticPkg write them) for the duration of the block: they cap each member's flux at
-    kappa x its growth, so with nothing coming in they hold every flux at 0 and hide every cycle
-    -- which still runs, up to that cap, whenever the community grows. Bounds go to +-1e30, not
-    None (optlang's Gurobi interface refuses a free row), and come back on exit. `with model:`
-    does not track row bounds, so this restores them itself. Yields the lifted rows' names."""
-    rows = [c for c in model.constraints if c.name.endswith(suffix)] if lift else []
-    saved = [(c, c.lb, c.ub) for c in rows]
-    try:
-        for c in rows:
-            if c.ub is not None:
-                c.ub = 1e30
-            if c.lb is not None:
-                c.lb = -1e30
-        yield [c.name for c in rows]
-    finally:
-        for c, lb, ub in saved:  # only the bounds changed above (not None) go back
-            if ub is not None:
-                c.ub = ub
-            if lb is not None:
-                c.lb = lb
+_COMP = re.compile(r"^([a-z]+)(\d+)$")
+# The generic constants and functions (ATP, NTP_PINS, close_uptakes, conformal_cycle, ...) are
+# bound at the end of this file, from modelseedpy.core.msenergyaudit or the fallback copy.
 
 
 # --------------------------------------------------------------------------- model helpers
@@ -210,14 +128,63 @@ def member_index(rxn):
     return idx.pop() if len(idx) == 1 else None
 
 
-def msid(rxn):
-    """The ModelSEED reaction id behind a community reaction id (rxn00571_c16 -> rxn00571)."""
-    m = _MSID.match(rxn.id)
-    return m.group(1) if m else None
-
-
 def _cpd(met):
     return met.id.split("_")[0]
+
+
+def _value(model):
+    v = model.slim_optimize(error_value=float("nan"))
+    return None if isnan(v) else v
+
+
+# --------------------------------------------------------------------------- the audit, by member
+def _member_cytosols(model, pins):
+    """compartments= for the generic tests: every member cytosol c<i> that holds a pin's
+    metabolites, and the community compartment c0 only where it is the one compartment holding
+    them -- c0 is the community compartment in a community and the cytosol in a single model."""
+    found = {}
+    for tri, comp, _ in hydrolysis_sites(model, pins):
+        m = _COMP.match(comp)
+        if m:
+            found.setdefault(tri, []).append((comp, int(m.group(2))))
+    keep = set()
+    for tri, comps in found.items():
+        if len(comps) > 1:
+            comps = [(comp, idx) for comp, idx in comps if idx != 0]
+        keep.update((tri, comp) for comp, _ in comps)
+    return lambda tri, comp: (tri, comp) in keep
+
+
+def _member_key(key):
+    """A generic test key ("c3", or (compound, "c3")) as a member key (3, or (compound, 3))."""
+    if isinstance(key, tuple):
+        return key[0], int(_COMP.match(key[1]).group(2))
+    return int(_COMP.match(key).group(2))
+
+
+def _by_member(report):
+    """A generic audit report in this module's terms, its key order kept: rows_lifted becomes
+    kinetic_rows_lifted, atp_by_compartment {"c3": flux} becomes atp_by_member {3: flux}."""
+    out = {}
+    for k, v in report.items():
+        if k == "rows_lifted":
+            out["kinetic_rows_lifted"] = v
+        elif k == "atp_by_compartment":
+            out["atp_by_member"] = {_member_key(c): f for c, f in v.items()}
+        else:
+            out[k] = v
+    return out
+
+
+def lifted_kinetic_rows(model, lift=True, suffix=KINETIC_ROW_SUFFIX):
+    """Lift the community-kinetics rows (names ending in `suffix`, as MSCommunity.add_commkinetics
+    and CommKineticPkg write them) for the duration of the block: they cap each member's flux at
+    kappa x its growth, so with nothing coming in they hold every flux at 0 and hide every cycle
+    -- which still runs, up to that cap, whenever the community grows. Bounds go to +-1e30, not
+    None (optlang's Gurobi interface refuses a free row), and come back on exit. `with model:`
+    does not track row bounds, so this restores them itself. Yields the lifted rows' names.
+    (msenergyaudit.lifted_rows with the suffix.)"""
+    return _ea.lifted_rows(model, suffix if lift else None)
 
 
 def add_atp_tests(model, pins=None):
@@ -228,79 +195,158 @@ def add_atp_tests(model, pins=None):
     pins="ntp" (or a list of (triphosphate, diphosphate) pairs, see NTP_PINS) adds a hydrolysis
     test for each other pinned compound too (GTP, CTP, UTP; PPi + H2O -> 2 Pi + H+), id
     NTPtest_<compound>_c<i>, keyed (compound, member index) in the returned dict. A GTP loop
-    that feeds biomass is invisible to the ATP tests alone."""
-    mets = {met.id: met for met in model.metabolites}
-    by_cpd = {}
-    for tri, comp, st in hydrolysis_sites(model, _resolve_pins(pins)):
-        idx = int(_COMP.match(comp).group(2))
-        rid = f"ATPtest_{comp}" if tri == ATP else f"NTPtest_{tri}_{comp}"
-        rxn = Reaction(rid, name=f"{'ATP' if tri == ATP else tri} hydrolysis test {comp}",
-                       lower_bound=0, upper_bound=1000)
-        rxn.add_metabolites({mets[mid]: n for mid, n in st.items()})
-        by_cpd.setdefault(tri, {})[idx] = rxn
-    tests = {}
-    for tri, found in by_cpd.items():
-        # c0 is the community compartment in a community and the cytosol in a single model
-        if len(found) > 1:
-            found.pop(0, None)
-        for idx, rxn in found.items():
-            tests[idx if tri == ATP else (tri, idx)] = rxn
-    model.add_reactions(list(tests.values()))
-    return tests
+    that feeds biomass is invisible to the ATP tests alone. (msenergyaudit.add_hydrolysis_tests
+    on the member cytosols.)"""
+    pins = _resolve_pins(pins)
+    tests = _ea.add_hydrolysis_tests(model, pins, _member_cytosols(model, pins))
+    return {_member_key(k): r for k, r in tests.items()}
 
 
-def _summary_by_test(tests, tol):
-    """atp_by_member {member index: flux} and ntp_by_test {"<compound>_c<i>": flux} above tol."""
-    atp = {k: r.flux for k, r in tests.items() if not isinstance(k, tuple) and r.flux > tol}
-    ntp = {f"{k[0]}_c{k[1]}": r.flux for k, r in tests.items() if isinstance(k, tuple) and r.flux > tol}
-    return atp, ntp
+def energy_from_nothing(model, biomass="bio1", electrons=True, tol=1e-6, release_floors=True,
+                        closure="lax", biomass_outlet=True, lift_kinetics=True, boundary_ions=False,
+                        pins=None, formulas=None):
+    """What the community makes from nothing (msenergyaudit.energy_from_nothing, by member).
+
+    atp_from_nothing        max total ATP hydrolysis over the members with every uptake closed
+                            (with pins="ntp": ATP, GTP, CTP, UTP and PPi hydrolysis summed)
+    atp_by_member           {member index: flux} at that optimum (members above `tol`)
+    ntp_by_test             {"<compound>_c<i>": flux}, the other hydrolysis tests (pins="ntp")
+    growth_from_nothing     max `biomass` flux with every uptake closed (skipped if it is None)
+    electrons_from_nothing  max electrons exported in REDUCED_PRODUCTS with only CO2, H2O and H+
+                            coming in; a clean community makes none, since reducing CO2 with
+                            electrons from water needs an energy source
+    released                {reaction id: old bounds} of the forced fluxes released for the test
+    kinetic_rows_lifted     names of the community-kinetics rows lifted for the test
+    All three are 0 for a community without energy-generating cycles. None means the LP failed.
+    Fluxes in mmol/gDW/h.
+
+    release_floors  first let every forced non-boundary flux stop (release_forced_fluxes): a
+                    maintenance-ATP floor cannot run on nothing, so with it in place the test is
+                    infeasible, not 0. False keeps the bounds as they are (the earlier behaviour).
+    closure         "lax": every boundary reaction may still remove matter (the default and the
+                    earlier behaviour); "strict": every boundary reaction closed both ways. They
+                    differ only where reactions make matter from nothing, which "lax" lets out.
+    biomass_outlet  with "strict", keep the biomass outlets able to remove biomass; False makes
+                    growth_from_nothing 0 by construction (the electron test keeps its own
+                    closure: CO2, H2O and H+ in, anything out).
+    lift_kinetics   lift the *_commKin rows for the tests (lifted_kinetic_rows). With them in
+                    place every member flux is capped at kappa x its growth, 0 on nothing, and the
+                    test reads 0 on a community that makes ATP at the flux bounds (the CommPhitting
+                    merges: 0 against 250). False keeps them (the earlier behaviour).
+    boundary_ions   False (default); True adds arms that reopen H+ ("H+") and H+ with phosphate
+                    ("H+,Pi") and report the ATP made through them, the boundary fluxes at that
+                    optimum and atp_from_boundary_ions (the largest). A clean community makes none:
+                    taking in Pi and H+ and sending out, say, pyrophosphate is uphill. The sealed
+                    test cannot see such a route, because it closes every uptake. "medium" adds an
+                    arm "ions" with the medium's inorganic uptakes too (medium_inorganic_uptakes,
+                    with `formulas` for metabolites that carry none); a list of compounds adds that
+                    arm with those compounds.
+    pins            None (ATP tests only) or "ntp": hydrolysis tests for GTP, CTP, UTP and PPi too
+                    (add_atp_tests)."""
+    pins = _resolve_pins(pins)
+    out = _ea.energy_from_nothing(
+        model, biomass=biomass, electrons=electrons, tol=tol, release_floors=release_floors,
+        closure=closure, biomass_outlet=biomass_outlet,
+        lift_rows=KINETIC_ROW_SUFFIX if lift_kinetics else None, boundary_ions=boundary_ions,
+        pins=pins, formulas=formulas, compartments=_member_cytosols(model, pins))
+    if "boundary_ions" in out:
+        out["boundary_ions"] = {label: _by_member(arm) for label, arm in out["boundary_ions"].items()}
+    return _by_member(out)
 
 
-def close_uptakes(model, open_cpds=(), strict=False, biomass_outlet=True):
-    """Every boundary reaction (exchange, sink, demand) may only remove matter, except the
-    shared-pool exchanges of `open_cpds`, which may also supply up to 1000. Call inside `with model:`.
-
-    strict=True closes removal as well: every boundary reaction gets (0, 0), except `open_cpds`
-    and, with biomass_outlet, the outlets of the biomass pseudo-metabolite (cpd11416), so that a
-    growth test can still measure something. With biomass_outlet=False strict is literal and any
-    growth from nothing is 0 by construction."""
-    for rxn in model.boundary:
-        met = next(iter(rxn.metabolites))
-        if open_cpds and _cpd(met) in open_cpds and met.compartment == "e0":
-            rxn.bounds = (-1000, max(rxn.upper_bound, 0))
-        elif strict and not (biomass_outlet and _cpd(met) == "cpd11416"):
-            rxn.bounds = (0, 0)
-        else:
-            rxn.bounds = (0, max(rxn.upper_bound, 0))
+def electrons_from_nothing(model, release_floors=True, lift_kinetics=True):
+    """Max electrons exported in REDUCED_PRODUCTS with only CO2, H2O and H+ coming in, and the
+    reduced products carrying them ({compound: export flux}). release_floors and lift_kinetics as
+    in energy_from_nothing. (msenergyaudit.electrons_from_nothing.)"""
+    return _by_member(_ea.electrons_from_nothing(
+        model, release_floors=release_floors, lift_rows=KINETIC_ROW_SUFFIX if lift_kinetics else None))
 
 
-def release_forced_fluxes(model):
-    """Let every non-boundary reaction stop: a positive lower bound (a maintenance-ATP floor, a
-    measured rate fixed as an equality) goes to 0, and so does a negative upper bound. A test of
-    what the community makes from nothing has to do this first: a forced flux cannot run with
-    every uptake closed, so with it in place the sealed LP is infeasible rather than 0 (the
-    published SynCom: both ATPM floors in place, infeasible; released, 0.0 and 0.0). Call inside
-    `with model:`. Returns {reaction id: (old lower bound, old upper bound)} of those released."""
-    released = {}
-    for rxn in model.reactions:
-        if rxn.boundary:
-            continue
-        lb, ub = rxn.bounds
-        if lb > 0 or ub < 0:
-            released[rxn.id] = (lb, ub)
-            rxn.bounds = (min(lb, 0), max(ub, 0))
-    return released
+def net_atp_yield(model, substrate, acceptor="cpd00007", open_cpds=None, rate=1.0,
+                  release_floors=True, lift_kinetics=True, pins=None):
+    """The ATP yield of `substrate` net of what the same test makes without it
+    (msenergyaudit.net_atp_yield, with the members' ATP tests).
+
+    The test: every uptake closed except `open_cpds` (default YIELD_OPEN: H2O, H+, Pi, CO2), the
+    `acceptor` (a compound, a list, or None) and the substrate at up to `rate` (mmol/gDW/h);
+    forced fluxes released, kinetic rows lifted, the members' ATP tests summed and maximised.
+    gross is that maximum per mmol of the allowed substrate; substrate_closed the same test with
+    the substrate shut, per the same mmol; net = gross - substrate_closed. A model that makes ATP
+    from H+ and Pi alone (a boundary route the sealed gate cannot see) counts it in the gross
+    yield; the net yield does not. A cycle-free model can still be too efficient, which only the
+    net yield shows against the biochemistry (24 per glucose aerobically, say).
+
+    Returns {substrate, rate, open, atp_with_substrate, atp_without (mmol ATP/gDW/h),
+    substrate_uptake (mmol/gDW/h), gross, substrate_closed, net (mmol ATP per mmol substrate)}."""
+    pins = _resolve_pins(pins)
+    return _by_member(_ea.net_atp_yield(
+        model, substrate, acceptor=acceptor, open_cpds=YIELD_OPEN if open_cpds is None else open_cpds,
+        rate=rate, release_floors=release_floors,
+        lift_rows=KINETIC_ROW_SUFFIX if lift_kinetics else None, pins=pins,
+        compartments=_member_cytosols(model, pins)))
 
 
-def _seal(model, closure="lax", release_floors=True, open_cpds=(), biomass_outlet=True):
-    """release_forced_fluxes (if release_floors) and close_uptakes with the given closure
-    ("lax": boundaries may only remove matter; "strict": every boundary closed). Call inside
-    `with model:`. Returns the released bounds."""
-    if closure not in ("lax", "strict"):
-        raise ValueError(f"closure must be 'lax' or 'strict', not {closure!r}")
-    released = release_forced_fluxes(model) if release_floors else {}
-    close_uptakes(model, open_cpds=open_cpds, strict=closure == "strict", biomass_outlet=biomass_outlet)
-    return released
+def find_energy_cycle(model, flux=1.0, member=None, thermo=None, names=None, gapfilled=None,
+                      tol=1e-7, release_floors=True, lift_kinetics=True, pins=None, **gate):
+    """The smallest-flux cycle that makes `flux` ATP with every uptake closed
+    (msenergyaudit.find_energy_cycle on the members' ATP tests), by member.
+
+    member     make the ATP in this member (index); default any member
+    thermo     load_msdb_thermo() output, for each reaction's database direction and dG
+    names      {member index: member id}
+    gapfilled  {member index or id: set of ModelSEED reaction ids gapfilled into that member}
+    release_floors  release forced fluxes first (release_forced_fluxes), as energy_from_nothing
+    lift_kinetics   lift the *_commKin rows first (lifted_kinetic_rows), as energy_from_nothing
+    pins       None (ATP tests) or "ntp" (the other hydrolysis tests count too; add_atp_tests)
+    gate       c_min, c_max, n_sigma for direction_thermo
+
+    Returns {status, reactions: [...], cross_fed: {e0 metabolite: {member: net production}},
+    kinetic_rows_lifted}; status is "no cycle" when the community cannot make the ATP, and
+    "infeasible" when the sealed community cannot run at all (a forced flux kept with
+    release_floors=False, say) -- which says nothing about cycles."""
+    names, gapfilled = names or {}, gapfilled or {}
+    pins = _resolve_pins(pins)
+    compartment = None if member is None else f"c{member}"
+    try:
+        found = _ea.find_energy_cycle(
+            model, flux=flux, compartment=compartment, thermo=thermo, tol=tol,
+            release_floors=release_floors, lift_rows=KINETIC_ROW_SUFFIX if lift_kinetics else None,
+            pins=pins, compartments=_member_cytosols(model, pins), **gate)
+    except KeyError as exc:  # no ATP test in that member: name the member, as before
+        if compartment is not None and exc.args == (compartment,):
+            raise KeyError(member) from None
+        raise
+    if found["status"] != "cycle":
+        return {"status": found["status"], "reactions": [], "cross_fed": {},
+                "kinetic_rows_lifted": found["rows_lifted"]}
+    boundary = {r.id for r in model.boundary}
+    cross_fed = {}
+    for rid, v in found["fluxes"].items():
+        if rid.startswith(TEST_PREFIXES):
+            continue  # the tests hold no shared-pool metabolite (and are gone from the model)
+        rxn = model.reactions.get_by_id(rid)
+        idx = member_index(rxn)
+        for met, coef in rxn.metabolites.items():
+            if met.compartment == "e0" and rid not in boundary and idx:
+                mem = names.get(idx, idx)
+                cross_fed.setdefault(met.id, {}).setdefault(mem, 0.0)
+                cross_fed[met.id][mem] += coef * v
+    rows = []
+    for r in found["reactions"]:
+        idx = member_index(model.reactions.get_by_id(r["reaction"]))
+        mem = names.get(idx, idx)
+        gf = gapfilled.get(idx, gapfilled.get(mem, ()))
+        rows.append({"reaction": r["reaction"], "msid": r["msid"], "member_index": idx, "member": mem,
+                     **{k: r[k] for k in ("flux", "bounds", "db_reversibility", "name", "against_db",
+                                          "dg0", "dg_min", "dg_err", "dg_source", "infeasible")},
+                     "gapfilled": bool(r["msid"] and r["msid"] in gf)})
+    cross_fed = {m: {k: round(x, 9) for k, x in d.items() if abs(x) > tol}
+                 for m, d in cross_fed.items()}
+    cross_fed = {m: d for m, d in cross_fed.items() if any(x > 0 for x in d.values())
+                 and any(x < 0 for x in d.values())}
+    return {"status": "cycle", "reactions": rows, "cross_fed": cross_fed,
+            "members": sorted({str(r["member"]) for r in rows if r["member_index"]}),
+            "kinetic_rows_lifted": found["rows_lifted"]}
 
 
 def _interface(model):
@@ -372,326 +418,6 @@ def robust_pfba(model, canonical=False, threads=None):
             last = exc
     raise last
 
-
-def _value(model):
-    v = model.slim_optimize(error_value=float("nan"))
-    return None if isnan(v) else v
-
-
-def _maximise_tests(model, tests):
-    model.objective = model.problem.Objective(sum(r.flux_expression for r in tests.values()), direction="max")
-    return _value(model)
-
-
-def medium_inorganic_uptakes(model, formulas=None, exclude=None):
-    """The shared-pool (e0) compounds the model's current medium lets in (lower bound < 0) that
-    are inorganic -- no carbon in the formula, or CO2 / HCO3- -- other than electron acceptors and
-    inorganic electron donors (ELECTRON_ACCEPTORS, INORGANIC_DONORS; `exclude` replaces both).
-    formulas: {compound: formula}, e.g. from the ModelSEED database, for metabolites that carry
-    none. Returns (compounds, compounds with no formula, left out)."""
-    exclude = (ELECTRON_ACCEPTORS | INORGANIC_DONORS) if exclude is None else set(exclude)
-    formulas = formulas or {}
-    ions, unknown = set(), set()
-    for rxn in model.boundary:
-        met = next(iter(rxn.metabolites))
-        if met.compartment != "e0" or rxn.lower_bound >= 0:
-            continue
-        cpd = _cpd(met)
-        if cpd in exclude:
-            continue
-        formula = formulas.get(cpd) or met.formula or ""
-        if not formula:
-            unknown.add(cpd)
-            continue
-        if re.search(r"C(?![a-z])", formula) and cpd not in INORGANIC_CARBON:
-            continue
-        ions.add(cpd)
-    return sorted(ions), sorted(unknown)
-
-
-def _boundary_ion_arms(model, arms, release_floors, pins, tol):
-    """ATP made (summed tests) with every uptake closed except each arm's compounds (lax)."""
-    out = {}
-    for label, cpds in arms:
-        with model:
-            _seal(model, "lax", release_floors, open_cpds=tuple(cpds))
-            tests = add_atp_tests(model, pins)
-            v = _maximise_tests(model, tests)
-            rec = {"open": list(cpds), "atp": v}
-            if v is not None and v > tol:
-                rec["atp_by_member"], ntp = _summary_by_test(tests, tol)
-                if ntp:
-                    rec["ntp_by_test"] = ntp
-                rec["boundary"] = {r.id: r.flux for r in model.boundary if abs(r.flux) > tol}
-        out[label] = rec
-    return out
-
-
-def energy_from_nothing(model, biomass="bio1", electrons=True, tol=1e-6, release_floors=True,
-                        closure="lax", biomass_outlet=True, lift_kinetics=True, boundary_ions=False,
-                        pins=None, formulas=None):
-    """What the community makes from nothing.
-
-    atp_from_nothing        max total ATP hydrolysis over the members with every uptake closed
-                            (with pins="ntp": ATP, GTP, CTP, UTP and PPi hydrolysis summed)
-    atp_by_member           {member index: flux} at that optimum (members above `tol`)
-    ntp_by_test             {"<compound>_c<i>": flux}, the other hydrolysis tests (pins="ntp")
-    growth_from_nothing     max `biomass` flux with every uptake closed (skipped if it is None)
-    electrons_from_nothing  max electrons exported in REDUCED_PRODUCTS with only CO2, H2O and H+
-                            coming in; a clean community makes none, since reducing CO2 with
-                            electrons from water needs an energy source
-    released                {reaction id: old bounds} of the forced fluxes released for the test
-    kinetic_rows_lifted     names of the community-kinetics rows lifted for the test
-    All three are 0 for a community without energy-generating cycles. None means the LP failed.
-
-    release_floors  first let every forced non-boundary flux stop (release_forced_fluxes): a
-                    maintenance-ATP floor cannot run on nothing, so with it in place the test is
-                    infeasible, not 0. False keeps the bounds as they are (the earlier behaviour).
-    closure         "lax": every boundary reaction may still remove matter (the default and the
-                    earlier behaviour); "strict": every boundary reaction closed both ways. They
-                    differ only where reactions make matter from nothing, which "lax" lets out.
-    biomass_outlet  with "strict", keep the biomass outlets able to remove biomass; False makes
-                    growth_from_nothing 0 by construction (the electron test keeps its own
-                    closure: CO2, H2O and H+ in, anything out).
-    lift_kinetics   lift the *_commKin rows for the tests (lifted_kinetic_rows). With them in
-                    place every member flux is capped at kappa x its growth, 0 on nothing, and the
-                    test reads 0 on a community that makes ATP at the flux bounds (the CommPhitting
-                    merges: 0 against 250). False keeps them (the earlier behaviour).
-    boundary_ions   False (default); True adds arms that reopen H+ ("H+") and H+ with phosphate
-                    ("H+,Pi") and report the ATP made through them, the boundary fluxes at that
-                    optimum and atp_from_boundary_ions (the largest). A clean community makes none:
-                    taking in Pi and H+ and sending out, say, pyrophosphate is uphill. The sealed
-                    test cannot see such a route, because it closes every uptake. "medium" adds an
-                    arm "ions" with the medium's inorganic uptakes too (medium_inorganic_uptakes,
-                    with `formulas` for metabolites that carry none); a list of compounds adds that
-                    arm with those compounds.
-    pins            None (ATP tests only) or "ntp": hydrolysis tests for GTP, CTP, UTP and PPi too
-                    (add_atp_tests)."""
-    out = {"closure": closure}
-    pins = _resolve_pins(pins)
-    arms = []
-    if boundary_ions is not False and boundary_ions is not None:
-        arms = list(BOUNDARY_ION_ARMS)
-        extra = []
-        if isinstance(boundary_ions, str):
-            if boundary_ions != "medium":
-                raise ValueError(f"boundary_ions must be True, 'medium' or a list of compounds, not {boundary_ions!r}")
-            extra, out["ions_without_formula"] = medium_inorganic_uptakes(model, formulas)
-        elif boundary_ions is not True:
-            extra = list(boundary_ions)
-        if extra:
-            arms.append(("ions", tuple(dict.fromkeys((PROTON, PI) + tuple(extra)))))
-    with lifted_kinetic_rows(model, lift_kinetics) as lifted:
-        out["kinetic_rows_lifted"] = lifted
-        with model:
-            out["released"] = _seal(model, closure, release_floors, biomass_outlet=biomass_outlet)
-            tests = add_atp_tests(model, pins)
-            out["atp_from_nothing"] = _maximise_tests(model, tests)
-            out["atp_by_member"], ntp = (_summary_by_test(tests, tol) if out["atp_from_nothing"] is not None
-                                         else ({}, {}))
-            if pins != ATP_PINS:
-                out["ntp_by_test"] = ntp
-            out["n_atp_tests"] = sum(1 for k in tests if not isinstance(k, tuple))
-            if biomass is not None and biomass in model.reactions:
-                model.objective = biomass
-                out["growth_from_nothing"] = _value(model)
-        if arms:
-            out["boundary_ions"] = _boundary_ion_arms(model, arms, release_floors, pins, tol)
-            vals = [a["atp"] for a in out["boundary_ions"].values() if a["atp"] is not None]
-            out["atp_from_boundary_ions"] = max(vals) if vals else None
-        if electrons:
-            e = electrons_from_nothing(model, release_floors=release_floors, lift_kinetics=False)
-            e.pop("kinetic_rows_lifted", None)
-            out.update(e)
-    return out
-
-
-def electrons_from_nothing(model, release_floors=True, lift_kinetics=True):
-    """Max electrons exported in REDUCED_PRODUCTS with only CO2, H2O and H+ coming in, and the
-    reduced products carrying them ({compound: export flux}). release_floors and lift_kinetics as
-    in energy_from_nothing."""
-    with lifted_kinetic_rows(model, lift_kinetics) as lifted, model:
-        _seal(model, "lax", release_floors, open_cpds=ELECTRON_TEST_INPUTS)
-        coefs, exports = {}, {}
-        for rxn in model.exchanges:
-            met = next(iter(rxn.metabolites))
-            if met.compartment == "e0" and _cpd(met) in REDUCED_PRODUCTS:
-                # an exchange consumes its metabolite: export is forward flux
-                w = REDUCED_PRODUCTS[_cpd(met)] * -rxn.metabolites[met]
-                coefs[rxn.forward_variable], coefs[rxn.reverse_variable] = w, -w
-                exports[_cpd(met)] = rxn
-        if not coefs:
-            return {"electrons_from_nothing": 0.0, "electron_carriers": {}, "kinetic_rows_lifted": lifted}
-        model.objective = model.problem.Objective(Zero, direction="max")
-        model.objective.set_linear_coefficients(coefs)
-        v = _value(model)
-        carriers = {c: r.flux for c, r in exports.items() if abs(r.flux) > 1e-9} if v is not None else {}
-    return {"electrons_from_nothing": v, "electron_carriers": carriers, "kinetic_rows_lifted": lifted}
-
-
-def net_atp_yield(model, substrate, acceptor="cpd00007", open_cpds=YIELD_OPEN, rate=1.0,
-                  release_floors=True, lift_kinetics=True, pins=None):
-    """The ATP yield of `substrate` net of what the same test makes without it.
-
-    The test: every uptake closed except `open_cpds` (default H2O, H+, Pi, CO2), the `acceptor`
-    (a compound, a list, or None) and the substrate at up to `rate` (mmol/gDW/h); forced fluxes
-    released, kinetic rows lifted, the members' ATP tests summed and maximised. gross is that
-    maximum per mmol of the allowed substrate; substrate_closed the same test with the substrate
-    shut, per the same mmol; net = gross - substrate_closed. A model that makes ATP from H+ and
-    Pi alone (a boundary route the sealed gate cannot see) counts it in the gross yield; the net
-    yield does not. A cycle-free model can still be too efficient, which only the net yield
-    shows against the biochemistry (24 per glucose aerobically, say).
-
-    Returns {substrate, rate, open, atp_with_substrate, atp_without (mmol ATP/gDW/h),
-    substrate_uptake (mmol/gDW/h), gross, substrate_closed, net (mmol ATP per mmol substrate)}."""
-    acc = (acceptor,) if isinstance(acceptor, str) else tuple(acceptor or ())
-    opened = tuple(dict.fromkeys(tuple(open_cpds) + acc))
-    sid = f"{substrate}_e0"
-    exs = [r for r in model.boundary if any(m.id == sid for m in r.metabolites)]
-    if not exs:
-        raise ValueError(f"no boundary reaction for {sid}")
-
-    def run(with_substrate):
-        with model:
-            _seal(model, "lax", release_floors, open_cpds=opened)
-            for ex in exs:
-                coef = ex.metabolites[model.metabolites.get_by_id(sid)]
-                if with_substrate:  # uptake of up to `rate`, whichever way the reaction is written
-                    ex.bounds = (-rate, max(ex.upper_bound, 0)) if coef < 0 else (min(ex.lower_bound, 0), rate)
-                else:
-                    ex.bounds = (0, max(ex.upper_bound, 0)) if coef < 0 else (min(ex.lower_bound, 0), 0)
-            tests = add_atp_tests(model, pins)
-            v = _maximise_tests(model, tests)
-            up = sum(-ex.flux * -ex.metabolites[model.metabolites.get_by_id(sid)] for ex in exs) if v is not None else None
-        return v, up
-
-    with lifted_kinetic_rows(model, lift_kinetics) as lifted:
-        g, up = run(True)
-        c, _ = run(False)
-    out = {"substrate": substrate, "rate": rate, "open": list(opened), "kinetic_rows_lifted": lifted,
-           "atp_with_substrate": g, "atp_without": c, "substrate_uptake": up,
-           "gross": None if g is None else g / rate, "substrate_closed": None if c is None else c / rate}
-    out["net"] = None if g is None or c is None else (g - c) / rate
-    return out
-
-
-# --------------------------------------------------------------------------- thermodynamics
-def load_msdb_thermo(msdb_path):
-    """{reaction id: {reversibility, dg, err, source, name}} from a ModelSEEDDatabase checkout
-    (Biochemistry/reaction_*.json). dg/err are dG'0 and its standard error in kcal/mol from the
-    first of THERMO_SOURCES with a value (None if none has one)."""
-    files = sorted(glob.glob(os.path.join(msdb_path, "Biochemistry", "reaction_*.json")))
-    if not files:
-        raise FileNotFoundError(f"no Biochemistry/reaction_*.json under {msdb_path}")
-    db = {}
-    for f in files:
-        for r in json.load(open(f)):
-            entry = {"reversibility": r.get("reversibility"), "name": r.get("name"),
-                     "dg": None, "err": None, "source": None}
-            thermo = r.get("thermodynamics") or {}
-            for src in THERMO_SOURCES:
-                val = thermo.get(src) or []
-                if len(val) >= 2 and isinstance(val[0], (int, float)) and isinstance(val[1], (int, float)) \
-                        and abs(val[0]) < 1e6 and abs(val[1]) < 1e6:
-                    entry.update(dg=float(val[0]), err=float(val[1]), source=src)
-                    break
-            db[r["id"]] = entry
-    return db
-
-
-def direction_thermo(rxn, direction, entry, c_min=1e-6, c_max=0.02, n_sigma=2.0):
-    """dG'0 and dG'min (kcal/mol) of `rxn` run forward (direction > 0) or in reverse, and whether
-    thermodynamics rules that direction out (dG'min - n_sigma * err > 0). None where there is no
-    dG'0 or the reaction crosses a membrane."""
-    if not entry or entry.get("dg") is None or len(rxn.compartments) > 1:
-        return None
-    sign = 1 if direction > 0 else -1
-    dg0 = sign * entry["dg"]
-    conc = 0.0
-    for met, coef in rxn.metabolites.items():
-        if _cpd(met) in NOT_IN_CONCENTRATION_TERM:
-            continue
-        n = sign * coef  # > 0: a product in the running direction
-        conc += n * ln(c_min) if n > 0 else n * ln(c_max)  # n < 0 for substrates: -|n| ln c_max
-    dg_min = dg0 + RT * conc
-    return {"dg0": dg0, "dg_min": dg_min, "err": entry["err"], "source": entry["source"],
-            "infeasible": dg_min - n_sigma * entry["err"] > 0}
-
-
-# --------------------------------------------------------------------------- the cycle
-def find_energy_cycle(model, flux=1.0, member=None, thermo=None, names=None, gapfilled=None,
-                      tol=1e-7, release_floors=True, lift_kinetics=True, pins=None, **gate):
-    """The smallest-flux cycle that makes `flux` ATP with every uptake closed.
-
-    member     make the ATP in this member (index); default any member
-    thermo     load_msdb_thermo() output, for each reaction's database direction and dG
-    names      {member index: member id}
-    gapfilled  {member index or id: set of ModelSEED reaction ids gapfilled into that member}
-    release_floors  release forced fluxes first (release_forced_fluxes), as energy_from_nothing
-    lift_kinetics   lift the *_commKin rows first (lifted_kinetic_rows), as energy_from_nothing
-    pins       None (ATP tests) or "ntp" (the other hydrolysis tests count too; add_atp_tests)
-    gate       c_min, c_max, n_sigma for direction_thermo
-
-    Returns {status, reactions: [...], cross_fed: {e0 metabolite: {member: net production}},
-    kinetic_rows_lifted}; status is "no cycle" when the community cannot make the ATP, and
-    "infeasible" when the sealed community cannot run at all (a forced flux kept with
-    release_floors=False, say) -- which says nothing about cycles."""
-    names, gapfilled, thermo = names or {}, gapfilled or {}, thermo or {}
-    with lifted_kinetic_rows(model, lift_kinetics) as lifted:
-        out = _find_energy_cycle(model, flux, member, thermo, names, gapfilled, tol, release_floors,
-                                 _resolve_pins(pins), gate)
-    out["kinetic_rows_lifted"] = lifted
-    return out
-
-
-def _find_energy_cycle(model, flux, member, thermo, names, gapfilled, tol, release_floors, pins, gate):
-    with model:
-        _seal(model, "lax", release_floors)
-        tests = add_atp_tests(model, pins)
-        made = tests[member].flux_expression if member is not None else sum(r.flux_expression for r in tests.values())
-        con = model.problem.Constraint(made, lb=flux, ub=flux, name="energy_cycle_atp")
-        model.add_cons_vars(con)
-        model.objective = model.problem.Objective(Zero, direction="min")
-        model.objective.set_linear_coefficients(
-            {v: 1 for r in model.reactions for v in (r.forward_variable, r.reverse_variable)})
-        if _value(model) is None:
-            con.lb, con.ub = 0, 0
-            status = "no cycle" if _value(model) is not None else "infeasible"
-            return {"status": status, "reactions": [], "cross_fed": {}}
-        fluxes = {r.id: r.flux for r in model.reactions if abs(r.flux) > tol}
-        boundary = {r.id for r in model.boundary}
-        rows, cross_fed = [], {}
-        for rid, v in fluxes.items():
-            rxn = model.reactions.get_by_id(rid)
-            idx = member_index(rxn)
-            for met, coef in rxn.metabolites.items():
-                if met.compartment == "e0" and rid not in boundary and idx:
-                    mem = names.get(idx, idx)
-                    cross_fed.setdefault(met.id, {}).setdefault(mem, 0.0)
-                    cross_fed[met.id][mem] += coef * v
-            if rid.startswith(TEST_PREFIXES):
-                continue
-            base = msid(rxn)
-            entry = thermo.get(base) if base else None
-            row = {"reaction": rid, "msid": base, "member_index": idx, "member": names.get(idx, idx),
-                   "flux": v, "bounds": list(rxn.bounds),
-                   "db_reversibility": entry.get("reversibility") if entry else None,
-                   "name": (entry or {}).get("name") or rxn.name}
-            rev = row["db_reversibility"]
-            row["against_db"] = bool((rev == ">" and v < 0) or (rev == "<" and v > 0))
-            td = direction_thermo(rxn, v, entry, **gate)
-            row.update({"dg0": td["dg0"], "dg_min": td["dg_min"], "dg_err": td["err"],
-                        "dg_source": td["source"], "infeasible": td["infeasible"]} if td else
-                       {"dg0": None, "dg_min": None, "dg_err": None, "dg_source": None, "infeasible": False})
-            gf = gapfilled.get(idx, gapfilled.get(row["member"], ()))
-            row["gapfilled"] = bool(base and base in gf)
-            rows.append(row)
-    cross_fed = {m: {k: round(x, 9) for k, x in d.items() if abs(x) > tol}
-                 for m, d in cross_fed.items()}
-    cross_fed = {m: d for m, d in cross_fed.items() if any(x > 0 for x in d.values())
-                 and any(x < 0 for x in d.values())}
-    return {"status": "cycle", "reactions": rows, "cross_fed": cross_fed,
-            "members": sorted({str(r["member"]) for r in rows if r["member_index"]})}
 
 
 # --------------------------------------------------------------------------- cutting
@@ -1549,67 +1275,6 @@ def orient_community(model, reference=None, rounds=1, tol=1e-9, member_models=No
             "fallback": fallback, "canonical": bool(canonical)}
 
 
-def conformal_cycle(model, fluxes, tol=1e-7, pin_atp=True, lp="auto", threads=None, pins=None):
-    """The internal reactions of a cycle inside a flux distribution, or [] if it holds none.
-
-    A cycle here is a steady-state flux u through internal reactions only, each run the way
-    `fluxes` runs it (support and signs within the flux's own), plus, with pin_atp, any amount of
-    ATP hydrolysis in each member: exactly what makes `fluxes` violate the loop law with ATP
-    hydrolysis pinned downhill (no potentials can make every step of u downhill). One LP over
-    the active reactions; the support of its solution is returned. lp: "gurobi", "highs" or
-    "auto" (gurobi when gurobipy imports); threads goes to the Gurobi environment (None: gurobi.env
-    or Gurobi's default). pins="ntp" allows hydrolysis of every pinned nucleotide and PPi as well
-    (NTP_PINS), matching a LocalLoopLaw with the same pins: a GTP loop that feeds biomass is then a
-    cycle here too."""
-    import numpy as np
-    import scipy.sparse as sp
-    from scipy.optimize import linprog
-    boundary = {r.id for r in model.boundary}
-    active = [model.reactions.get_by_id(rid) for rid, v in fluxes.items()
-              if abs(v) > tol and rid not in boundary and rid in model.reactions]
-    cols, signs = [], []
-    for r in active:
-        cols.append({m.id: c for m, c in r.metabolites.items()})
-        signs.append(1.0 if fluxes[r.id] > 0 else -1.0)
-    n_active = len(cols)
-    for _, _, st in hydrolysis_sites(model, _resolve_pins(pins, pin_atp)):
-        cols.append(dict(st))
-        signs.append(1.0)
-    if not n_active:
-        return []
-    index = {}
-    rows, cidx, vals = [], [], []
-    for j, col in enumerate(cols):
-        for mid, c in col.items():
-            i = index.setdefault(mid, len(index))
-            rows.append(i); cidx.append(j); vals.append(c * signs[j])
-    A = sp.csr_matrix((vals, (rows, cidx)), shape=(len(index), len(cols)))
-    # w_j = sign_j * u_j in [0, 1]; maximise the flux through the active reactions only, so a pin
-    # alone (ATP hydrolysis with nothing making the ATP) is not a cycle
-    c = np.concatenate([-np.ones(n_active), np.zeros(len(cols) - n_active)])
-    if lp == "auto":
-        try:
-            import gurobipy  # noqa: F401
-            lp = "gurobi"
-        except ImportError:
-            lp = "highs"
-    if lp == "gurobi":
-        import gurobipy as gp
-        env = gp.Env(params={"OutputFlag": 0, **({"Threads": int(threads)} if threads else {})})
-        g = gp.Model(env=env)
-        w = g.addMVar(len(cols), lb=0, ub=1, obj=c)
-        g.addMConstr(A, w, "=", np.zeros(len(index)))
-        g.optimize()
-        ok, value, x = g.Status == gp.GRB.OPTIMAL, -g.ObjVal if g.SolCount else 0.0, w.X.copy() if g.SolCount else None
-        g.dispose(); env.dispose()
-    else:
-        res = linprog(c, A_eq=A, b_eq=np.zeros(len(index)), bounds=[(0, 1)] * len(cols), method="highs")
-        ok, value, x = res.status == 0, -res.fun if res.status == 0 else 0.0, res.x
-    if not ok or value <= tol:
-        return []
-    return [active[j].id for j in range(n_active) if x[j] > tol]
-
-
 def _incumbent(model):
     """The objective of the last solve, also when it stopped at a limit with a solution in hand
     (cobra's slim_optimize reports only optimal solves)."""
@@ -1775,3 +1440,943 @@ def _clean_loop_law(model, law, report, best_binaries, tol, threads):
     finally:
         for var, lb, ub in saved:
             var.set_bounds(lb, ub)
+
+
+# --------------------------------------------------------------------------- the generic audit
+_AUDIT_MODULE = "modelseedpy.core.msenergyaudit"
+
+
+def _fallback_energy_audit():
+    """FALLBACK, TO BE REMOVED once the ModelSEEDpy that MSCommunity needs has
+    modelseedpy.core.msenergyaudit (ModelSEEDpy branch energy-audit, commit 7483665): delete this
+    function and the fallback branch of _load_energy_audit.
+
+    A copy of modelseedpy/core/msenergyaudit.py as of that commit, its module docstring left out
+    and its body indented into this function so that it stays in this file; returns its names as
+    a namespace. Change the module, not this copy."""
+    import glob
+    import json
+    import logging
+    import os
+    import re
+    from contextlib import contextmanager
+    from math import isnan
+    from math import log as ln
+
+    from cobra import Reaction
+    from optlang.symbolics import Zero
+
+    logger = logging.getLogger(__name__)
+
+    RT = 0.0019872 * 298.15  # kcal/mol at 25 C, the units of the ModelSEED dG values
+
+    # phosphoanhydride hydrolysis pins: (triphosphate, diphosphate); diphosphate None is
+    # pyrophosphate (PPi + H2O -> 2 Pi + H+); every other pin is NTP + H2O -> NDP + Pi + H+
+    ATP, ADP, PI, PPI = "cpd00002", "cpd00008", "cpd00009", "cpd00012"
+    H2O, PROTON = "cpd00001", "cpd00067"
+    ATP_PINS = ((ATP, ADP),)
+    NTP_PINS = (
+        (ATP, ADP),
+        ("cpd00038", "cpd00031"),  # GTP/GDP
+        ("cpd00052", "cpd00096"),  # CTP/CDP
+        ("cpd00062", "cpd00014"),  # UTP/UDP
+        (PPI, None),  # pyrophosphate
+    )
+    TEST_PREFIXES = ("ATPtest_", "NTPtest_")
+    BIOMASS_CPD = "cpd11416"
+
+    # electrons each reduced product carries, relative to CO2, H2O and H+:
+    # H2, methane, formate, ethanol, L-lactate, D-lactate, succinate
+    REDUCED_PRODUCTS = {
+        "cpd11640": 2,
+        "cpd01024": 8,
+        "cpd00047": 2,
+        "cpd00363": 12,
+        "cpd00159": 12,
+        "cpd00221": 12,
+        "cpd00036": 14,
+    }
+    ELECTRON_TEST_INPUTS = ("cpd00011", "cpd00001", "cpd00067")  # CO2, H2O, H+
+
+    # the boundary-ion arms of energy_from_nothing; the yield test's background uptakes
+    BOUNDARY_ION_ARMS = (("H+", (PROTON,)), ("H+,Pi", (PROTON, PI)))
+    YIELD_OPEN = (H2O, PROTON, PI, "cpd00011")  # H2O, H+, Pi, CO2
+    # left out of the "medium" ion arm: electron acceptors (a donor-free test cannot use
+    # them, and they are not ions in the sense meant here) and inorganic electron donors
+    # (H2 + CO2 is a real energy source for methanogens and acetogens)
+    ELECTRON_ACCEPTORS = {
+        "cpd00007",
+        "cpd00209",
+        "cpd00075",
+        "cpd00048",
+        "cpd00106",
+        "cpd00659",
+        "cpd10516",
+        "cpd00268",
+    }
+    INORGANIC_DONORS = {"cpd11640", "cpd00239", "cpd10515"}  # H2, H2S, Fe2+
+    INORGANIC_CARBON = {"cpd00011", "cpd00242"}  # CO2, HCO3-
+
+    # the thermodynamic gate of find_energy_cycle
+    NOT_IN_CONCENTRATION_TERM = {H2O, PROTON}  # fixed by the pH of dG'0
+    THERMO_SOURCES = ("eQuilibrator", "dGPredictor", "Group contribution")
+
+    _CYTOSOL = re.compile(r"^c\d*$")
+    _MSID = re.compile(r"^(rxn\d{5})")
+
+
+    # ---------------------------------------------------------------- pins and tests
+    def resolve_pins(pins=None, pin_atp=True):
+        """The pins as a tuple of (triphosphate, diphosphate-or-None) compound ids.
+
+        pins: None (ATP_PINS, or no pins with pin_atp=False), "atp", "ntp" (NTP_PINS), or an
+        iterable of (triphosphate, diphosphate-or-None) pairs."""
+        if pins is None:
+            return ATP_PINS if pin_atp else ()
+        if isinstance(pins, str):
+            if pins.lower() == "ntp":
+                return NTP_PINS
+            if pins.lower() == "atp":
+                return ATP_PINS
+            raise ValueError(
+                f"pins must be None, 'atp', 'ntp' or a list of pairs, not {pins!r}"
+            )
+        return tuple((tri, di) for tri, di in pins)
+
+
+    def hydrolysis_stoichiometry(tri, di):
+        """{compound: coefficient} of tri + H2O -> di + Pi + H+, or with di None of
+        PPi + H2O -> 2 Pi + H+."""
+        if di is None:
+            return {tri: -1, H2O: -1, PI: 2, PROTON: 1}
+        return {tri: -1, H2O: -1, di: 1, PI: 1, PROTON: 1}
+
+
+    def _cpd(met):
+        return met.id.split("_")[0]
+
+
+    def _selected(compartments, tri, comp):
+        if compartments is None:
+            return True
+        if callable(compartments):
+            return bool(compartments(tri, comp))
+        return comp in compartments
+
+
+    def hydrolysis_sites(model, pins=ATP_PINS, compartments=None):
+        """[(triphosphate, compartment, {metabolite id: coefficient})]: every cytosol (c,
+        c0, c1, ...) that holds all the metabolites of a pin's hydrolysis, in pin order,
+        then model order.
+
+        pins as in resolve_pins. compartments: None (every such cytosol), an iterable of
+        compartment ids, or a callable (triphosphate, compartment) -> bool."""
+        mets = {m.id for m in model.metabolites}
+        out = []
+        for tri, di in resolve_pins(pins):
+            st = hydrolysis_stoichiometry(tri, di)
+            for met in model.metabolites:
+                comp = met.compartment or ""
+                if _cpd(met) != tri or not _CYTOSOL.match(comp):
+                    continue
+                if not _selected(compartments, tri, comp):
+                    continue
+                if all(f"{c}_{comp}" in mets for c in st):
+                    out.append((tri, comp, {f"{c}_{comp}": n for c, n in st.items()}))
+        return out
+
+
+    def add_hydrolysis_tests(model, pins=None, compartments=None):
+        """Add one hydrolysis test reaction per pin and site (hydrolysis_sites), each
+        irreversible with an upper bound of 1000 mmol/gDW/h: ATP + H2O -> ADP + Pi + H+ with
+        id ATPtest_<comp>, and, for the other pins, NTPtest_<compound>_<comp>. Call inside
+        `with model:` so they go again. Returns {compartment: reaction} for ATP and
+        {(compound, compartment): reaction} for the other pins.
+
+        Maximising the sum of their fluxes with every uptake closed gives the ATP (and
+        nucleotide) a model makes from nothing; a GTP loop that feeds biomass is invisible
+        to the ATP tests alone, hence pins="ntp". With no site at all (metabolite ids not in
+        the ModelSEED namespace, say) nothing is added and a warning is logged: every test
+        built on these would then read 0 whatever the model makes."""
+        mets = {met.id: met for met in model.metabolites}
+        tests = {}
+        for tri, comp, st in hydrolysis_sites(model, resolve_pins(pins), compartments):
+            if tri == ATP:
+                rid, label, key = f"ATPtest_{comp}", "ATP", comp
+            else:
+                rid, label, key = f"NTPtest_{tri}_{comp}", tri, (tri, comp)
+            rxn = Reaction(
+                rid,
+                name=f"{label} hydrolysis test {comp}",
+                lower_bound=0,
+                upper_bound=1000,
+            )
+            rxn.add_metabolites({mets[mid]: n for mid, n in st.items()})
+            tests[key] = rxn
+        if not tests:
+            logger.warning(
+                "%s: no cytosol holds all the metabolites of a pinned hydrolysis "
+                "(ModelSEED ids such as cpd00002_c0); the energy tests measure nothing",
+                model.id,
+            )
+        model.add_reactions(list(tests.values()))
+        return tests
+
+
+    def _summary_by_test(tests, tol):
+        """{compartment: flux} of the ATP tests and {"<compound>_<comp>": flux} of the
+        others, each above tol."""
+        atp, ntp = {}, {}
+        for key, rxn in tests.items():
+            if rxn.flux <= tol:
+                continue
+            if isinstance(key, tuple):
+                ntp[f"{key[0]}_{key[1]}"] = rxn.flux
+            else:
+                atp[key] = rxn.flux
+        return atp, ntp
+
+
+    # ---------------------------------------------------------------- sealing
+    def _rows_to_lift(model, rows):
+        if rows is None or rows is False:
+            return []
+        if isinstance(rows, str):
+            return [c for c in model.constraints if c.name.endswith(rows)]
+        if callable(rows):
+            return [c for c in model.constraints if rows(c)]
+        names = set(rows)
+        missing = names - {c.name for c in model.constraints}
+        if missing:
+            raise ValueError(f"no constraint rows named {sorted(missing)}")
+        return [c for c in model.constraints if c.name in names]
+
+
+    @contextmanager
+    def lifted_rows(model, rows=None):
+        """Lift constraint rows for the duration of the block and restore them on exit.
+
+        rows: None (the default: lift nothing), a string (every row whose name ends with
+        it), an iterable of row names, or a callable taking an optlang constraint and
+        returning a bool. A finite bound goes to +-1e30, not None (optlang's Gurobi
+        interface refuses a free row). `with model:` does not track row bounds, so this
+        restores them itself. Yields the lifted rows' names."""
+        selected = _rows_to_lift(model, rows)
+        saved = [(c, c.lb, c.ub) for c in selected]
+        try:
+            for c in selected:
+                if c.ub is not None:
+                    c.ub = 1e30
+                if c.lb is not None:
+                    c.lb = -1e30
+            yield [c.name for c in selected]
+        finally:
+            for c, lb, ub in saved:  # only the bounds changed above (not None) go back
+                if ub is not None:
+                    c.ub = ub
+                if lb is not None:
+                    c.lb = lb
+
+
+    def release_forced_fluxes(model):
+        """Let every non-boundary reaction stop: a positive lower bound (a maintenance-ATP
+        floor, a measured rate fixed as an equality) goes to 0, and so does a negative upper
+        bound.
+
+        A test of what a model makes from nothing has to do this first: a forced flux cannot
+        run with every uptake closed, so with it in place the sealed LP is infeasible rather
+        than 0. Call inside `with model:`. Returns {reaction id: (old lower bound, old upper
+        bound)} of the reactions released (mmol/gDW/h)."""
+        released = {}
+        for rxn in model.reactions:
+            if rxn.boundary:
+                continue
+            lb, ub = rxn.bounds
+            if lb > 0 or ub < 0:
+                released[rxn.id] = (lb, ub)
+                rxn.bounds = (min(lb, 0), max(ub, 0))
+        return released
+
+
+    def close_uptakes(
+        model,
+        open_cpds=(),
+        strict=False,
+        biomass_outlet=True,
+        extracellular="e0",
+        biomass_cpd=BIOMASS_CPD,
+    ):
+        """Let every boundary reaction (exchange, sink, demand) only remove matter, except
+        the exchanges of `open_cpds` in the `extracellular` compartment, which may also
+        supply up to 1000 mmol/gDW/h. Call inside `with model:`.
+
+        strict=True closes removal as well: every boundary reaction gets (0, 0), except
+        `open_cpds` and, with biomass_outlet, the outlets of the biomass pseudo-metabolite
+        (`biomass_cpd`), so that a growth test can still measure something. With
+        biomass_outlet=False strict is literal and any growth from nothing is 0 by
+        construction.
+
+        "Remove" follows each reaction's own direction: forward for one written as
+        consumption (met <=>, the cobra convention), reverse for one written as production
+        (<=> met)."""
+        for rxn in model.boundary:
+            met = next(iter(rxn.metabolites))
+            consumes = rxn.metabolites[met] < 0
+            lb, ub = rxn.lower_bound, rxn.upper_bound
+            if open_cpds and _cpd(met) in open_cpds and met.compartment == extracellular:
+                rxn.bounds = (-1000, max(ub, 0)) if consumes else (min(lb, 0), 1000)
+            elif strict and not (biomass_outlet and _cpd(met) == biomass_cpd):
+                rxn.bounds = (0, 0)
+            else:
+                rxn.bounds = (0, max(ub, 0)) if consumes else (min(lb, 0), 0)
+
+
+    def seal(
+        model,
+        closure="lax",
+        release_floors=True,
+        open_cpds=(),
+        biomass_outlet=True,
+        extracellular="e0",
+        biomass_cpd=BIOMASS_CPD,
+    ):
+        """release_forced_fluxes (if release_floors) and close_uptakes with the given
+        closure: "lax", boundary reactions may only remove matter; "strict", every boundary
+        reaction closed (but the biomass outlets, with biomass_outlet). Call inside `with
+        model:`. Returns the released bounds {reaction id: (old lower bound, old upper
+        bound)}."""
+        if closure not in ("lax", "strict"):
+            raise ValueError(f"closure must be 'lax' or 'strict', not {closure!r}")
+        released = release_forced_fluxes(model) if release_floors else {}
+        close_uptakes(
+            model,
+            open_cpds=open_cpds,
+            strict=closure == "strict",
+            biomass_outlet=biomass_outlet,
+            extracellular=extracellular,
+            biomass_cpd=biomass_cpd,
+        )
+        return released
+
+
+    def _value(model):
+        v = model.slim_optimize(error_value=float("nan"))
+        return None if isnan(v) else v
+
+
+    def _maximise_tests(model, tests):
+        made = sum(r.flux_expression for r in tests.values())
+        model.objective = model.problem.Objective(made, direction="max")
+        return _value(model)
+
+
+    def medium_inorganic_uptakes(model, formulas=None, exclude=None, extracellular="e0"):
+        """The `extracellular` compounds the model's current medium lets in that are
+        inorganic -- no carbon in the formula, or CO2 / HCO3- -- other than electron
+        acceptors and inorganic electron donors (ELECTRON_ACCEPTORS, INORGANIC_DONORS;
+        `exclude` replaces both).
+
+        formulas: {compound: formula}, e.g. from the ModelSEED database, for metabolites
+        that carry none. Returns (compounds, compounds with no formula), each sorted."""
+        if exclude is None:
+            exclude = ELECTRON_ACCEPTORS | INORGANIC_DONORS
+        exclude = set(exclude)
+        formulas = formulas or {}
+        ions, unknown = set(), set()
+        for rxn in model.boundary:
+            met = next(iter(rxn.metabolites))
+            if met.compartment != extracellular:
+                continue
+            if rxn.metabolites[met] < 0:
+                uptake = rxn.lower_bound < 0
+            else:
+                uptake = rxn.upper_bound > 0
+            cpd = _cpd(met)
+            if not uptake or cpd in exclude:
+                continue
+            formula = formulas.get(cpd) or met.formula or ""
+            if not formula:
+                unknown.add(cpd)
+                continue
+            if re.search(r"C(?![a-z])", formula) and cpd not in INORGANIC_CARBON:
+                continue
+            ions.add(cpd)
+        return sorted(ions), sorted(unknown)
+
+
+    # ---------------------------------------------------------------- the tests
+    def _boundary_ion_arms(model, arms, release_floors, pins, tol, compartments, extra):
+        """ATP made (summed tests) with every uptake closed except each arm's compounds
+        (lax)."""
+        out = {}
+        for label, cpds in arms:
+            with model:
+                seal(model, "lax", release_floors, open_cpds=tuple(cpds), **extra)
+                tests = add_hydrolysis_tests(model, pins, compartments)
+                v = _maximise_tests(model, tests)
+                rec = {"open": list(cpds), "atp": v}
+                if v is not None and v > tol:
+                    rec["atp_by_compartment"], ntp = _summary_by_test(tests, tol)
+                    if ntp:
+                        rec["ntp_by_test"] = ntp
+                    fluxes = {r.id: r.flux for r in model.boundary}
+                    rec["boundary"] = {k: v for k, v in fluxes.items() if abs(v) > tol}
+            out[label] = rec
+        return out
+
+
+    def energy_from_nothing(
+        model,
+        biomass="bio1",
+        electrons=True,
+        tol=1e-6,
+        release_floors=True,
+        closure="lax",
+        biomass_outlet=True,
+        lift_rows=None,
+        boundary_ions=False,
+        pins=None,
+        formulas=None,
+        compartments=None,
+        extracellular="e0",
+        biomass_cpd=BIOMASS_CPD,
+    ):
+        """What the model makes from nothing. All values in mmol/gDW/h (growth: the biomass
+        reaction's flux); each is 0 for a model without energy-generating cycles, and None
+        means the LP failed (infeasible).
+
+        atp_from_nothing        max total ATP hydrolysis over the tests
+                                (add_hydrolysis_tests) with every uptake closed; with
+                                pins="ntp", ATP, GTP, CTP, UTP and PPi hydrolysis summed
+        atp_by_compartment      {compartment: ATP test flux} at that optimum, above `tol`
+        ntp_by_test             {"<compound>_<comp>": flux}, the other hydrolysis tests
+                                (only when pins are not ATP alone)
+        n_atp_tests             the number of ATP test reactions
+        growth_from_nothing     max `biomass` flux with every uptake closed (skipped if
+                                biomass is None or not in the model)
+        electrons_from_nothing  max electrons exported in REDUCED_PRODUCTS with only CO2,
+                                H2O and H+ coming in (electrons=True;
+                                electrons_from_nothing)
+        released                {reaction id: old bounds} of the forced fluxes released
+        rows_lifted             names of the constraint rows lifted for the tests
+
+        closure         "lax" (default) or "strict"; see the module docstring
+        release_floors  True (default): release forced fluxes first (release_forced_fluxes),
+                        else a floor such as ATP maintenance makes the test infeasible
+                        (None), not 0
+        biomass_outlet  with "strict", keep the biomass outlets able to remove biomass;
+                        False makes growth_from_nothing 0 by construction (the electron test
+                        keeps its own closure: CO2, H2O and H+ in, anything out)
+        lift_rows       constraint rows to lift for the tests (lifted_rows); None lifts
+                        nothing
+        boundary_ions   False (default); True adds arms that reopen H+ ("H+") and H+ with
+                        phosphate ("H+,Pi") and report, per arm, the ATP made, the boundary
+                        fluxes at that optimum and, as atp_from_boundary_ions, the largest.
+                        A clean model makes none: taking in Pi and H+ and sending out, say,
+                        pyrophosphate is uphill. "medium" adds an arm "ions" with the
+                        medium's inorganic uptakes too (medium_inorganic_uptakes, with
+                        `formulas` for metabolites that carry none); a list of compounds
+                        adds that arm with those compounds.
+        pins            None (ATP tests only), "ntp", or a list of pairs (resolve_pins)
+        compartments    where to test (hydrolysis_sites); None: every cytosol"""
+        out = {"closure": closure}
+        pins = resolve_pins(pins)
+        extra = {"extracellular": extracellular, "biomass_cpd": biomass_cpd}
+        arms = []
+        if boundary_ions is not False and boundary_ions is not None:
+            arms = list(BOUNDARY_ION_ARMS)
+            ions = []
+            if isinstance(boundary_ions, str):
+                if boundary_ions != "medium":
+                    raise ValueError(
+                        "boundary_ions must be True, 'medium' or a list of compounds, "
+                        f"not {boundary_ions!r}"
+                    )
+                ions, unknown = medium_inorganic_uptakes(
+                    model, formulas, extracellular=extracellular
+                )
+                out["ions_without_formula"] = unknown
+            elif boundary_ions is not True:
+                ions = list(boundary_ions)
+            if ions:
+                arms.append(("ions", tuple(dict.fromkeys((PROTON, PI) + tuple(ions)))))
+        with lifted_rows(model, lift_rows) as lifted:
+            out["rows_lifted"] = lifted
+            with model:
+                released = seal(
+                    model, closure, release_floors, biomass_outlet=biomass_outlet, **extra
+                )
+                out["released"] = released
+                tests = add_hydrolysis_tests(model, pins, compartments)
+                out["atp_from_nothing"] = _maximise_tests(model, tests)
+                if out["atp_from_nothing"] is not None:
+                    atp, ntp = _summary_by_test(tests, tol)
+                else:
+                    atp, ntp = {}, {}
+                out["atp_by_compartment"] = atp
+                if pins != ATP_PINS:
+                    out["ntp_by_test"] = ntp
+                out["n_atp_tests"] = sum(1 for k in tests if not isinstance(k, tuple))
+                if biomass is not None and biomass in model.reactions:
+                    model.objective = biomass
+                    out["growth_from_nothing"] = _value(model)
+            if arms:
+                by_arm = _boundary_ion_arms(
+                    model, arms, release_floors, pins, tol, compartments, extra
+                )
+                out["boundary_ions"] = by_arm
+                vals = [a["atp"] for a in by_arm.values()]
+                vals = [v for v in vals if v is not None]
+                out["atp_from_boundary_ions"] = max(vals) if vals else None
+            if electrons:
+                e = electrons_from_nothing(
+                    model, release_floors=release_floors, extracellular=extracellular
+                )
+                e.pop("rows_lifted", None)
+                out.update(e)
+        return out
+
+
+    def electrons_from_nothing(
+        model, release_floors=True, lift_rows=None, extracellular="e0"
+    ):
+        """Max electrons exported in REDUCED_PRODUCTS (mmol e-/gDW/h) with only CO2, H2O and
+        H+ coming in (lax closure otherwise), and the reduced products carrying them
+        ({compound: export flux, mmol/gDW/h}). A clean model makes none, since reducing CO2
+        with electrons from water needs an energy source. Electrons made by reactions that
+        do not conserve charge are a curation problem, not a cycle; this reports them,
+        nothing here removes them. release_floors and lift_rows as in
+        energy_from_nothing."""
+        with lifted_rows(model, lift_rows) as lifted, model:
+            seal(
+                model,
+                "lax",
+                release_floors,
+                open_cpds=ELECTRON_TEST_INPUTS,
+                extracellular=extracellular,
+            )
+            coefs, exports = {}, {}
+            for rxn in model.exchanges:
+                met = next(iter(rxn.metabolites))
+                if met.compartment == extracellular and _cpd(met) in REDUCED_PRODUCTS:
+                    # an exchange written as consumption exports with forward flux
+                    w = REDUCED_PRODUCTS[_cpd(met)] * -rxn.metabolites[met]
+                    coefs[rxn.forward_variable], coefs[rxn.reverse_variable] = w, -w
+                    exports[_cpd(met)] = rxn
+            if not coefs:
+                return {
+                    "electrons_from_nothing": 0.0,
+                    "electron_carriers": {},
+                    "rows_lifted": lifted,
+                }
+            model.objective = model.problem.Objective(Zero, direction="max")
+            model.objective.set_linear_coefficients(coefs)
+            v = _value(model)
+            carriers = {}
+            if v is not None:
+                carriers = {c: r.flux for c, r in exports.items() if abs(r.flux) > 1e-9}
+        return {
+            "electrons_from_nothing": v,
+            "electron_carriers": carriers,
+            "rows_lifted": lifted,
+        }
+
+
+    def net_atp_yield(
+        model,
+        substrate,
+        acceptor="cpd00007",
+        open_cpds=YIELD_OPEN,
+        rate=1.0,
+        release_floors=True,
+        lift_rows=None,
+        pins=None,
+        compartments=None,
+        extracellular="e0",
+    ):
+        """The ATP yield of `substrate` (a compound id) net of what the same test makes
+        without it.
+
+        The test: every uptake closed except `open_cpds` (default H2O, H+, Pi, CO2), the
+        `acceptor` (a compound, a list, or None) and the substrate at up to `rate`
+        (mmol/gDW/h); forced fluxes released (release_floors), `lift_rows` lifted, the ATP
+        tests summed and maximised. gross is that maximum per mmol of the allowed substrate;
+        substrate_closed the same test with the substrate shut, per the same mmol; net =
+        gross - substrate_closed. A model that makes ATP from H+ and Pi alone (a boundary
+        route the sealed test cannot see) counts it in the gross yield; the net yield does
+        not. A cycle-free model can still be too efficient, which only the net yield shows
+        against the biochemistry (about 24 per glucose aerobically, say).
+
+        Returns {substrate, rate, open, rows_lifted, atp_with_substrate, atp_without (mmol
+        ATP/gDW/h), substrate_uptake (mmol/gDW/h), gross, substrate_closed, net (mmol ATP
+        per mmol substrate)}."""
+        acc = (acceptor,) if isinstance(acceptor, str) else tuple(acceptor or ())
+        opened = tuple(dict.fromkeys(tuple(open_cpds) + acc))
+        sid = f"{substrate}_{extracellular}"
+        exs = [r for r in model.boundary if any(m.id == sid for m in r.metabolites)]
+        if not exs:
+            raise ValueError(f"no boundary reaction for {sid}")
+
+        def run(with_substrate):
+            with model:
+                seal(
+                    model,
+                    "lax",
+                    release_floors,
+                    open_cpds=opened,
+                    extracellular=extracellular,
+                )
+                met = model.metabolites.get_by_id(sid)
+                for ex in exs:
+                    coef = ex.metabolites[met]
+                    lb, ub = ex.lower_bound, ex.upper_bound
+                    # uptake of up to `rate`, whichever way the reaction is written
+                    if with_substrate:
+                        ex.bounds = (-rate, max(ub, 0)) if coef < 0 else (min(lb, 0), rate)
+                    else:
+                        ex.bounds = (0, max(ub, 0)) if coef < 0 else (min(lb, 0), 0)
+                tests = add_hydrolysis_tests(model, pins, compartments)
+                v = _maximise_tests(model, tests)
+                up = None
+                if v is not None:
+                    up = sum(ex.flux * ex.metabolites[met] for ex in exs)
+            return v, up
+
+        with lifted_rows(model, lift_rows) as lifted:
+            g, up = run(True)
+            c, _ = run(False)
+        out = {
+            "substrate": substrate,
+            "rate": rate,
+            "open": list(opened),
+            "rows_lifted": lifted,
+            "atp_with_substrate": g,
+            "atp_without": c,
+            "substrate_uptake": up,
+            "gross": None if g is None else g / rate,
+            "substrate_closed": None if c is None else c / rate,
+        }
+        out["net"] = None if g is None or c is None else (g - c) / rate
+        return out
+
+
+    # ---------------------------------------------------------------- the cycle
+    def msid(rxn):
+        """The ModelSEED reaction id behind a model reaction id (rxn00571_c0 -> rxn00571),
+        or None."""
+        m = _MSID.match(rxn.id)
+        return m.group(1) if m else None
+
+
+    def load_msdb_thermo(msdb_path):
+        """{reaction id: {reversibility, dg, err, source, name}} from a ModelSEEDDatabase
+        checkout (Biochemistry/reaction_*.json). dg/err are dG'0 and its standard error in
+        kcal/mol from the first of THERMO_SOURCES with a value (None if none has one)."""
+        pattern = os.path.join(msdb_path, "Biochemistry", "reaction_*.json")
+        files = sorted(glob.glob(pattern))
+        if not files:
+            raise FileNotFoundError(f"no Biochemistry/reaction_*.json under {msdb_path}")
+        db = {}
+        for f in files:
+            with open(f) as fh:
+                reactions = json.load(fh)
+            for r in reactions:
+                entry = {
+                    "reversibility": r.get("reversibility"),
+                    "name": r.get("name"),
+                    "dg": None,
+                    "err": None,
+                    "source": None,
+                }
+                thermo = r.get("thermodynamics") or {}
+                for src in THERMO_SOURCES:
+                    val = thermo.get(src) or []
+                    if len(val) < 2:
+                        continue
+                    if not all(isinstance(x, (int, float)) for x in val[:2]):
+                        continue
+                    if abs(val[0]) < 1e6 and abs(val[1]) < 1e6:
+                        entry.update(dg=float(val[0]), err=float(val[1]), source=src)
+                        break
+                db[r["id"]] = entry
+        return db
+
+
+    def direction_thermo(rxn, direction, entry, c_min=1e-6, c_max=0.02, n_sigma=2.0):
+        """dG'0 and dG'min (kcal/mol) of `rxn` run forward (direction > 0) or in reverse,
+        and whether thermodynamics rules that direction out. None where there is no dG'0 or
+        the reaction crosses a membrane (its dG then depends on the membrane potential).
+
+        A direction is ruled out only when no concentrations in [c_min, c_max] (mol/L)
+        could make it run, that is when dG'min - n_sigma * err > 0, where
+
+            dG'min = dG'0 + RT * (sum_products n ln c_min - sum_substrates n ln c_max)
+
+        with water and protons left out of the sums. entry is a load_msdb_thermo value.
+        """
+        if not entry or entry.get("dg") is None or len(rxn.compartments) > 1:
+            return None
+        sign = 1 if direction > 0 else -1
+        dg0 = sign * entry["dg"]
+        conc = 0.0
+        for met, coef in rxn.metabolites.items():
+            if _cpd(met) in NOT_IN_CONCENTRATION_TERM:
+                continue
+            n = sign * coef  # > 0: a product in the running direction
+            conc += n * ln(c_min) if n > 0 else n * ln(c_max)
+        dg_min = dg0 + RT * conc
+        return {
+            "dg0": dg0,
+            "dg_min": dg_min,
+            "err": entry["err"],
+            "source": entry["source"],
+            "infeasible": dg_min - n_sigma * entry["err"] > 0,
+        }
+
+
+    def _cycle_row(rxn, v, thermo, gapfilled, gate):
+        base = msid(rxn)
+        entry = thermo.get(base) if base else None
+        rev = entry.get("reversibility") if entry else None
+        row = {
+            "reaction": rxn.id,
+            "msid": base,
+            "flux": v,
+            "bounds": list(rxn.bounds),
+            "db_reversibility": rev,
+            "name": (entry or {}).get("name") or rxn.name,
+            "against_db": bool((rev == ">" and v < 0) or (rev == "<" and v > 0)),
+        }
+        td = direction_thermo(rxn, v, entry, **gate)
+        if td:
+            row.update(
+                dg0=td["dg0"],
+                dg_min=td["dg_min"],
+                dg_err=td["err"],
+                dg_source=td["source"],
+                infeasible=td["infeasible"],
+            )
+        else:
+            row.update(dg0=None, dg_min=None, dg_err=None, dg_source=None, infeasible=False)
+        row["gapfilled"] = bool(base and base in gapfilled)
+        return row
+
+
+    def find_energy_cycle(
+        model,
+        flux=1.0,
+        compartment=None,
+        thermo=None,
+        gapfilled=None,
+        tol=1e-7,
+        release_floors=True,
+        lift_rows=None,
+        pins=None,
+        compartments=None,
+        extracellular="e0",
+        **gate,
+    ):
+        """The smallest-total-flux cycle that makes `flux` mmol ATP/gDW/h with every uptake
+        closed (lax closure, forced fluxes released with release_floors, `lift_rows`
+        lifted).
+
+        compartment  make the ATP in this compartment's test; default the sum over all tests
+        thermo       load_msdb_thermo() output: each reaction's database direction and dG
+        gapfilled    a set of ModelSEED reaction ids gapfilled into the model
+        pins         None (ATP tests) or "ntp" (the other hydrolysis tests count too)
+        gate         c_min, c_max, n_sigma for direction_thermo
+
+        Returns {status, reactions, fluxes, rows_lifted}. status is "cycle"; "no cycle" when
+        the model cannot make the ATP; or "infeasible" when the sealed model cannot run at
+        all (a forced flux kept with release_floors=False, say), which says nothing about
+        cycles. reactions has one row per reaction in the cycle (the test reactions left
+        out): reaction, msid, flux, bounds (during the test), db_reversibility, name,
+        against_db (runs against the database direction), dg0, dg_min, dg_err, dg_source,
+        infeasible (direction_thermo), gapfilled. fluxes is {reaction id: flux} of every
+        reaction above tol, tests included."""
+        gapfilled, thermo = set(gapfilled or ()), thermo or {}
+        with lifted_rows(model, lift_rows) as lifted:
+            out = _find_energy_cycle(
+                model,
+                flux,
+                compartment,
+                thermo,
+                gapfilled,
+                tol,
+                release_floors,
+                resolve_pins(pins),
+                compartments,
+                extracellular,
+                gate,
+            )
+        out["rows_lifted"] = lifted
+        return out
+
+
+    def _find_energy_cycle(
+        model,
+        flux,
+        compartment,
+        thermo,
+        gapfilled,
+        tol,
+        release_floors,
+        pins,
+        compartments,
+        extracellular,
+        gate,
+    ):
+        with model:
+            seal(model, "lax", release_floors, extracellular=extracellular)
+            tests = add_hydrolysis_tests(model, pins, compartments)
+            if compartment is not None:
+                made = tests[compartment].flux_expression
+            else:
+                made = sum(r.flux_expression for r in tests.values())
+            con = model.problem.Constraint(made, lb=flux, ub=flux, name="energy_cycle_atp")
+            model.add_cons_vars(con)
+            model.objective = model.problem.Objective(Zero, direction="min")
+            model.objective.set_linear_coefficients(
+                {
+                    v: 1
+                    for r in model.reactions
+                    for v in (r.forward_variable, r.reverse_variable)
+                }
+            )
+            if _value(model) is None:
+                con.lb, con.ub = 0, 0
+                status = "no cycle" if _value(model) is not None else "infeasible"
+                return {"status": status, "reactions": [], "fluxes": {}}
+            fluxes = {r.id: r.flux for r in model.reactions if abs(r.flux) > tol}
+            rows = []
+            for rid, v in fluxes.items():
+                if rid.startswith(TEST_PREFIXES):
+                    continue
+                rxn = model.reactions.get_by_id(rid)
+                rows.append(_cycle_row(rxn, v, thermo, gapfilled, gate))
+        return {"status": "cycle", "reactions": rows, "fluxes": fluxes}
+
+
+    def conformal_cycle(
+        model, fluxes, tol=1e-7, pin_atp=True, lp="auto", threads=None, pins=None
+    ):
+        """The internal reactions of a cycle inside a flux distribution, or [] if it holds
+        none.
+
+        A cycle here is a steady-state flux u through internal reactions only, each run the
+        way `fluxes` ({reaction id: flux}) runs it (support and signs within the flux's
+        own), plus, with pin_atp, any amount of ATP hydrolysis in each cytosol: exactly what
+        makes `fluxes` violate the loop law with ATP hydrolysis pinned downhill (no
+        potentials can make every step of u downhill). One LP over the active reactions; the
+        support of its solution is returned. pins="ntp" allows hydrolysis of every pinned
+        nucleotide and PPi as well, so a GTP loop that feeds biomass is a cycle here too.
+
+        lp: "gurobi" (gurobipy), "highs" (scipy's HiGHS) or "auto" (gurobi when gurobipy
+        imports, else highs); threads goes to the Gurobi environment (None: gurobi.env or
+        Gurobi's default). Neither solver is a dependency of this module until this function
+        is called."""
+        import numpy as np
+        import scipy.sparse as sp
+        from scipy.optimize import linprog
+
+        boundary = {r.id for r in model.boundary}
+        active = [
+            model.reactions.get_by_id(rid)
+            for rid, v in fluxes.items()
+            if abs(v) > tol and rid not in boundary and rid in model.reactions
+        ]
+        cols, signs = [], []
+        for r in active:
+            cols.append({m.id: c for m, c in r.metabolites.items()})
+            signs.append(1.0 if fluxes[r.id] > 0 else -1.0)
+        n_active = len(cols)
+        for _, _, st in hydrolysis_sites(model, resolve_pins(pins, pin_atp)):
+            cols.append(dict(st))
+            signs.append(1.0)
+        if not n_active:
+            return []
+        index = {}
+        rows, cidx, vals = [], [], []
+        for j, col in enumerate(cols):
+            for mid, c in col.items():
+                i = index.setdefault(mid, len(index))
+                rows.append(i)
+                cidx.append(j)
+                vals.append(c * signs[j])
+        A = sp.csr_matrix((vals, (rows, cidx)), shape=(len(index), len(cols)))
+        # w_j = sign_j * u_j in [0, 1]; maximise the flux through the active reactions
+        # only, so a pin alone (ATP hydrolysis with nothing making the ATP) is not a cycle
+        c = np.concatenate([-np.ones(n_active), np.zeros(len(cols) - n_active)])
+        if lp == "auto":
+            try:
+                import gurobipy  # noqa: F401
+
+                lp = "gurobi"
+            except ImportError:
+                lp = "highs"
+        if lp == "gurobi":
+            import gurobipy as gp
+
+            params = {"OutputFlag": 0}
+            if threads:
+                params["Threads"] = int(threads)
+            env = gp.Env(params=params)
+            g = gp.Model(env=env)
+            w = g.addMVar(len(cols), lb=0, ub=1, obj=c)
+            g.addMConstr(A, w, "=", np.zeros(len(index)))
+            g.optimize()
+            ok = g.Status == gp.GRB.OPTIMAL
+            value = -g.ObjVal if g.SolCount else 0.0
+            x = w.X.copy() if g.SolCount else None
+            g.dispose()
+            env.dispose()
+        else:
+            res = linprog(
+                c,
+                A_eq=A,
+                b_eq=np.zeros(len(index)),
+                bounds=[(0, 1)] * len(cols),
+                method="highs",
+            )
+            ok = res.status == 0
+            value = -res.fun if ok else 0.0
+            x = res.x
+        if not ok or value <= tol:
+            return []
+        return [active[j].id for j in range(n_active) if x[j] > tol]
+    return SimpleNamespace(**locals())
+
+
+def _load_energy_audit():
+    """modelseedpy.core.msenergyaudit, or, when the installed ModelSEEDpy lacks it, one warning
+    and _fallback_energy_audit()."""
+    try:
+        return importlib.import_module(_AUDIT_MODULE)
+    except ModuleNotFoundError as exc:
+        if exc.name != _AUDIT_MODULE:
+            raise  # no ModelSEEDpy at all, or the module is there but something it imports is not
+    warnings.warn(f"{_AUDIT_MODULE} is not in the installed ModelSEEDpy, so mscommunity.commcycles "
+                  "uses its own copy of the energy audit, which will be removed; install a ModelSEEDpy "
+                  f"that has {_AUDIT_MODULE}.", UserWarning, stacklevel=2)
+    return _fallback_energy_audit()
+
+
+_ea = _load_energy_audit()
+
+# the generic names this module has always offered, from the audit
+RT, REDUCED_PRODUCTS, ELECTRON_TEST_INPUTS = _ea.RT, _ea.REDUCED_PRODUCTS, _ea.ELECTRON_TEST_INPUTS
+NOT_IN_CONCENTRATION_TERM, THERMO_SOURCES = _ea.NOT_IN_CONCENTRATION_TERM, _ea.THERMO_SOURCES
+ATP, ADP, PI, PPI, H2O, PROTON = _ea.ATP, _ea.ADP, _ea.PI, _ea.PPI, _ea.H2O, _ea.PROTON
+ATP_PINS, NTP_PINS, TEST_PREFIXES = _ea.ATP_PINS, _ea.NTP_PINS, _ea.TEST_PREFIXES
+BOUNDARY_ION_ARMS, YIELD_OPEN = _ea.BOUNDARY_ION_ARMS, _ea.YIELD_OPEN
+ELECTRON_ACCEPTORS, INORGANIC_DONORS = _ea.ELECTRON_ACCEPTORS, _ea.INORGANIC_DONORS
+INORGANIC_CARBON = _ea.INORGANIC_CARBON
+_resolve_pins = _ea.resolve_pins
+hydrolysis_sites = _ea.hydrolysis_sites
+release_forced_fluxes = _ea.release_forced_fluxes
+close_uptakes = _ea.close_uptakes
+medium_inorganic_uptakes = _ea.medium_inorganic_uptakes
+msid = _ea.msid
+load_msdb_thermo = _ea.load_msdb_thermo
+direction_thermo = _ea.direction_thermo
+conformal_cycle = _ea.conformal_cycle
