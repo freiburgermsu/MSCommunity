@@ -134,3 +134,27 @@ def test_the_private_names_scripts_import_are_still_there():
     assert commcycles._hydrolysis("cpd00002", "cpd00008") == {
         "cpd00002": -1, "cpd00001": -1, "cpd00008": 1, "cpd00009": 1, "cpd00067": 1}
     assert commcycles._MSID.match("rxn00571_c16").group(1) == "rxn00571"
+
+
+def test_a_cycle_below_flux_is_named_and_proposed_for_cutting():
+    """With the cycle steps capped so the community makes less than the default flux (1 mmol
+    ATP/gDW/h) from nothing, find_energy_cycle still names the cycle (it read "no cycle" before
+    the move), and cut_energy_cycles proposes the uphill step instead of reporting an empty
+    feasible-direction cycle."""
+    sys.path.insert(0, HERE)
+    try:
+        from test_g_energy_cycles import UPHILL
+    finally:
+        sys.path.remove(HERE)
+    model = _community()
+    for rxn in model.reactions:
+        if rxn.id.startswith(("rxn90001", "rxn90002")):
+            rxn.bounds = (-0.2, 0.2)
+    made = commcycles.energy_from_nothing(model, electrons=False)["atp_from_nothing"]
+    assert 1e-6 < made < 1.0
+    cyc = commcycles.find_energy_cycle(model, thermo=UPHILL)
+    assert cyc["status"] == "cycle" and cyc["atp_flux"] == pytest.approx(made)
+    assert {r["msid"] for r in cyc["reactions"]} >= {"rxn90001", "rxn90002"}
+    report = commcycles.cut_energy_cycles(model, thermo=UPHILL, auto=False)
+    assert [c["msid"] for c in report["proposed"]] == ["rxn90002"]
+    assert commcycles.find_energy_cycle(model, flux=made / 2)["atp_flux"] == made / 2
