@@ -45,9 +45,10 @@ Caps and maintenance rows (cap_member_uptake, set_member_maintenance)
     mcap_<member>_<cpd> and mmaint_<member>; neither ends in _commKin, so the kinetic rows
     (MSCommunity.add_commkinetics / CommKineticPkg, which rebuild only *_commKin) and
     lifted_kinetic_rows leave them alone. Inside `with comm.util.model:` an added row, its registry
-    entry and a released maintenance floor are all undone on exit; row bound changes made by
-    refresh_caps are not (optlang row bounds are not context-tracked), which is harmless because
-    refresh_caps is idempotent.
+    entry and a released maintenance floor are all undone on exit, and so are the row bounds that
+    refresh_caps (and therefore set_member_abundances) rewrites: cobra does not track optlang row
+    bounds, so refresh_caps registers its own undo step that puts the previous bounds back. (Without
+    it the rows kept the context's composition after exit while the abundances and bio1 reverted.)
 
 What downstream code must know
     * X variables: member_biomass_variables(comm) creates (or returns the existing) X_<member id>
@@ -732,18 +733,36 @@ def member_caps(comm, member=None, *, kind=None) -> list:
 def refresh_caps(comm) -> list:
     """Rewrite every basis="abundance" row from the members' current abundances (uptake:
     ub = q * a_m; maintenance: lb = A_m * a_m). Call after comm.set_abundance, which does not.
-    basis="X" rows need nothing. Returns the names rewritten."""
-    model, done = _model(comm), []
+    basis="X" rows need nothing. Returns the names rewritten. Inside `with comm.util.model:` the
+    rows' previous bounds are put back when the context exits (one undo step registered here,
+    since cobra does not track optlang row bounds)."""
+    model, done, previous = _model(comm), [], {}
     for rec in member_caps(comm):
         if rec.basis != "abundance":
             continue
         row, a = model.constraints[rec.name], float(comm.members.get_by_id(rec.member).abundance)
+        previous[rec.name] = (row.lb, row.ub)
         if rec.kind == "uptake":
             row.ub = rec.rate * a
         else:
             row.lb = rec.rate * a
         done.append(rec.name)
+    context = get_context(model)
+    if context is not None and previous:
+        context(partial(_restore_row_bounds, model, previous))
     return done
+
+
+def _restore_row_bounds(model, bounds):
+    """Put back {row name: (lb, ub)} on the rows still in the model, in an order optlang accepts."""
+    for name, (lb, ub) in bounds.items():
+        if name not in model.constraints:
+            continue
+        row = model.constraints[name]
+        if lb is not None and row.ub is not None and lb > row.ub:
+            row.ub, row.lb = ub, lb
+        else:
+            row.lb, row.ub = lb, ub
 
 
 def remove_member_caps(comm, member=None, cpd=None, *, kind=None) -> list:
@@ -760,7 +779,9 @@ def remove_member_caps(comm, member=None, cpd=None, *, kind=None) -> list:
 def set_member_abundances(comm, abundances) -> dict:
     """comm.set_abundance, then refresh_caps. abundances: {member id: a} or the
     {member id: {"abundance": a}} form set_abundance takes, for every member; normalised to sum to
-    1 as set_abundance does. Returns the normalised {member id: a_m}."""
+    1 as set_abundance does. Returns the normalised {member id: a_m}. Inside `with comm.util.model:`
+    everything it changes reverts on exit: bio1, the abundances (set_abundance) and the
+    abundance-basis cap / maintenance row bounds (refresh_caps)."""
     _require_community(comm, "set_member_abundances")
     values = {k: (v["abundance"] if isinstance(v, Mapping) else v) for k, v in abundances.items()}
     ids = {m.id for m in comm.members}

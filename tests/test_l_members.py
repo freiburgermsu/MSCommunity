@@ -408,3 +408,26 @@ def _maltose_checks():
         checked += 1
     assert checked > 50
     print(f"MALTOSE_CHECKS_OK {len(seen)} member reactions, {checked} e0 balances", flush=True)
+
+
+def test_set_member_abundances_inside_a_context_restores_the_cap_rows():
+    """cobra does not track optlang row bounds, so the cap / maintenance rows refresh_caps rewrote kept the
+    context's composition after `with model:` while the abundances and bio1 reverted."""
+    comm = _community()
+    model = comm.util.model
+    cap = cap_member_uptake(comm, "memA", GLC, q=7.0)
+    maint = set_member_maintenance(comm, "memB", 1.0)
+    before = {name: (model.constraints[name].lb, model.constraints[name].ub) for name in (cap.name, maint.name)}
+    assert before[cap.name][1] == pytest.approx(3.5) and before[maint.name][0] == pytest.approx(0.5)
+    with model:
+        set_member_abundances(comm, {"memA": 0.9, "memB": 0.1})
+        assert model.constraints[cap.name].ub == pytest.approx(6.3)
+        assert model.constraints[maint.name].lb == pytest.approx(0.1)
+    assert {name: (model.constraints[name].lb, model.constraints[name].ub) for name in before} == before
+    assert comm.members.memA.abundance == pytest.approx(0.5)
+    # a bare refresh_caps inside a context is undone too
+    comm.members.memA.abundance = 0.2
+    with model:
+        refresh_caps(comm)
+        assert model.constraints[cap.name].ub == pytest.approx(1.4)
+    assert model.constraints[cap.name].ub == pytest.approx(3.5)
