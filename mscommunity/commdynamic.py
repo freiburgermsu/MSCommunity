@@ -74,7 +74,7 @@ Functions take the MSCommunity `comm` (MSCommunity wraps them); member_model ret
 Reference prototypes: 3H11_R12_SynCom/Metabolic_modeling/abund_dynamic_lib.py (forms I and C), with its
 verifier's round-3 files (data/multisystem3/abundance/_verify/m-dynamic/r3/).
 
-Validation (tests/test_m_dynamic.py; the CommPhitting E. coli + P. fluorescens maltose co-culture, OD-based E. coli
+Validation (tests/test_p_dynamic.py; the CommPhitting E. coli + P. fluorescens maltose co-culture, OD-based E. coli
 fraction at the mid-exponential / end-of-window / final reads, R_pf = mu_ec - mu_pf in the P. fluorescens window)
     members, OTR 2, pFBA         0.9517 / 0.9813 / 0.9794, R_pf -0.0351   (prototype, fixed dt 0.05: 0.9517 / 0.9813 /
                                  0.9794, -0.0359; dt 0.02: -0.0355; the verifier's integrator -0.0364)

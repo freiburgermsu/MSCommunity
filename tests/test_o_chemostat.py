@@ -225,8 +225,9 @@ KPBT_FILES = ("Kp_routeA.json", "Bt_routeA.json", "medium_routeA.json", "inputs.
 PROTOTYPE_A_KP = {"S4": 0.8476, "S5": 0.8149, "S6": 0.7982, "S7": 0.7835, "S8": 0.7781}
 
 
-@pytest.mark.skipif(not all(os.path.exists(os.path.join(KPBT, f)) for f in KPBT_FILES),
-                    reason="the 3H11_R12_SynCom Kp/Bt inputs are not on this machine")
+@pytest.mark.skipif(not (all(os.path.exists(os.path.join(KPBT, f)) for f in KPBT_FILES)
+                         and os.environ.get("MSCOMMUNITY_SLOW_TESTS") == "1"),
+                    reason="needs the 3H11_R12_SynCom Kp/Bt inputs and MSCOMMUNITY_SLOW_TESTS=1 (~50 s)")
 def test_kpbt_anchors():
     """The joint kinetic chemostat state of K. pneumoniae + B. thetaiotaomicron (route-A member
     models, the paper's code kinetics, shipped maintenance) against the prototype
@@ -236,7 +237,7 @@ def test_kpbt_anchors():
     Runs in a fresh interpreter (see test_l_members' CommPhitting test for why)."""
     tests = os.path.dirname(os.path.abspath(__file__))
     code = f"import sys; sys.path[:0] = [{tests!r}, {os.path.dirname(tests)!r}]; " \
-           "import test_m_chemostat as t; t._kpbt_checks()"
+           "import test_o_chemostat as t; t._kpbt_checks()"
     try:
         run = subprocess.run([sys.executable, "-c", code], cwd=os.path.dirname(tests), capture_output=True,
                              text=True, timeout=1800)

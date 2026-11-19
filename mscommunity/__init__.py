@@ -21,3 +21,7 @@ from mscommunity.batched_lp import (
 )
 from mscommunity.commsurrogate import FBASurrogate, community_to_nn, sample_fba, train_surrogate
 import mscommunity.backends  # auto-registers numpy-pdhg / jax-pdhg / cupy-pdhg / pdlp
+from mscommunity.commcomposition import SteadyComResult, ProfileResult, KappaCalibration
+from mscommunity.commchemostat import ConcentrationSwitch, SteadyState, SteadyStates
+from mscommunity.commdynamic import Trajectory
+from mscommunity.commmicom import MicomResult

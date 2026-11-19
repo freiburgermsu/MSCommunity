@@ -13,7 +13,7 @@ the trajectories can be written down by hand:
                 (Km = 0) mu_A = 0.1 vmax_A,glc and mu_B = 0.05 vmax_B,ac
 
 The real-model anchors (CommPhitting maltose co-culture) run in a fresh interpreter and only with
-MSCOMMUNITY_SLOW=1, since each takes minutes.
+MSCOMMUNITY_SLOW_TESTS=1, since each takes minutes.
 """
 from __future__ import annotations
 
@@ -332,12 +332,12 @@ DATA = [f"{CP}/ecoli.json", f"{CP}/pf.json", f"{MM}/data/multisystem/commphittin
         f"{MM}/data/multisystem3/commphitting_data/measurements.json",
         f"{MM}/data/multisystem3/commphitting_data/growth_maltose_timeseries.csv",
         f"{MM}/data/multisystem3/systems/commphitting_maltose/gate.json"]
-SLOW = os.environ.get("MSCOMMUNITY_SLOW") == "1"
+SLOW = os.environ.get("MSCOMMUNITY_SLOW_TESTS") == "1"
 
 
 def _fresh(check, timeout=3600):
     tests = os.path.dirname(os.path.abspath(__file__))
-    code = f"import sys; sys.path[:0] = [{tests!r}, {os.path.dirname(tests)!r}]; import test_m_dynamic as t; t.{check}()"
+    code = f"import sys; sys.path[:0] = [{tests!r}, {os.path.dirname(tests)!r}]; import test_p_dynamic as t; t.{check}()"
     try:
         run = subprocess.run([sys.executable, "-c", code], cwd=os.path.dirname(tests), capture_output=True, text=True,
                              timeout=timeout)
@@ -349,13 +349,13 @@ def _fresh(check, timeout=3600):
 
 
 @pytest.mark.skipif(not (SLOW and all(os.path.exists(p) for p in DATA)),
-                    reason="set MSCOMMUNITY_SLOW=1 (minutes per run) with the CommPhitting data on this machine")
+                    reason="set MSCOMMUNITY_SLOW_TESTS=1 (minutes per run) with the CommPhitting data on this machine")
 def test_commphitting_maltose_members_form_otr2():
     _fresh("_anchor_members")
 
 
 @pytest.mark.skipif(not (SLOW and all(os.path.exists(p) for p in DATA)),
-                    reason="set MSCOMMUNITY_SLOW=1 (minutes per run) with the CommPhitting data on this machine")
+                    reason="set MSCOMMUNITY_SLOW_TESTS=1 (minutes per run) with the CommPhitting data on this machine")
 def test_commphitting_maltose_community_strict_otr1_orient_both():
     _fresh("_anchor_community_strict")
 

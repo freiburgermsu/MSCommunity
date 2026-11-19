@@ -30,6 +30,7 @@ from pandas import DataFrame
 from pprint import pprint
 from math import exp
 import logging
+from functools import partial
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +187,9 @@ class MSCommunity:
                                (commhelper.build_from_species_models)
         abundances             {member id: a} (or {id: {"abundance": a, ...}}), normalised to sum 1
                                and written into bio1; default equal abundances
-        kinetic_coeff          kappa of the community-kinetics rows installed at construction
+        kinetic_coeff          kappa of the community-kinetics rows installed at construction, or
+                               "calibrate" to set it to the smallest single kappa at which every
+                               member still reaches its own solo optimum (calibrate_kappa)
                                (<member>_commKin: sum_r |v_r| <= kappa * v_bio_m over the member's
                                metabolism). They are ALWAYS installed. The default 750 can forbid
                                measured monocultures: it is below the solo saturation kappa of
@@ -241,7 +244,7 @@ class MSCommunity:
                      'element_uptake_limit', 'msdb_path', 'comm_growth', 'threshold', "memGrowths", "member_fluxes",
                      "suboptimal_solution"]:
             setattr(self, attr, None)
-        self.kinCoef = kinetic_coeff
+        self.kinCoef = 1e6 if isinstance(kinetic_coeff, str) else kinetic_coeff  # "calibrate": a placeholder until calibrated below
         # Determinism instrumentation: whether the last determining coculture
         # solve had to fall back from pFBA/QP to the plain (solver-degenerate)
         # LP, and how many times that has happened on this community. Callers
@@ -318,6 +321,17 @@ class MSCommunity:
         self.pkgmgr = MSPackageManager.get_pkg_mgr(self.util.model)
         kinetic_pkg = CommKineticPkg(self.util.model)
         self.pkgmgr.addpkgobj(kinetic_pkg)
+        calibrate = isinstance(kinetic_coeff, str)
+        if calibrate and kinetic_coeff != "calibrate":
+            raise ValueError(f"kinetic_coeff must be a number or 'calibrate', not {kinetic_coeff!r}")
+        if calibrate:
+            # the smallest single kappa that forbids no member's solo optimum (commcomposition);
+            # computed before the rows exist (calibrate_kappa then uses the terms add_commkinetics
+            # would write), because the package cannot rebuild rows it has already registered
+            from mscommunity.commcomposition import calibrate_kappa
+            kinetic_coeff = max(calibrate_kappa(self, per_member=False).values())
+            self.kinCoef = kinetic_coeff
+            logger.info("kinetic_coeff calibrated to %s", kinetic_coeff)
         kinetic_pkg.build_package(kinetic_coeff, self, self.rxnProbs)
         if eleLimits is not None:
             self.pkgmgr.getpkg("ElementUptakePkg").build_package(eleLimits)
@@ -326,6 +340,9 @@ class MSCommunity:
 
     #Manipulation functions
     def set_abundance(self, abundances):
+        old_abundance = {mem.id: mem.abundance for mem in self.members}
+        old_abundances = getattr(self, "abundances", None)
+        old_set = getattr(self, "abundances_set", False)
         #calculate the normalized biomass
         total_abundance = sum(list([content["abundance"] for content in abundances.values()]))
         # map abundances to all species
@@ -334,10 +351,40 @@ class MSCommunity:
         self.abundances = {mem.id: mem.abundance for mem in self.members}
         #remake the primary biomass reaction based on abundances  #TODO what is the purpose of this?
         if self.primary_biomass is None:  logger.critical("Primary biomass reaction not found in community model")
+        # Write bio1 with the model's own metabolite objects, outside cobra's change tracking, and
+        # register one undo step that restores the previous stoichiometry and abundances. A member's
+        # stored biomass_cpd can be a different object with the same id (the SynCom build), and a
+        # zero abundance drops the metabolite from bio1; cobra's per-metabolite undo record raised
+        # KeyError on either inside `with model:`.
+        model = self.util.model
+        mets = model.metabolites
         all_metabolites = {self.primary_biomass.products[0]: 1}
-        all_metabolites.update({mem.biomass_cpd: -abundances[mem.id]["abundance"]/total_abundance for mem in self.members})
-        self.primary_biomass.add_metabolites(all_metabolites, combine=False)
+        all_metabolites.update({mets.get_by_id(mem.biomass_cpd.id): -abundances[mem.id]["abundance"]/total_abundance
+                                for mem in self.members})
+        context = model._contexts[-1] if getattr(model, "_contexts", None) else None
+        if context is not None:
+            previous = (dict(self.primary_biomass.metabolites), dict(old_abundance), old_abundances, old_set)
+            context(partial(self._restore_abundance_state, *previous))
+        self._write_bio1(all_metabolites)
         self.abundances_set = True
+
+    def _write_bio1(self, stoichiometry):
+        """Replace bio1's stoichiometry without recording cobra undo steps (set_abundance records its own)."""
+        model = self.util.model
+        contexts, model._contexts = getattr(model, "_contexts", []), []
+        try:
+            self.primary_biomass.add_metabolites(
+                {met: -coef for met, coef in self.primary_biomass.metabolites.items()}, combine=True)
+            self.primary_biomass.add_metabolites(stoichiometry, combine=True)
+        finally:
+            model._contexts = contexts
+
+    def _restore_abundance_state(self, stoichiometry, member_abundance, abundances, abundances_set):
+        self._write_bio1(stoichiometry)
+        for mem in self.members:
+            if mem.id in member_abundance:  mem.abundance = member_abundance[mem.id]
+        self.abundances = abundances
+        self.abundances_set = abundances_set
 
     def set_objective(self, target=None, targets=None, weights=None, minimize=False):
         targets = targets or [self.util.model.reactions.get_by_id(target or self.primary_biomass.id).flux_expression]
@@ -448,6 +495,98 @@ class MSCommunity:
             self.util.add_medium(media)
         self.set_objective()
         return orient_community(self.util.model, reference=reference, rounds=rounds, **profile_args)
+
+    # ---- member bookkeeping (mscommunity.commmembers) ------------------------------------
+    def member_table(self):
+        """One row per member: abundance, biomass and drain, ATPM, compartments, transporters by
+        compound, and the caps installed (commmembers.member_table)."""
+        from mscommunity.commmembers import member_table
+        return member_table(self)
+
+    def member_uptake_expression(self, member, cpd, **kwargs):
+        """The member's net (or gross=True) uptake of compound `cpd` from e0, per gDW of community
+        (commmembers.member_uptake_expression)."""
+        from mscommunity.commmembers import member_uptake_expression
+        return member_uptake_expression(self, member, cpd, **kwargs)
+
+    def member_net_exchange(self, member, solution=None, **kwargs):
+        """{cpd: net uptake from e0} for one member at a solution (default: the last one),
+        per gDW of community (commmembers.member_net_exchange)."""
+        from mscommunity.commmembers import member_net_exchange
+        return member_net_exchange(self, solution if solution is not None else self.solution, member, **kwargs)
+
+    def cap_member_uptake(self, member, cpd=None, *, q, **kwargs):
+        """Cap the member's gross uptake at q x a_m (basis="abundance") or q x X_m (basis="X"),
+        q in mmol per gDW of THAT member per h, on its own transporters
+        (commmembers.cap_member_uptake). Abundance caps follow set_abundance only through
+        refresh_member_caps()."""
+        from mscommunity.commmembers import cap_member_uptake
+        return cap_member_uptake(self, member, cpd, q=q, **kwargs)
+
+    def set_member_maintenance(self, member, A_m, **kwargs):
+        """ATP maintenance of the member >= A_m x a_m (or x X_m), A_m per gDW of that member
+        (commmembers.set_member_maintenance)."""
+        from mscommunity.commmembers import set_member_maintenance
+        return set_member_maintenance(self, member, A_m, **kwargs)
+
+    def refresh_member_caps(self):
+        """Rewrite abundance-basis caps and maintenance rows from the current abundances."""
+        from mscommunity.commmembers import refresh_caps
+        return refresh_caps(self)
+
+    # ---- composition (mscommunity.commcomposition) ---------------------------------------
+    def steadycom(self, **kwargs):
+        """Balanced growth with member biomass variables X_m (SteadyCom, Chan et al. 2017),
+        reporting composition RANGES, solo rates and corner/relabelling warnings. A max-growth
+        balanced-growth model that reproduces the monocultures cannot predict coexistence below
+        the fastest solo rate. See commcomposition.steadycom."""
+        from mscommunity.commcomposition import steadycom
+        return steadycom(self, **kwargs)
+
+    def calibrate_kappa(self, per_member=False, **kwargs):
+        """kappa_sat per member: the smallest kinetic coefficient at which that member alone still
+        reaches its kappa-free solo optimum (commcomposition.calibrate_kappa)."""
+        from mscommunity.commcomposition import calibrate_kappa
+        return calibrate_kappa(self, per_member, **kwargs)
+
+    def kappa_sat_coupled(self, abundances, **kwargs):
+        """kappa at which the coupled (fixed-composition) form saturates at a declared composition.
+        predict_abundances at this kappa returns that composition (commcomposition)."""
+        from mscommunity.commcomposition import kappa_sat_coupled
+        return kappa_sat_coupled(self, abundances, **kwargs)
+
+    def composition_profile(self, **kwargs):
+        """mu_com(a) on a grid (objective="coupled") or the composition range near the
+        composition-free optimum (objective="free"); report it with any composition answer
+        (commcomposition.composition_profile)."""
+        from mscommunity.commcomposition import composition_profile
+        return composition_profile(self, **kwargs)
+
+    # ---- chemostat and dynamic simulation -----------------------------------------------
+    def chemostat(self, D, feed, *, kinetics, **kwargs):
+        """Steady states (mu = D) of every surviving member subset, with stability, invasion rates
+        and the supply x yield decomposition (commchemostat.chemostat)."""
+        from mscommunity.commchemostat import chemostat
+        return chemostat(self, D, feed, kinetics=kinetics, **kwargs)
+
+    def member_model(self, member, repair=None, subset=None, **kwargs):
+        """The member's own stand-alone model, cut from the community (commdynamic.member_model)."""
+        from mscommunity.commdynamic import member_model
+        return member_model(self, member, repair=repair, subset=subset, **kwargs)
+
+    def dynamic(self, t_end, dt, X0, S0, *, kinetics, **kwargs):
+        """Multi-species dynamic FBA with member biomass states (form "members" or
+        "community_strict"); returns a Trajectory (commdynamic.dynamic)."""
+        from mscommunity.commdynamic import dynamic
+        return dynamic(self, t_end, dt, X0, S0, kinetics=kinetics, **kwargs)
+
+    def calibrate_monoculture(self, member, timeseries, params=("vmax",), *, repair=None, **kwargs):
+        """Fit a member's uptake kinetics to its monoculture time course
+        (commdynamic.calibrate_monoculture on member_model(member))."""
+        from mscommunity.commdynamic import calibrate_monoculture, member_model
+        mem = self.members.get_by_id(member) if isinstance(member, str) else member
+        return calibrate_monoculture(member_model(self, mem, repair=repair), timeseries, params,
+                                     member_id=mem.id, **kwargs)
 
     def to_neural_network(self, inputs=None, media=None, **surrogate_args):
         """This community as the ANN surrogate of Song et al. (2025): uptake limits on the shared
