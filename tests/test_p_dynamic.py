@@ -207,6 +207,7 @@ def test_community_strict_matches_the_members_form_on_disjoint_members():
         np.testing.assert_allclose(b.mu["memA"][:5], a.mu["memA"][:5], rtol=1e-6)
         assert b.ledger()["memB"][AC]["uptake"] == pytest.approx(a.ledger()["memB"][AC]["uptake"], rel=1e-5)
         assert not b.ledger().get("shared")
+        assert not any("clamped" in w or "a_min" in w for w in b.warnings)   # nothing beyond solver tolerance
         assert _model_state(comm.util.model) == before
         assert comm._member_caps == {} if hasattr(comm, "_member_caps") else True
 
@@ -389,6 +390,7 @@ def test_community_strict_never_reports_a_rate_above_the_solo_maximum():
     traj = dynamic(comm, 0.25, 0.25, X0, S0, kinetics={}, form="community_strict", a_min=0.0)
     assert traj.mu["memB"][0] <= ref.mu["memB"][0] * (1 + 1e-6)
     assert any("clamped" in w and "memB" in w for w in traj.warnings)
+    assert traj.stats["notes"]["clamped"]["memB"] >= 1
 
 
 def test_community_strict_releases_the_forced_flux_a_member_cannot_pay():

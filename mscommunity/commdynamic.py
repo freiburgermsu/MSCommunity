@@ -120,7 +120,9 @@ IDLE = 1e-12         # growth at or below this: the member is idle for the step 
                      # of the least total flux with no growth required, e.g. the substrate an ATPM floor burns)
 RELAXED = 1e30
 A_MIN = 1e-4         # community_strict: a member below this share of the culture is solved by its own member LP
-CLAMP_RTOL, CLAMP_ATOL = 1e-6, 1e-9   # community_strict: a rate this far above the member's solo maximum is clamped
+CLAMP_ATOL = 1e-9    # community_strict: a rate above the member's solo maximum by more than this is clamped to it,
+CLAMP_WARN_RTOL, CLAMP_WARN_ATOL = 1e-4, 1e-6   # ... with a warning when the excess is beyond this band (1/h), i.e.
+                                                # beyond solver tolerance
 
 __all__ = ["DEFAULT_KINETICS", "Trajectory", "member_model", "dynamic", "simulate_models",
            "calibrate_monoculture"]
@@ -794,8 +796,9 @@ class _CommunityStrictStepper:
             if i in rare or mu[i] <= 0.0:
                 continue
             ceiling = self.solo.ceiling(mid, caps[i])
-            if ceiling is not None and mu[i] > ceiling * (1.0 + CLAMP_RTOL) + CLAMP_ATOL:
-                notes.append(("clamped", mid, float(mu[i] - ceiling)))
+            if ceiling is not None and mu[i] > ceiling + CLAMP_ATOL:
+                beyond = mu[i] > ceiling * (1.0 + CLAMP_WARN_RTOL) + CLAMP_WARN_ATOL
+                notes.append(("clamped" if beyond else "clamped_within_tolerance", mid, float(mu[i] - ceiling)))
                 rel[i] *= ceiling / mu[i]
                 mu[i] = ceiling
         limited = False
@@ -853,7 +856,8 @@ class _CommunityStrictStepper:
         return status, None, None, {}
 
     def summarize(self, events):
-        """The run's warnings for what the stepper had to do: {(kind, member): [(t, value)]}."""
+        """The run's warnings for what the stepper had to do: {(kind, member): [(t, value)]}. Clamps within the
+        solver's tolerance (kind "clamped_within_tolerance") are only counted (Trajectory.stats["notes"])."""
         out = []
         for (kind, mid), entries in events.items():
             k, first = len(entries), entries[0][0]
@@ -1131,12 +1135,16 @@ def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, d
     summarize = getattr(stepper, "summarize", None)
     if events and summarize is not None:
         warnings.extend(summarize(events))
+    notes = {}
+    for (kind, mid), entries in events.items():
+        notes.setdefault(kind, {})[mid] = len(entries)
     if n_forced:
         warnings.append(f"{n_forced} step(s) reached dt_min = {dt_min} h and were taken with the Patankar update "
                         "although the members' uptake was not realised to within rtol")
     stats = {"accepted_steps": n_acc, "rejected_steps": n_rej, "forced_steps": n_forced,
              "patankar_steps": n_patankar, "smallest_step_h": h_min_seen,
-             "patankar_mismatch_mM": {c: float(v) for c, v in zip(tracked, mismatch_total) if v != 0.0}}
+             "patankar_mismatch_mM": {c: float(v) for c, v in zip(tracked, mismatch_total) if v != 0.0},
+             "notes": notes}
     return rec, (intervals["up"], intervals["se"], intervals["in"], intervals["out"]), stats
 
 
@@ -1368,9 +1376,13 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
                       (q its uptake rate), about 1e-3 at a_m = 1e-4. a_min=0 switches the route off.
                       Every rate the community LP gives is also checked against the member's own solo maximum on
                       the current pool (its member LP: tracked compounds at its kinetic caps, O2 not limited by the
-                      transfer rate, forced bounds released) and clamped to it, its exchanges scaled to match, with a
-                      warning: a rate above what the member reaches alone is solver noise, or a medium bound that,
-                      being per gDW of community, gives a small member more per gDW than it gets alone.
+                      transfer rate, forced bounds released) and clamped to it, its exchanges scaled to match: a rate
+                      above what the member reaches alone is solver noise, or a medium bound that, being per gDW of
+                      community, gives a small member more per gDW than it gets alone. A clamp by more than 1e-4
+                      relative + 1e-6 1/h is a warning; smaller ones are solver tolerance (on the CommPhitting
+                      maltose run, up to 2.6e-5 relative at hundreds of steps) and are only counted, in
+                      Trajectory.stats["notes"]["clamped_within_tolerance"] (stats["notes"] counts every such
+                      event per member: "a_min", "clamped", "released" too).
                       When the community LP is infeasible, the forced bounds (lb > 0 or ub < 0, e.g. a maintenance
                       drain) of the member(s) that cannot meet them are released for that step and the LP is solved
                       again: first the members whose own LP is infeasible alone on the current pool, then, if that
