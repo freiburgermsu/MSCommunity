@@ -308,6 +308,54 @@ def test_calibrate_monoculture_recovers_vmax_from_a_synthetic_time_course():
     assert fit["kinetics"] == {GLC: (pytest.approx(2.0, rel=1e-3), 0.05)} and fit["rmse_lnX"] < 1e-3
 
 
+def test_calibrate_monoculture_starts_the_simulation_at_the_first_measured_time():
+    """A series sampled from t = 2 h used to be simulated from t = 0 with X(2 h) as X0 (vmax 1.687, not 2)."""
+    comm = _community()
+    mA = member_model(comm, "memA")
+    truth = simulate_models({"memA": mA}, 20.0, 0.5, {"memA": 0.01}, {GLC: 3.0}, kinetics={"memA": {GLC: (2.0, 0.05)}})
+    for t0 in (0.0, 2.0):
+        t = np.linspace(t0, 20.0, 21)
+        data = {"t": t, "X": np.interp(t, truth.times, truth.X["memA"]),
+                "S": np.interp(t, truth.times, truth.concentrations[GLC])}
+        fit = calibrate_monoculture(mA, data, params=("vmax",), substrate=GLC, S0={GLC: float(data["S"][0])},
+                                    kinetics={GLC: (0.7, 0.05)}, dt=0.5)
+        assert fit["params"]["vmax"] == pytest.approx(2.0, rel=1e-3), t0
+        assert fit["trajectory"].times[0] == pytest.approx(t0) and fit["rmse_lnX"] < 1e-3
+
+
+# --------------------------------------------------------------------------- review fixes: idle members, threads
+def _stationary_member():
+    """memA of the test_l_members toy, unable to grow (biomass shut) but with an ATPM floor of 1 mmol/gDW/h,
+    paid at 2 ATP per glucose: it takes 0.5 mmol glucose/gDW/h and releases 1 acetate."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_l_members as L
+    m = member_model(L._community(), "memA")
+    m.reactions.get_by_id("bio2").bounds = (0.0, 0.0)
+    m.reactions.get_by_id("rxn00062_c1").lower_bound = 1.0
+    return m
+
+
+def test_an_idle_member_still_takes_up_what_its_maintenance_needs():
+    """A member whose growth LP is idle (max growth 0) recorded no exchanges, so the glucose its ATPM floor
+    burns never left the pool."""
+    traj = simulate_models({"memA": _stationary_member()}, 2.0, 0.5, {"memA": 1.0}, {GLC: 5.0},
+                           kinetics={"memA": {GLC: (10.0, 0.01)}})
+    assert np.all(traj.mu["memA"] == 0.0) and traj.status[0]["memA"] == "idle"
+    assert traj.X["memA"][-1] == pytest.approx(1.0)
+    assert traj.concentrations[GLC][-1] == pytest.approx(5.0 - 0.5 * 1.0 * 2.0, rel=1e-9)
+    assert traj.concentrations[AC][-1] == pytest.approx(2.0, rel=1e-9)
+    assert traj.ledger()["memA"][GLC]["uptake"] == pytest.approx(1.0, rel=1e-9)
+
+
+def test_simulate_models_without_copy_restores_the_solver_threads():
+    mA = member_model(_community(), "memA")
+    if "gurobi" not in mA.solver.interface.__name__:
+        pytest.skip("thread count is set on Gurobi only")
+    mA.solver.problem.Params.Threads = 3
+    simulate_models({"memA": mA}, 1.0, 0.5, {"memA": 0.01}, {GLC: 3.0}, kinetics={}, threads=1, copy=False)
+    assert mA.solver.problem.Params.Threads == 3
+
+
 # --------------------------------------------------------------------------- validation
 def test_arguments_are_checked():
     comm = _community()

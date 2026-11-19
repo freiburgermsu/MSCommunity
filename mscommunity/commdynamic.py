@@ -29,6 +29,9 @@ member's FBA is usually wide in the by-products (on the CommPhitting maltose co-
 split alone moves the P. fluorescens-window rate difference from -0.0004 to -0.039 1/h at OTR 2), so the
 form and the tie-break are explicit parameters and are recorded on the Trajectory.
 
+A member whose max growth is <= 1e-12 is idle for the step: mu = 0, but it still exchanges what its forced fluxes
+need (the least total flux with no growth required, e.g. the substrate an ATPM floor burns).
+
 Units
     X gDW/L; S mM (= mmol/L); specific rates mmol/gDW_member/h and 1/h; OTR mmol O2/L/h; kLa 1/h; D 1/h.
     In "community_strict" the LP itself is per gDW of community (the MSCommunity convention), with X_m = a_m.
@@ -110,7 +113,8 @@ O2_RULES = {"members": ("demand", "equal"), "community_strict": ("joint", "equal
 CAP_BASES = ("gross", "net")
 FACE = 1e-7          # growth held at (1 - FACE) of the optimum for the tie-break and pFBA stages
 FACE_RETRY = 1e-5    # ... and at (1 - FACE_RETRY) when the pFBA stage fails at FACE
-IDLE = 1e-12         # growth at or below this: the member is idle (no flux) for the step
+IDLE = 1e-12         # growth at or below this: the member is idle for the step (mu = 0; its exchanges are those
+                     # of the least total flux with no growth required, e.g. the substrate an ATPM floor burns)
 RELAXED = 1e30
 
 __all__ = ["DEFAULT_KINETICS", "Trajectory", "member_model", "dynamic", "simulate_models",
@@ -363,8 +367,10 @@ class _LexLP:
         return status
 
     def solve(self):
-        """(status, z, primal values) with status 'optimal', 'idle' (z <= IDLE: no flux), 'vertex' (the pFBA
-        stage failed twice; the max-growth vertex is returned), or the solver status of a failed first stage."""
+        """(status, z, primal values) with status 'optimal', 'idle' (z <= IDLE), 'vertex' (the pFBA stage failed
+        twice; the max-growth vertex is returned), or the solver status of a failed first stage (values None).
+        An idle LP still returns values: with pFBA, the least total flux with no growth required (what the
+        model's forced fluxes, e.g. an ATPM floor, need; the caller records those exchanges with mu = 0)."""
         t0 = time.perf_counter()
         try:
             self.fix.lb = -RELAXED
@@ -374,7 +380,9 @@ class _LexLP:
                 return status, None, None
             z = float(self.model.solver.objective.value)
             if z <= IDLE:
-                return "idle", z, None
+                if self.pfba and self._optimize(self.obj_pfba) != "optimal":
+                    self._optimize(self.obj_max)
+                return "idle", z, self.model.solver.primal_values
             if self.sec is not None:
                 self.fix.lb = z * (1 - FACE)
                 if self._optimize(self.obj_sec) == "optimal":
@@ -426,8 +434,11 @@ class _MembersStepper:
         self.col = {c: j for j, c in enumerate(ledger)}
         self.o2_mode, self.o2_rule = o2_mode, o2_rule
         self.ex, self.base, self.current, self.objectives = {}, {}, {}, {}
+        self.threads_saved = {}
         for mid, model in models.items():
-            _set_threads(model, threads)
+            previous = _set_threads(model, threads)
+            if previous is not None:
+                self.threads_saved[mid] = previous
             self.objectives[mid] = (model.objective.expression, model.objective.direction)
             self.bio[mid] = model.reactions.get_by_id(biomass[mid])
             self.lp[mid] = _LexLP(model, [self.bio[mid]], (tiebreak or {}).get(mid), pfba, tag="dyn")
@@ -459,7 +470,8 @@ class _MembersStepper:
             return 0.0, rel, status
         for c, (rxn, coef) in self.ex[mid].items():
             rel[self.col[c]] = -coef * _flux(values, rxn)
-        return max(_flux(values, self.bio[mid]), 0.0), rel, status
+        mu = 0.0 if status == "idle" else max(_flux(values, self.bio[mid]), 0.0)
+        return mu, rel, status
 
     def rates(self, X, caps, otr):
         n = len(self.ids)
@@ -492,7 +504,7 @@ class _MembersStepper:
         return sum(lp.seconds for lp in self.lp.values())
 
     def close(self):
-        """Put the models back as they were: exchange bounds, objective, no added rows."""
+        """Put the models back as they were: exchange bounds, objective, no added rows, solver threads."""
         for mid, model in self.models.items():
             for c, (rxn, _) in self.ex[mid].items():
                 rxn.bounds = self.base[mid][c]
@@ -500,6 +512,8 @@ class _MembersStepper:
                 self.lp[mid].remove()
             expr, direction = self.objectives[mid]
             model.objective = model.problem.Objective(expr, direction=direction)
+            if mid in self.threads_saved:
+                _set_threads(model, self.threads_saved[mid])
 
 
 class _CommunityStrictStepper:
@@ -652,7 +666,7 @@ class _CommunityStrictStepper:
         for i, mid in enumerate(self.ids):
             if a[i] <= 0:
                 continue
-            mu[i] = max(_flux(values, self.bio[mid]), 0.0) / a[i]
+            mu[i] = 0.0 if status == "idle" else max(_flux(values, self.bio[mid]), 0.0) / a[i]
             for r in self.transporters[mid]:
                 v = _flux(values, r)
                 if v == 0.0:
@@ -810,7 +824,8 @@ def _phi(x):
 
 
 def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, dt, otr, o2_mode, feed, D,
-               record_every, max_depletion, rtol, atol, dt_min, s_min, max_steps, warnings, callback=None):
+               record_every, max_depletion, rtol, atol, dt_min, s_min, max_steps, warnings, callback=None,
+               t_start=0.0):
     """The time loop (see the module docstring, Integration). Returns the records, the ledger intervals and
     the step statistics."""
     nm, nc = len(members), len(tracked)
@@ -822,7 +837,7 @@ def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, d
     Km = np.array([[kin[m].get(c, default)[1] for c in tracked] for m in members], dtype=float).reshape(nm, nc)
     kla = (float(otr[0]), float(otr[1])) if o2_mode == "kla" else None
     j_o2 = tracked.index(O2) if (kla is not None and O2 in tracked) else None
-    t, h = 0.0, float(dt)
+    t, h = float(t_start), float(dt)
     rec = {"t": [], "X": [], "S": [], "mu": [], "o2": [], "status": []}
     intervals = {"up": [], "se": [], "in": [], "out": []}
     acc = None
@@ -1035,7 +1050,7 @@ def _check_tiebreak(tiebreak, form, member_ids):
 
 
 def _run(stepper, members, X0, *, form, otr, feed, D, t_end, dt, record_every, tiebreak, pfba, extra_settings,
-         setup, max_depletion, rtol, atol, dt_min, s_min, max_steps, callback):
+         setup, max_depletion, rtol, atol, dt_min, s_min, max_steps, callback, t_start=0.0):
     t0 = time.perf_counter()
     o2_mode, o2_rule, S0n, ample_list, tracked_list, ledger, kin, default, warns = setup
     feed_f = _as_function(feed, "feed")
@@ -1047,6 +1062,8 @@ def _run(stepper, members, X0, *, form, otr, feed, D, t_end, dt, record_every, t
         raise KeyError(f"X0 has no biomass for {sorted(missing)}")
     if any(float(X0[m]) < 0 for m in members) or sum(float(X0[m]) for m in members) <= 0:
         raise ValueError("X0 must be >= 0 for every member and positive for at least one")
+    if not (math.isfinite(float(t_start)) and float(t_start) <= float(t_end)):
+        raise ValueError(f"t_start ({t_start}) must be a finite time <= t_end ({t_end})")
     warnings = list(warns)
     if form == "members" and o2_mode == "otr" and O2 not in ledger:
         warnings.append("otr is given but no member exchanges O2 (cpd00007): it has no effect")
@@ -1056,7 +1073,7 @@ def _run(stepper, members, X0, *, form, otr, feed, D, t_end, dt, record_every, t
     rec, led, stats = _integrate(stepper(tracked_list, ledger, o2_mode, o2_rule), members, X0, S0n, tracked_list,
                                  ledger, kin, default, float(t_end), float(dt), otr, o2_mode, feed_f, D_f,
                                  int(record_every), max_depletion, rtol, atol, dt_min, s_min, max_steps, warnings,
-                                 callback)
+                                 callback, float(t_start))
     st = stepper.instance
     times = np.array(rec["t"])
     Xa = np.array(rec["X"]).reshape(len(times), len(members))
@@ -1075,7 +1092,8 @@ def _run(stepper, members, X0, *, form, otr, feed, D, t_end, dt, record_every, t
                 "tracked": list(tracked_list), "ample": list(ample_list), "o2_mode": o2_mode,
                 "feed": None if feed is None else ("callable" if callable(feed) else dict(feed)),
                 "D": None if D is None else ("callable" if callable(D) else float(D)),
-                "max_depletion": max_depletion, "rtol": rtol, "atol": atol, "dt_min": dt_min, "s_min": s_min}
+                "max_depletion": max_depletion, "rtol": rtol, "atol": atol, "dt_min": dt_min, "s_min": s_min,
+                "t_start": float(t_start)}
     settings.update(extra_settings)
     return Trajectory(times=times, members=tuple(members),
                       X={m: Xa[:, i] for i, m in enumerate(members)},
@@ -1100,7 +1118,7 @@ class _Factory:
 
 
 _INTEGRATION_DEFAULTS = dict(max_depletion=0.5, rtol=1e-2, atol=1e-7, dt_min=1e-6, s_min=1e-12, max_steps=200000,
-                             callback=None)
+                             callback=None, t_start=0.0)
 
 
 def simulate_models(models, t_end, dt, X0, S0, *, kinetics, otr=None, o2_rule=None, tiebreak=None, feed=None,
@@ -1152,7 +1170,8 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
     scale_bounds      community_strict: multiply every non-boundary member reaction bound by a_m (eq. 9)
     integration       max_depletion (0.5), rtol (1e-2), atol (1e-7 mM), dt_min (1e-6 h), s_min (1e-12 mM),
                       max_steps (200000), callback (None: a callable(t, {member: X}, {compound: S}) called at
-                      every recorded state, e.g. to report progress)
+                      every recorded state, e.g. to report progress), t_start (0.0 h: the time of X0 and S0;
+                      the run covers t_start to t_end, and D(t) / feed(t) are called with that clock)
     The community model is left as it was (bounds, rows, objective). Returns a Trajectory."""
     if form not in FORMS:
         raise ValueError(f"form must be one of {FORMS}, not {form!r}")
@@ -1222,7 +1241,10 @@ def calibrate_monoculture(member_model, timeseries, params=("vmax",), *, substra
     member_model  the member's cobra.Model (member_model(comm, m), or an isolate)
     timeseries    mapping or DataFrame with "t" (h), "X" (gDW/L) and optionally "S" (mM of the substrate)
     params        names among ("vmax", "Km")
-    S0            {compound: mM} of the monoculture medium (must include the substrate); X0 defaults to X[0]
+    S0            {compound: mM} of the monoculture medium at the first measured time (must include the substrate);
+                  X0 defaults to X at that time. The simulation starts at the first measured time t[0], not at
+                  t = 0 (a series sampled from t = 2 h used to be simulated from 0 with X(2 h) as X0: vmax 1.687
+                  for a truth of 2.0), and runs to t_end (default the last measured time)
     kinetics      the member's other kinetics {compound: (vmax, Km)}; the substrate's entry, if present, is the
                   starting point
     x0            starting values {param: value}; vmax defaults to the Louca-type design mu_obs / Y (mu_obs the
@@ -1244,7 +1266,9 @@ def calibrate_monoculture(member_model, timeseries, params=("vmax",), *, substra
     S0 = {_cpd(k): float(v) for k, v in S0.items()}
     if sub not in S0:
         raise ValueError(f"S0 must include the substrate {sub}")
-    X0v = float(X0) if X0 is not None else float(X_obs[0])
+    first = int(np.argmin(t_obs))
+    t_start = float(dynamic_kw.pop("t_start", t_obs[first]))
+    X0v = float(X0) if X0 is not None else float(X_obs[first])
     t_end = float(t_end) if t_end is not None else float(t_obs.max())
     bio = _biomass_of(member_model, biomass)
     own = {_cpd(k): _pair(v, f"kinetics[{k!r}]") for k, v in (kinetics or {}).items()}
@@ -1270,7 +1294,7 @@ def calibrate_monoculture(member_model, timeseries, params=("vmax",), *, substra
         kin = {member_id: dict(own, **{sub: (vals["vmax"], vals["Km"])})}
         traj = simulate_models({member_id: member_model}, t_end, dt, {member_id: X0v}, S0, kinetics=kin, otr=otr,
                                o2_rule=o2_rule, default_kinetics=default_kinetics, biomass={member_id: bio},
-                               **dynamic_kw)
+                               t_start=t_start, **dynamic_kw)
         last["traj"], last["vals"] = traj, vals
         return traj
 
