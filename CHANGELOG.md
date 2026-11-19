@@ -41,7 +41,7 @@ User-visible changes to MSCommunity. Commits are on branch `community-energy-cyc
   solved by its own member LP for that step. Every community rate is clamped to the member's solo
   maximum on the current pool. When the community LP is infeasible, the forced bounds of the
   member(s) that cannot pay them are released for that step. Each of these events is reported in
-  `Trajectory.warnings`, except a clamp within solver tolerance (1e-4 relative + 1e-6 1/h). Every
+  `Trajectory.warnings`, except a clamp within solver tolerance (1e-4 relative + 1e-4 1/h). Every
   event, including those small clamps, is counted per member in `Trajectory.stats["notes"]`.
 - The `t_start` integration option of `dynamic` and `simulate_models` sets the time of `X0` and
   `S0`. `calibrate_monoculture` uses it to start the simulation at the first measured time.

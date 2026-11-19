@@ -121,8 +121,8 @@ IDLE = 1e-12         # growth at or below this: the member is idle for the step 
 RELAXED = 1e30
 A_MIN = 1e-4         # community_strict: a member below this share of the culture is solved by its own member LP
 CLAMP_ATOL = 1e-9    # community_strict: a rate above the member's solo maximum by more than this is clamped to it,
-CLAMP_WARN_RTOL, CLAMP_WARN_ATOL = 1e-4, 1e-6   # ... with a warning when the excess is beyond this band (1/h), i.e.
-                                                # beyond solver tolerance
+CLAMP_WARN_RTOL, CLAMP_WARN_ATOL = 1e-4, 1e-4   # ... with a warning when the excess is beyond this band (1/h): smaller
+                                                # excesses are solver tolerance and immaterial (doubling time > 0.8 y)
 
 __all__ = ["DEFAULT_KINETICS", "Trajectory", "member_model", "dynamic", "simulate_models",
            "calibrate_monoculture"]
@@ -1379,8 +1379,8 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
                       transfer rate, forced bounds released) and clamped to it, its exchanges scaled to match: a rate
                       above what the member reaches alone is solver noise, or a medium bound that, being per gDW of
                       community, gives a small member more per gDW than it gets alone. A clamp by more than 1e-4
-                      relative + 1e-6 1/h is a warning; smaller ones are solver tolerance (on the CommPhitting
-                      maltose run, up to 2.6e-5 relative at hundreds of steps) and are only counted, in
+                      relative + 1e-4 1/h is a warning; smaller ones are solver tolerance (on the CommPhitting
+                      maltose run, up to 7.5e-6 1/h at hundreds of steps) and are only counted, in
                       Trajectory.stats["notes"]["clamped_within_tolerance"] (stats["notes"] counts every such
                       event per member: "a_min", "clamped", "released" too).
                       When the community LP is infeasible, the forced bounds (lb > 0 or ub < 0, e.g. a maintenance
