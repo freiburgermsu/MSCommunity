@@ -57,15 +57,66 @@ def _merged():
                                      abundances={"memA": 0.5, "memB": 0.5})
 
 
-def test_kinetic_coeff_calibrate_sets_the_shared_kappa_sat():
-    kappa = max(T._community().calibrate_kappa(per_member=False).values())
-    comm = MSCommunity(model=_merged(), ids=["memA", "memB"], kinetic_coeff="calibrate",
-                       close_member_drains=True)
-    assert comm.kinCoef == pytest.approx(kappa)
+def _calibrated(floor):
+    """The toy pair with an ATPM floor of `floor` on both members (drains open, as built), kappa calibrated."""
+    from mscommunity.commhelper import build_from_species_models
+    members = [T._member("memA"), T._member("memB", periplasm=True)]
+    for m in members:
+        m.reactions.get_by_id("rxn00062_c0").lower_bound = floor
+    model = build_from_species_models(members, abundances={"memA": 0.5, "memB": 0.5})
+    return MSCommunity(model=model, ids=["memA", "memB"], kinetic_coeff="calibrate")
+
+
+def _alone(comm, member):
+    """max v_bio of `member` with every other member's reactions shut, with the kinetic rows and without."""
+    from mscommunity.commmembers import lifted_kinetic_rows, reactions_by_member
+    model = comm.util.model
+    owned = reactions_by_member(comm)
+    with model:
+        for other in comm.members:
+            if other.id != member.id:
+                for rxn in owned[other.id]:
+                    rxn.bounds = (0.0, 0.0)
+        model.objective = member.primary_biomass
+        with_rows = model.slim_optimize(error_value=float("nan"))
+        status = model.solver.status
+        with lifted_kinetic_rows(comm):
+            without = model.slim_optimize(error_value=float("nan"))
+    return with_rows, status, without
+
+
+@pytest.mark.parametrize("floor", [0.0, 2.0])
+def test_kinetic_coeff_calibrate_lets_every_member_alone_reach_its_solo_optimum(floor):
+    """The constructor's promise: at the calibrated kappa every member, alone, still reaches the growth it
+    reaches without kinetic rows -- also when a forced flux (an ATPM floor) is part of its solo optimum. The
+    floor used to be released while kappa was measured, so the installed rows left no room for its flux and
+    every member was infeasible alone (2 glucose of the 10 pay the floors: solo 9 / 3.5 per member)."""
+    comm = _calibrated(floor)
+    assert comm.kinCoef > 0
     for member in comm.members:
         row = comm.util.model.constraints[f"{member.id}_commKin"]
         coef = row.get_linear_coefficients([member.primary_biomass.forward_variable])
-        assert coef[member.primary_biomass.forward_variable] == pytest.approx(-kappa)
+        assert coef[member.primary_biomass.forward_variable] == pytest.approx(-comm.kinCoef)
+        with_rows, status, without = _alone(comm, member)
+        assert without == pytest.approx((10.0 - floor / 2.0) / T.GLC_PER_BIOMASS, rel=1e-9)
+        assert status == "optimal"
+        assert with_rows == pytest.approx(without, rel=1e-6)
+    if floor == 0.0:
+        model = comm.util.model
+        model.objective = comm.primary_biomass
+        assert model.slim_optimize(error_value=float("nan")) == pytest.approx(10.0 / T.GLC_PER_BIOMASS, rel=1e-6)
+
+
+def test_kinetic_coeff_calibrate_measures_kappa_with_the_floors_in_place():
+    plain, floored = _calibrated(0.0), _calibrated(2.0)
+    assert floored.kinCoef > plain.kinCoef * (1 + 1e-3)
+
+
+def test_kinetic_coeff_calibrate_without_solo_growth_names_the_members():
+    model = _merged()
+    model.reactions.get_by_id("EX_cpd00027_e0").lower_bound = 0.0
+    with pytest.raises(ValueError, match=r"(?s)memA.*memB.*grow"):
+        MSCommunity(model=model, ids=["memA", "memB"], kinetic_coeff="calibrate")
 
 
 def test_kinetic_coeff_rejects_an_unknown_string():

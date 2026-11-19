@@ -36,6 +36,10 @@ from cobra.util.context import get_context
 
 logger = logging.getLogger(__name__)
 
+# kinetic_coeff="calibrate" installs max_m kappa_sat,m times (1 + this): at kappa_sat itself the worst
+# member's solo optimum sits exactly on its kinetic row, which solver tolerance can make infeasible.
+KAPPA_CALIBRATION_MARGIN = 1e-6
+
 # QP-capable cobra solvers -> optlang.available_solvers capability key. Used by the
 # community split-determinizer (min sum mu_i^2) to pick a backend: Gurobi/CPLEX are
 # exact; 'hybrid' (HiGHS+OSQP) and 'osqp' are the strictly-open-source path (ADMM,
@@ -193,7 +197,18 @@ class MSCommunity:
                                "calibrate" to set it to the smallest single kappa at which every
                                member still reaches its own solo optimum (calibrate_kappa)
                                (<member>_commKin: sum_r |v_r| <= kappa * v_bio_m over the member's
-                               metabolism). They are ALWAYS installed. The default 750 can forbid
+                               metabolism). "calibrate" measures each member's kappa_sat at its solo
+                               optimum WITH its forced fluxes (e.g. an ATPM floor) in place, as the
+                               rows will see them (calibrate_kappa(release_forced=False)), and installs
+                               max_m kappa_sat,m x (1 + 1e-6), the margin keeping the worst member's
+                               solo optimum from being lost to solver tolerance; ValueError when no
+                               member grows alone. A forced flux also makes the row a minimum growth:
+                               sum |v| >= c0 + c1 v_bio_m gives v_bio_m >= c0 / (kappa - c1), which at
+                               the calibrated kappa is (nearly) that member's solo optimum. So with
+                               floors, a coupled community whose members cannot all reach their solo
+                               optima at once (one shared limiting substrate) is infeasible with the
+                               rows on: lift them (commmembers.lifted_kinetic_rows) or raise kappa.
+                               They are ALWAYS installed. The default 750 can forbid
                                measured monocultures: it is below the solo saturation kappa of
                                P. fluorescens on acetate (751.0) and of both SynCom members (1103.6,
                                1421.6), so at 750 those members cannot grow alone at their measured
@@ -329,11 +344,21 @@ class MSCommunity:
         if calibrate:
             # the smallest single kappa that forbids no member's solo optimum (commcomposition);
             # computed before the rows exist (calibrate_kappa then uses the terms add_commkinetics
-            # would write), because the package cannot rebuild rows it has already registered
+            # would write), because the package cannot rebuild rows it has already registered.
+            # Forced member fluxes stay in place: the rows act on the model as built, where an ATPM
+            # floor applies, and a kappa measured with it released left the worst member no room
+            # for the floor's flux (infeasible alone).
             from mscommunity.commcomposition import calibrate_kappa
-            kinetic_coeff = max(calibrate_kappa(self, per_member=False).values())
+            calibration = calibrate_kappa(self, per_member=False, release_forced=False)
+            if calibration.shared is None:
+                ids = [mem.id for mem in self.members]
+                raise ValueError(
+                    f"kinetic_coeff='calibrate': none of the members {ids} grows alone on the model's medium "
+                    f"(solo growth {dict(calibration.solo)}), so there is no solo optimum to measure kappa_sat "
+                    "at; give kinetic_coeff a number, or a medium on which at least one member grows")
+            kinetic_coeff = calibration.shared * (1 + KAPPA_CALIBRATION_MARGIN)
             self.kinCoef = kinetic_coeff
-            logger.info("kinetic_coeff calibrated to %s", kinetic_coeff)
+            logger.info("kinetic_coeff calibrated to %s (kappa_sat %s)", kinetic_coeff, dict(calibration.kappa_sat))
         kinetic_pkg.build_package(kinetic_coeff, self, self.rxnProbs)
         if eleLimits is not None:
             self.pkgmgr.getpkg("ElementUptakePkg").build_package(eleLimits)

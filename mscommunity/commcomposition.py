@@ -487,7 +487,9 @@ class _BalancedGrowth:
 
     On entry (all inside `with comm.util.model:`): solver tolerances / threads set; the package's
     *_commKin rows and the rows that carry a declared composition lifted; bio1 shut; every member
-    drain opened to (0, 1000); forced member bounds (lb > 0 or ub < 0) released to include 0;
+    drain opened to (0, 1000); forced member bounds (lb > 0 or ub < 0) released to include 0 (with
+    release_forced=False they are kept as the rows LB_j X_m <= v_j <= UB_j X_m instead, so the forced
+    flux scales with the member's biomass and a member at X_m = 0 carries none);
     supplies written on the exchanges; X_m variables (member_biomass_variables) bounded; the rows
         sum_m X_m = X0                              (batch; chemostat: >= 0, fixed only for ranges)
         v_bio,m - mu X_m = 0                        growth (mu a coefficient, searched; chemostat: D)
@@ -498,7 +500,7 @@ class _BalancedGrowth:
     added. On exit all of it is undone."""
 
     def __init__(self, comm, *, caps=None, maintenance=None, kappa=None, scale_bounds="all", mode="batch",
-                 D=None, supplies=None, X0=1.0, feasibility_tol=1e-9, solver_threads=None):
+                 D=None, supplies=None, X0=1.0, feasibility_tol=1e-9, solver_threads=None, release_forced=True):
         if mode not in ("batch", "chemostat"):
             raise ValueError(f"mode must be 'batch' or 'chemostat', not {mode!r}")
         if mode == "chemostat" and not (D is not None and D > 0):
@@ -517,6 +519,7 @@ class _BalancedGrowth:
         self.maint_spec = _normalize_maintenance(comm, maintenance)
         self.kappa = _normalize_kappa(comm, kappa)
         self.scale = scale_bounds if scale_bounds in ("all", None) else {getattr(r, "id", r) for r in scale_bounds}
+        self.release_forced = bool(release_forced)
         self.statuses = []
 
     # ------------------------------------------------------------------ set-up / tear-down
@@ -544,11 +547,13 @@ class _BalancedGrowth:
         open_member_drains(comm, (0.0, DRAIN_UB))
         owned = reactions_by_member(comm, include_biomass=False)
         self.released = {}
+        released_by = {}
         for m in self.members:
             for r in owned[m.id]:
                 lb, ub = r.lower_bound, r.upper_bound
                 if lb > 0 or ub < 0:
                     self.released[r.id] = (lb, ub)
+                    released_by[r.id] = m.id
                     r.bounds = (min(lb, 0.0), max(ub, 0.0))
         self.supplied = {}
         for key, value in self.supplies.items():
@@ -607,6 +612,20 @@ class _BalancedGrowth:
                         self.eq9.append((r.id, m.id, lb, ub, r.forward_variable.name, r.reverse_variable.name))
                         if factor != 1.0:
                             r.bounds = (lb * factor if math.isfinite(lb) else lb, ub * factor if math.isfinite(ub) else ub)
+
+        # forced bounds kept (release_forced=False): eq. 9 for them, LB_j X_m <= v_j <= UB_j X_m
+        self.forced_rows = {}
+        if not self.release_forced:
+            for rid, (lb, ub) in self.released.items():
+                r, X = model.reactions.get_by_id(rid), self.X[released_by[rid]]
+                if lb > 0:
+                    row = P.Constraint(r.flux_expression - lb * X, lb=0.0, name=f"sc_forced_lb_{rid}")
+                    self.forced_rows[row.name] = (rid, released_by[rid], "lb", lb)
+                    rows.append(row)
+                if ub < 0:
+                    row = P.Constraint(r.flux_expression - ub * X, ub=0.0, name=f"sc_forced_ub_{rid}")
+                    self.forced_rows[row.name] = (rid, released_by[rid], "ub", ub)
+                    rows.append(row)
 
         # kinetic rows, X form through the growth row: sum p |v| <= kappa v_bio,m = kappa mu X_m
         self.kin = {}
@@ -1148,8 +1167,8 @@ def steadycom(comm, *, caps=None, maintenance=None, kappa=None, scale_bounds="al
 
 # =========================================================================== kappa calibration
 def calibrate_kappa(comm, per_member=False, *, caps=None, maintenance=None, scale_bounds="all", mode="batch",
-                    D=None, supplies=None, X0=1.0, feasibility_tol=1e-9, solver_threads=None, slack=1e-7
-                    ) -> KappaCalibration:
+                    D=None, supplies=None, X0=1.0, feasibility_tol=1e-9, solver_threads=None, slack=1e-7,
+                    release_forced=True) -> KappaCalibration:
     """kappa_sat,m = min sum_r p_r |v_r| / v_bio,m at member m's solo optimum: the smallest
     kinetic coefficient at which member m ALONE still reaches the growth it reaches without kinetic
     rows. One solo LP and one LP per member (min of its *_commKin terms, weights p_r, at
@@ -1160,6 +1179,14 @@ def calibrate_kappa(comm, per_member=False, *, caps=None, maintenance=None, scal
     released, the package's kinetic rows lifted. The term set and weights are those of the live
     <member>_commKin row, else what add_commkinetics would write (member_kinetic_reactions,
     comm.rxnProbs).
+
+    release_forced  True (default, as steadycom): forced member bounds (lb > 0 or ub < 0, e.g. an ATPM
+                    floor) are released, so kappa_sat is the ratio of the growth-associated fluxes alone.
+                    False: they are kept, as the rows LB_j X_m <= v_j <= UB_j X_m, so the solo optimum and
+                    kappa_sat include the forced flux. Rows installed on the model AS BUILT (where the floor
+                    applies) need this: a kappa measured with the floor released leaves no room for the
+                    floor's flux at the member's solo optimum, and the member is infeasible alone
+                    (MSCommunity(kinetic_coeff="calibrate") passes False).
 
     Returns a KappaCalibration, a dict {member: kappa}: each member's own kappa_sat,m with
     per_member=True (for steadycom(kappa=...)); with per_member=False the shared value
@@ -1182,7 +1209,7 @@ def calibrate_kappa(comm, per_member=False, *, caps=None, maintenance=None, scal
     sat, solo = {}, {}
     with _BalancedGrowth(comm, caps=caps, maintenance=maintenance, kappa=None, scale_bounds=scale_bounds, mode=mode,
                          D=D, supplies=supplies, X0=X0, feasibility_tol=feasibility_tol,
-                         solver_threads=solver_threads) as bg:
+                         solver_threads=solver_threads, release_forced=release_forced) as bg:
         for k in bg.ids:
             s = bg.solo(k)
             solo[k] = s
