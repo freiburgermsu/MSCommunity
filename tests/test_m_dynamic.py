@@ -441,7 +441,8 @@ def _anchor_members():
     """Form I (DMMM on the members, pFBA, demand-proportional O2) at OTR 2 mmol/L/h, Km maltose 0.001 mM:
     abund_dynamic_lib gave a_ec 0.9517 / 0.9813 / 0.9794 (mid-exponential / end of window / final read) and
     R_pf -0.0359 1/h (runs/maltose__I__OTR-2__Kmmal-0.001.json; dt 0.02 gives -0.0355, the verifier's own
-    integrator -0.0364)."""
+    integrator -0.0364). commdynamic: 0.9517 / 0.9813 / 0.9794, R_pf -0.0351 (803 steps, about 2.5 min); the
+    member models extracted from the community are the prototype's isolates exactly (reactions and bounds)."""
     comm = _maltose_community()
     traj = dynamic(comm, SPEC["t_end"], SPEC["dt"], SPEC["X0"], SPEC["S0"], kinetics=SPEC["kinetics"], otr=2.0)
     score = _score(traj)
@@ -459,7 +460,9 @@ def _anchor_community_strict():
     """C-strict on the orient_both community at OTR 1 (joint O2): the author's CommunityStepper gave a_ec 0.9516 /
     0.9793 / 0.9663 and R_pf -0.2113, the verifier's independent stepper 0.952 / 0.980 / 0.968 and -0.2032
     (_verify/m-dynamic/r3/x5_authorstepper_Cstrict_OTR1_orient_both.json, x2b_ob_otr1.json). Both use net
-    per-member rows; this runs cap_basis="net"."""
+    per-member rows; this runs cap_basis="net". commdynamic: 0.9516 / 0.9793 / 0.9655, R_pf -0.218 (gross caps
+    give the same to 4 decimals; about 7 min). The "R_pf about -0.14" sometimes quoted for this cell is the
+    nah_closed network at OTR 1.5 (-0.138 / -0.144), not orient_both at OTR 1."""
     comm = _maltose_community(orient_both=True)
     traj = dynamic(comm, SPEC["t_end"], SPEC["dt"], SPEC["X0"], SPEC["S0"], kinetics=SPEC["kinetics"], otr=1.0,
                    form="community_strict", cap_basis="net")

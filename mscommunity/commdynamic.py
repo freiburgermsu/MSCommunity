@@ -73,6 +73,14 @@ Chemostat / fed-batch: D (1/h, a number or a callable of t) dilutes biomass and 
 Functions take the MSCommunity `comm` (MSCommunity wraps them); member_model returns a stand-alone cobra.Model.
 Reference prototypes: 3H11_R12_SynCom/Metabolic_modeling/abund_dynamic_lib.py (forms I and C), with its
 verifier's round-3 files (data/multisystem3/abundance/_verify/m-dynamic/r3/).
+
+Validation (tests/test_m_dynamic.py; the CommPhitting E. coli + P. fluorescens maltose co-culture, OD-based E. coli
+fraction at the mid-exponential / end-of-window / final reads, R_pf = mu_ec - mu_pf in the P. fluorescens window)
+    members, OTR 2, pFBA         0.9517 / 0.9813 / 0.9794, R_pf -0.0351   (prototype, fixed dt 0.05: 0.9517 / 0.9813 /
+                                 0.9794, -0.0359; dt 0.02: -0.0355; the verifier's integrator -0.0364)
+    ... min / max E. coli acetate  R_pf -0.0005 / -0.0371                 (prototype -0.0004 / -0.0389)
+    community_strict, OTR 1,     0.9516 / 0.9793 / 0.9655, R_pf -0.218    (prototype stepper 0.9516 / 0.9793 / 0.9663,
+    orient_both repair           (gross caps: identical to 4 decimals)      -0.211; verifier 0.952 / 0.980 / 0.968, -0.203)
 """
 from __future__ import annotations
 
@@ -197,13 +205,16 @@ def _as_function(value, what):
 
 
 def _set_threads(model, threads):
-    if threads is None:
-        return
-    if "gurobi" in model.solver.interface.__name__:
-        try:
-            model.solver.problem.Params.Threads = int(threads)
-        except Exception:                                           # noqa: BLE001
-            logger.debug("could not set Gurobi Threads", exc_info=True)
+    """Set Gurobi's thread count on the model's solver; returns the previous value (None if not Gurobi)."""
+    if threads is None or "gurobi" not in model.solver.interface.__name__:
+        return None
+    try:
+        previous = model.solver.problem.Params.Threads
+        model.solver.problem.Params.Threads = int(threads)
+        return previous
+    except Exception:                                               # noqa: BLE001
+        logger.debug("could not set Gurobi Threads", exc_info=True)
+        return None
 
 
 # --------------------------------------------------------------------------- member models
@@ -492,6 +503,11 @@ class _MembersStepper:
 
 
 class _CommunityStrictStepper:
+    """One community LP per step on comm.util.model. Structural changes (bio1 shut, drains open, X_m variables,
+    cap rows, the growth-fix rows, lifted *_commKin rows) are made inside a model context that the caller's
+    ExitStack closes; per-step bounds (eq. 9 scaling, exchanges, X_m = a_m) are written to the solver directly
+    and cobra's bounds are pushed back at the end. The cap rows' q is rewritten in place every step (the X_m
+    coefficient), so their commmembers registry entries carry the placeholder rate 1.0 while the run lasts."""
     form = "community_strict"
 
     def __init__(self, comm, tracked, ledger, o2_mode, o2_rule, tiebreak, pfba, cap_basis, kinetic_rows,
@@ -503,7 +519,9 @@ class _CommunityStrictStepper:
         self.col = {c: j for j, c in enumerate(ledger)}
         self.o2_mode, self.o2_rule = o2_mode, o2_rule
         self.tracked = list(tracked)
-        _set_threads(model, threads)
+        previous_threads = _set_threads(model, threads)
+        if previous_threads is not None:
+            stack.callback(_set_threads, model, previous_threads)
         # everything structural happens inside a model context, undone on exit
         saved_objective = (model.objective.expression, model.objective.direction)
         stack.callback(self._restore_objective, saved_objective)
@@ -549,15 +567,16 @@ class _CommunityStrictStepper:
                 rxns = by_cpd.get(c)
                 if not rxns:
                     continue
+                # written with q = 1 so that X_m is in the row; q is rewritten in place every step
                 name = f"dyncap_{m.id}_{c}"
                 if cap_basis == "gross":
-                    row = cap_member_uptake(comm, m, c, q=0.0, reactions=rxns, basis="X", X=self.X, name=name)
+                    row = cap_member_uptake(comm, m, c, q=1.0, reactions=rxns, basis="X", X=self.X, name=name)
                 else:
                     expr = member_uptake_expression(comm, m, c, reactions=rxns, gross=False)
-                    row = model.problem.Constraint(expr - 0.0 * self.X[m.id], ub=0.0, name=name)
+                    row = model.problem.Constraint(expr - 1.0 * self.X[m.id], ub=0.0, name=name)
                     model.add_cons_vars([row])
                     row = model.constraints[name]
-                self.caps[(m.id, c)] = [row, 0.0]
+                self.caps[(m.id, c)] = [row, 1.0]
         # community exchanges of tracked compounds and O2
         ex = _exchanges(model)
         self.ex = {c: ex[c] for c in self.tracked if c in ex}
@@ -791,7 +810,7 @@ def _phi(x):
 
 
 def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, dt, otr, o2_mode, feed, D,
-               record_every, max_depletion, rtol, atol, dt_min, s_min, max_steps, warnings):
+               record_every, max_depletion, rtol, atol, dt_min, s_min, max_steps, warnings, callback=None):
     """The time loop (see the module docstring, Integration). Returns the records, the ledger intervals and
     the step statistics."""
     nm, nc = len(members), len(tracked)
@@ -834,6 +853,8 @@ def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, d
             rec["mu"].append(rates.mu.copy())
             rec["o2"].append(bool(rates.o2_limited))
             rec["status"].append(dict(zip(members, rates.status)))
+            if callback is not None:
+                callback(t, dict(zip(members, X)), dict(zip(tracked, S)))
             nrow = rates.release.shape[0]
             acc = {"up": np.zeros((nrow, len(ledger))), "se": np.zeros((nrow, len(ledger))),
                    "in": np.zeros(len(ledger)), "out": np.zeros(len(ledger))}
@@ -1014,7 +1035,7 @@ def _check_tiebreak(tiebreak, form, member_ids):
 
 
 def _run(stepper, members, X0, *, form, otr, feed, D, t_end, dt, record_every, tiebreak, pfba, extra_settings,
-         setup, max_depletion, rtol, atol, dt_min, s_min, max_steps):
+         setup, max_depletion, rtol, atol, dt_min, s_min, max_steps, callback):
     t0 = time.perf_counter()
     o2_mode, o2_rule, S0n, ample_list, tracked_list, ledger, kin, default, warns = setup
     feed_f = _as_function(feed, "feed")
@@ -1034,7 +1055,8 @@ def _run(stepper, members, X0, *, form, otr, feed, D, t_end, dt, record_every, t
                         "not reproducible across solvers")
     rec, led, stats = _integrate(stepper(tracked_list, ledger, o2_mode, o2_rule), members, X0, S0n, tracked_list,
                                  ledger, kin, default, float(t_end), float(dt), otr, o2_mode, feed_f, D_f,
-                                 int(record_every), max_depletion, rtol, atol, dt_min, s_min, max_steps, warnings)
+                                 int(record_every), max_depletion, rtol, atol, dt_min, s_min, max_steps, warnings,
+                                 callback)
     st = stepper.instance
     times = np.array(rec["t"])
     Xa = np.array(rec["X"]).reshape(len(times), len(members))
@@ -1077,7 +1099,8 @@ class _Factory:
         return self.instance
 
 
-_INTEGRATION_DEFAULTS = dict(max_depletion=0.5, rtol=1e-2, atol=1e-7, dt_min=1e-6, s_min=1e-12, max_steps=200000)
+_INTEGRATION_DEFAULTS = dict(max_depletion=0.5, rtol=1e-2, atol=1e-7, dt_min=1e-6, s_min=1e-12, max_steps=200000,
+                             callback=None)
 
 
 def simulate_models(models, t_end, dt, X0, S0, *, kinetics, otr=None, o2_rule=None, tiebreak=None, feed=None,
@@ -1128,7 +1151,8 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
                       is not growing) or "keep"
     scale_bounds      community_strict: multiply every non-boundary member reaction bound by a_m (eq. 9)
     integration       max_depletion (0.5), rtol (1e-2), atol (1e-7 mM), dt_min (1e-6 h), s_min (1e-12 mM),
-                      max_steps (200000)
+                      max_steps (200000), callback (None: a callable(t, {member: X}, {compound: S}) called at
+                      every recorded state, e.g. to report progress)
     The community model is left as it was (bounds, rows, objective). Returns a Trajectory."""
     if form not in FORMS:
         raise ValueError(f"form must be one of {FORMS}, not {form!r}")
