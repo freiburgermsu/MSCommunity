@@ -364,3 +364,199 @@ def test_every_function_restores_the_community():
     with pytest.raises(KeyError):                                                 # a failing call
         steadycom(comm, caps={"A": {"cpd99999": 1.0}})
     assert _snapshot(comm) == before
+    with model:                                                                   # abundances in a caller's context
+        kappa_sat_coupled(comm, {"A": 1.0, "B": 0.0})
+        composition_profile(comm, objective="coupled", grid=[0.0, 1.0], refine=False)
+        assert _snapshot(comm) == before
+        # A's forced ATPM floor cannot be paid at a_A = 0: no kappa exists, and the error says so
+        with pytest.raises(ValueError, match="no kappa"):
+            kappa_sat_coupled(comm, {"A": 0.0, "B": 1.0})
+        assert _snapshot(comm) == before
+    assert _snapshot(comm) == before
+
+
+# --------------------------------------------------------------------------- real communities (slow)
+# The campaign systems of 3H11_R12_SynCom/Metabolic_modeling, built by abund_common exactly as the
+# abundance study built them (SYNTHESIS.md 4.1-4.2 anchors). Each system runs in a fresh interpreter
+# (see tests/test_l_members.py for why), and only with MSCOMMUNITY_SLOW_TESTS=1.
+CAMPAIGN = "/home/freiburger/Documents/3H11_R12_SynCom/Metabolic_modeling"
+_HAVE_CAMPAIGN = all(os.path.exists(os.path.join(CAMPAIGN, p)) for p in (
+    "abund_common.py", "multisystem_sweep.py", "data/multisystem3/systems",
+    "data/multisystem3/commphitting_data/measurements.json"))
+slow_real = pytest.mark.skipif(
+    not (_HAVE_CAMPAIGN and os.environ.get("MSCOMMUNITY_SLOW_TESTS") == "1" and "gurobi" in _solvers()),
+    reason="real-community anchors need the 3H11_R12_SynCom campaign files, Gurobi and MSCOMMUNITY_SLOW_TESTS=1")
+
+
+def _run_real(name, timeout=1500):
+    tests = os.path.dirname(os.path.abspath(__file__))
+    root = os.path.dirname(tests)
+    code = f"import sys; sys.path[:0] = [{tests!r}, {root!r}]; import test_m_composition as t; t._real_{name}()"
+    try:
+        run = subprocess.run([sys.executable, "-c", code], cwd=root, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"the {name} anchors took over {timeout} s in a fresh interpreter")
+    assert run.returncode == 0, run.stderr[-6000:]
+    marker = f"{name.upper()}_OK"
+    assert marker in run.stdout, run.stdout[-3000:]
+    return json.loads(run.stdout.split(marker, 1)[1].strip().splitlines()[0])
+
+
+def _campaign():
+    import logging
+    import mscommunity
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    assert os.path.abspath(mscommunity.__file__).startswith(root), mscommunity.__file__
+    if CAMPAIGN not in sys.path:
+        sys.path.append(CAMPAIGN)
+    import abund_common
+    logging.disable(logging.NOTSET)          # build('kpbt') silences every logger at import
+    return abund_common
+
+
+def _monocultures(condition):
+    with open(os.path.join(CAMPAIGN, "data/multisystem3/commphitting_data/measurements.json")) as fh:
+        rates = json.load(fh)["conditions"][condition]["monoculture_rates_same_medium"]
+    return {member: (rates[key]["mu_per_h"], tuple(rates[key]["ci95_regression_per_h"]))
+            for member, key in (("ecoli", "ec"), ("pf", "pf"))}
+
+
+@slow_real
+def test_real_maltose_4hb_anchors():
+    out = _run_real("mal4hb")
+    assert out["mu_r1"] == pytest.approx(0.3447752, abs=5e-7)
+
+
+@slow_real
+def test_real_syncom_anchors():
+    out = _run_real("syncom")
+    assert out["mu_maint"] == pytest.approx(0.0170679, abs=5e-8)
+
+
+@slow_real
+def test_real_acetate_kappa_sat():
+    out = _run_real("acetate")
+    assert out["kappa_sat"]["pf"] == pytest.approx(751.0, abs=0.05)
+
+
+@slow_real
+def test_real_kpbt_chemostat_anchors():
+    out = _run_real("kpbt")
+    assert out["X_star"] == pytest.approx(0.5418, abs=5e-5)
+
+
+def _real_mal4hb():
+    """maltose + 4HB with model-yield caps (abund_common.build_mal4hb('model_yield')): the per-member
+    caps q = mu_mono / Y_model on E. coli's maltose and P. fluorescens' 4HB uptake, the community
+    exchanges for both opened to +-1000 (the per-member caps are then the limit). R1 = caps only."""
+    A = _campaign()
+    from mscommunity.commmembers import member_net_exchange, member_transporters
+    b = A.build_mal4hb("model_yield", solver="gurobi")
+    comm = b.msc
+    q = b.info["per_member_specific_caps"]
+    caps = {"ecoli": {"cpd00179": q["ecoli"]["maltose"]}, "pf": {"cpd00136": q["pf"]["4HB"]}}
+    supplies = {"EX_cpd00179_e0": (-1000.0, 1000.0), "EX_cpd00136_e0": (-1000.0, 1000.0)}
+    mono = _monocultures("maltose_4HB")
+    before = _snapshot(comm)
+
+    r1 = steadycom(comm, caps=caps, supplies=supplies, monoculture_rates=mono, solver_threads=4)
+    # SYNTHESIS anchor 0.3447752 is the prototype's (abund_steadycom_lib) value; the adversarial
+    # verifier's independent fixed-composition implementation got 0.34477496308
+    # (_verify/m-steadycom/v_mal4hb.json arms.R1.mu_max), which this reproduces to 1e-9. The 2.2e-7
+    # gap is not the solver tolerance, eq. 9 on member sinks or gross vs net caps (all checked).
+    assert r1.mu_max == pytest.approx(0.34477496307887506, abs=1e-9)
+    assert r1.mu_max == pytest.approx(0.3447752, abs=5e-7)
+    assert {"corner", "relabelling"} <= r1.warning_codes
+    lo, hi = r1.a_ranges[1.0]["ecoli"]
+    assert 0.00078 < lo <= hi < 0.0008                                   # the 0.00079 E. coli sliver
+    relabel = next(w for w in r1.warnings if w.code == "relabelling")
+    assert relabel.member == "ecoli"
+    glu = {r.id for r in member_transporters(comm, "ecoli", "cpd00023")}
+    hits = [(rid, v) for rid, v, bound in relabel.data["reactions"] if rid in glu]
+    assert hits                                                           # glutamate moves at the eq.-9 bound,
+    for rid, v in hits:                                                   # 1000 mmol per gDW of E. coli per h
+        assert abs(v) / relabel.data["a"] == pytest.approx(1000.0, rel=1e-6)
+    assert member_net_exchange(comm, r1.fluxes, "ecoli")["cpd00023"] < 0  # E. coli releases glutamate
+
+    r2 = steadycom(comm, caps=caps, supplies=supplies, kappa=472.5, monoculture_rates=mono, solver_threads=4)
+    assert r2.mu_max == pytest.approx(0.2978314, abs=1e-7)
+    lo, hi = r2.a_ranges[1.0]["ecoli"]
+    assert lo == pytest.approx(0.567055, abs=2e-6) and hi == pytest.approx(0.567083, abs=2e-6)
+    assert r2.solo["pf"] is None or r2.solo["pf"] < 1e-9
+    assert {w.member for w in r2.warnings if w.code == "solo_outside_ci"} == {"pf"}
+    assert r2.solo_kappa_off["pf"] == pytest.approx(mono["pf"][0], abs=1e-4)          # 0.3443 alone without kappa
+
+    cal = calibrate_kappa(comm, per_member=True, caps=caps, supplies=supplies, solver_threads=4)
+    assert cal.kappa_sat["ecoli"] == pytest.approx(420.1, abs=0.05)
+    assert cal.kappa_sat["pf"] == pytest.approx(556.7, abs=0.05)
+    assert _snapshot(comm) == before
+    print("MAL4HB_OK", json.dumps({"mu_r1": r1.mu_max, "mu_k472": r2.mu_max, "a_ec_k472": r2.a_ranges[1.0]["ecoli"],
+                                   "kappa_sat": cal.kappa_sat}), flush=True)
+
+
+def _real_syncom():
+    """The published 3H11 + R12 SynCom (abund_common.build_syncom = multisystem_sweep.syncom_spec,
+    assemble_community, constrain; kinetic rows removed; ATPM floors a_m A_m / 58.33)."""
+    A = _campaign()
+    b = A.build_syncom(solver="gurobi")
+    comm = b.msc
+    before = _snapshot(comm)
+    cal = calibrate_kappa(comm, per_member=True, solver_threads=4)
+    assert cal.kappa_sat["3H11"] == pytest.approx(1103.6, abs=0.05)
+    assert cal.kappa_sat["R12"] == pytest.approx(1421.6, abs=0.05)
+    assert any(w.code == "kappa_default" for w in cal.warnings)          # 750 < 1421.6
+    maintenance = {k: (rxn, A_m) for k, (rxn, A_m) in b.info["maintenance_per_gDW_member"].items()}
+    res = steadycom(comm, maintenance=maintenance, feasibility_tol=1e-9, solver_threads=4)
+    assert res.mu_max == pytest.approx(0.0170679, abs=5e-8)
+    assert set(res.released) == {"ATPM_c1", "ATPM_c2"}                   # the floors at the declared a
+    assert _snapshot(comm) == before
+
+    # the round trip: kappa_sat of the coupled form at a, then predict_abundances at that kappa returns a
+    probe12 = {0.3: 3142.2925519819273, 0.5: 1795.548807317192, 0.658: 1362.0136447295095, 0.8: 1234.127162869595}
+    returned = {}
+    for a, k_probe in probe12.items():
+        fresh = A.build_syncom(solver="gurobi")
+        k = kappa_sat_coupled(fresh.msc, {"3H11": a, "R12": 1 - a}, solver_threads=4)
+        assert k == pytest.approx(k_probe, rel=1e-5)
+        fresh.model.solver.problem.Params.Threads = 4
+        A.kin_on(fresh.msc, k)
+        A.open_drains(fresh.msc, (0.0, 1000.0))
+        with A.quiet():
+            out = fresh.msc.predict_abundances(regularization=False, pfba=False)
+        assert out["3H11"] == pytest.approx(a, abs=1e-6)
+        returned[a] = out["3H11"]
+    print("SYNCOM_OK", json.dumps({"mu_maint": res.mu_max, "kappa_sat": cal.kappa_sat,
+                                   "round_trip": {str(a): v for a, v in returned.items()}}), flush=True)
+
+
+def _real_acetate():
+    """CommPhitting E. coli + P. fluorescens on acetate (abund_common.build_acetate('q_min')): each
+    member's kappa_sat at its solo optimum; P. fluorescens' is above the constructor default 750."""
+    A = _campaign()
+    b = A.build_acetate("q_min", solver="gurobi")
+    cal = calibrate_kappa(b.msc, per_member=True, solver_threads=4)
+    assert cal.kappa_sat["pf"] == pytest.approx(751.0, abs=0.05)
+    assert cal.kappa_sat["ecoli"] == pytest.approx(680.7, abs=0.05)
+    assert any(w.code == "kappa_default" and "750" in w.message for w in cal.warnings)
+    print("ACETATE_OK", json.dumps({"kappa_sat": cal.kappa_sat}), flush=True)
+
+
+def _real_kpbt():
+    """K. pneumoniae + B. thetaiotaomicron at S6 (abund_common.build_kpbt('S6', X=1.0, maint='free')):
+    supplies per litre, mu = D = 0.2 1/h, max sum X_m."""
+    A = _campaign()
+    b = A.build_kpbt("S6", X=1.0, maint="free", solver="gurobi")
+    comm = b.msc
+    D = b.info["D_per_h"]
+    before = _snapshot(comm)
+    res = steadycom(comm, mode="chemostat", D=D, solver_threads=4)
+    assert res.X_star == pytest.approx(0.5418, abs=5e-5)
+    lo, hi = res.a_ranges[1.0]["Kp"]
+    assert lo <= 0.9044 + 1e-4 and hi >= 0.9044 - 1e-4 and hi - lo < 2e-4
+    assert res.solo["Kp"] == pytest.approx(0.104, abs=5e-4)              # Kp alone, eq. 9
+    free = steadycom(comm, mode="chemostat", D=D, scale_bounds=None, solver_threads=4)
+    assert free.X_star == pytest.approx(res.X_star, rel=1e-7)            # composition-free: the same optimum
+    assert free.solo["Kp"] == pytest.approx(0.538, abs=5e-4)             # Kp alone uses Bt's zero-biomass hydrolysis
+    assert _snapshot(comm) == before
+    print("KPBT_OK", json.dumps({"X_star": res.X_star, "a_kp": [lo, hi], "solo_kp_eq9": res.solo["Kp"],
+                                 "solo_kp_free": free.solo["Kp"]}), flush=True)

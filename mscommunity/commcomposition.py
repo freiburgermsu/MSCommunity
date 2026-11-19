@@ -586,6 +586,7 @@ class _BalancedGrowth:
 
         # SteadyCom eq. 9: LB_j X_m <= v_j <= UB_j X_m
         self.eq9 = []         # (reaction id, member id, lb, ub, forward name, reverse name)
+        self.n_eq9 = 0
         if self.scale is not None:
             factor = (max(1.0, self.X0) if self.mode == "batch" else CHEMOSTAT_BOUND_SCALE)
             for m in self.members:
@@ -596,9 +597,11 @@ class _BalancedGrowth:
                     wrote = False
                     if ub > 0 and math.isfinite(ub):
                         rows.append(P.Constraint(r.flux_expression - ub * self.X[m.id], ub=0.0, name=f"sc_ub_{r.id}"))
+                        self.n_eq9 += 1
                         wrote = True
                     if lb < 0 and math.isfinite(lb):
                         rows.append(P.Constraint(r.flux_expression - lb * self.X[m.id], lb=0.0, name=f"sc_lb_{r.id}"))
+                        self.n_eq9 += 1
                         wrote = True
                     if wrote:
                         self.eq9.append((r.id, m.id, lb, ub, r.forward_variable.name, r.reverse_variable.name))
@@ -1024,8 +1027,7 @@ def steadycom(comm, *, caps=None, maintenance=None, kappa=None, scale_bounds="al
     result = SteadyComResult(mode=mode, status="infeasible", D=D if mode == "chemostat" else None,
                              settings=settings)
     with _BalancedGrowth(comm, **settings) as bg:
-        result.released, result.lifted, result.n_eq9_rows = dict(bg.released), list(bg.lifted), \
-            sum(1 + (lb < 0 and ub > 0) for _, _, lb, ub, _, _ in bg.eq9)
+        result.released, result.lifted, result.n_eq9_rows = dict(bg.released), list(bg.lifted), bg.n_eq9
         abundance_rows = [n for n in bg.lifted if not n.endswith("_commKin")]
         if abundance_rows:
             warn("lifted_rows", f"rows that carry the declared composition were lifted for this run: {abundance_rows}; "
@@ -1256,7 +1258,11 @@ def kappa_sat_coupled(comm, abundances, *, slack=1e-7, feasibility_tol=1e-9, sol
         model.objective = model.problem.Objective(t, direction="min")
         kappa, status = _solve(model)
         if kappa is None:
-            raise ValueError(f"the kappa LP at {comp} ended {status}")
+            zero = [k for k, v in comp.items() if v == 0]
+            raise ValueError(f"no kappa lets the coupled form at {comp} reach (1 - {slack:g}) x its growth "
+                             f"without kinetic rows (the kappa LP ended {status})"
+                             + (f"; members at a_m = 0 ({zero}) get sum |v| <= kappa x 0, so any flux forced on "
+                                "them (a constant floor) makes every kappa infeasible" if zero else ""))
         for m in comm.members:
             v = m.primary_biomass.flux
             if abs(v - comp[m.id] * target) > 1e-6 * max(target, 1e-9):
