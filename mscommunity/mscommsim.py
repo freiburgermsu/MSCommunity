@@ -180,6 +180,34 @@ class MSCommunity:
     def __init__(self, model=None, member_models: list = None, abundances=None, ids=None, kinetic_coeff=750,
                  flux_limit=300, probs=None, climit=None, o2limit=None, lp_filename=None, printing=False, eleLimits=None, ID=None,
                  close_member_drains=False):
+        """A community model with one CommunityMember per member biomass compound.
+
+        model / member_models  the merged community model, or the member models to merge
+                               (commhelper.build_from_species_models)
+        abundances             {member id: a} (or {id: {"abundance": a, ...}}), normalised to sum 1
+                               and written into bio1; default equal abundances
+        kinetic_coeff          kappa of the community-kinetics rows installed at construction
+                               (<member>_commKin: sum_r |v_r| <= kappa * v_bio_m over the member's
+                               metabolism). They are ALWAYS installed. The default 750 can forbid
+                               measured monocultures: it is below the solo saturation kappa of
+                               P. fluorescens on acetate (751.0) and of both SynCom members (1103.6,
+                               1421.6), so at 750 those members cannot grow alone at their measured
+                               rates. Calibrate kappa for the system, or lift the rows
+                               (commmembers.lifted_kinetic_rows) where they are not meant to bind.
+        close_member_drains    False (default): each member's biomass drain stays open, so a member
+                               can make biomass and discard it. Member growth is then free of the
+                               declared abundances (what predict_abundances and _solo_max_batch
+                               need), but each unit drained buys (kappa - 1) units of kinetic budget:
+                               on a two-member SynCom 83 % of one member's biomass left through its
+                               drain at the lowest feasible kappa, and closing the drains raised
+                               that kappa from 1285 to 1481.
+                               True: drains shut (0, 0), so member biomass leaves only through bio1
+                               and v_bio_m = a_m * v_bio1: every member grows at mu_m = mu_com, an
+                               identity of the formulation that carries no information about who
+                               grows faster (commmembers.member_rates). Use it when the declared
+                               composition is meant to BIND.
+        flux_limit             unused (kept for old callers)
+        probs, climit, o2limit, lp_filename, printing, eleLimits, ID  as before."""
         # `flux_limit` is UNUSED: nothing in the package reads it. It is kept only so
         # existing positional/keyword callers do not break; pass it or not, it has no
         # effect. `probs` was a mutable {} default shared by every instance (mutating
@@ -220,6 +248,8 @@ class MSCommunity:
         # read these to flag rows whose per-member split is NOT converged.
         self.pfba_fell_back = False
         self.pfba_fallback_count = 0
+        # whether the last predict_abundances call dropped the *_commKin rows (see there)
+        self.kinetic_rows_dropped = False
         # defining the models
         if model is None and member_models is not None:
             model = build_from_species_models(member_models, abundances=abundances, printing=printing)
@@ -455,6 +485,27 @@ class MSCommunity:
         return growth_multiple
 
     def regularization(self, linear=True, growth_constraint=True, batch_backend="cpu", batch_workers=1):
+        """Install the scaffolding of predict_abundances(regularization=True) on the live model:
+
+        growth_constraint  min_comm_growth: bio1 >= growth_fraction * max(bio1), where
+                           growth_fraction = 0.999 exp(-0.03 n_members). bio1's coefficients are
+                           the DECLARED abundances, so this floor pulls the predicted composition
+                           towards the declared one (see predict_abundances).
+        linear             <member>_regularization: v_bio_m >= ratio * solo_max_m for every member
+                           with a solo capacity, ratio the strictest feasible rung of
+                           0.7, 0.5, 0.3, 0.2, 0.1, 0.05. Solo capacities are measured first,
+                           with any min_comm_growth suspended (_solo_max_batch).
+        linear=False installs no per-member rows (the least-squares form is not implemented).
+
+        The solve that sets min_comm_growth is checked on its STATUS. GLPK can report a spurious
+        'infeasible' from a warm basis (CommPhitting maltose: the same LP is optimal at 0.2800 on
+        Gurobi and on GLPK from a cold basis); skipping the floor then silently returned the 70 %
+        solo floor (a_ec 0.6994 against 0.8187). A non-optimal status is re-solved from a cold
+        basis (commcycles.reset_start) and then on a canonical copy (commcycles.canonical_copy);
+        if all three fail, FeasibilityError is raised. An optimal max(bio1) <= 1e-6 installs no
+        floor and logs a warning. Each rung of the ratio ladder that is not optimal is likewise
+        re-solved once from a cold basis before it is rejected. Returns None."""
+        from mscommunity.commcycles import canonical_copy, reset_start
         self.util.remove_constraint("_regularization")
         # PATCH 5: the per-member solo capacities MUST be measured with the community
         # growth floor suspended. min_comm_growth pins bio1 >= f*max, but bio1 consumes
@@ -477,15 +528,47 @@ class MSCommunity:
         # the caller currently has set (e.g. sum-of-member-biomasses).
         if growth_constraint:
             self.util.remove_constraint("min_comm_growth")
-            ogObj_for_bio1 = self.util.model.objective
-            self.util.model.objective = self.util.model.problem.Objective(
-                self.primary_biomass.flux_expression, direction="max")
-            commMax_bio1 = self.util.model.slim_optimize()
-            self.util.model.objective = ogObj_for_bio1
-            if commMax_bio1 is not None and not isnan(commMax_bio1) and commMax_bio1 > 1e-6:
-                self.util.create_constraint(self.util.model.problem.Constraint(
+            model = self.util.model
+            ogObj_for_bio1 = model.objective
+            model.objective = model.problem.Objective(self.primary_biomass.flux_expression, direction="max")
+            # MS5: the floor used to be skipped whenever this solve was not optimal, without a
+            # trace. Read the status, and retry from a cold basis, then on a canonical copy.
+            statuses = {}
+            try:
+                commMax_bio1 = model.slim_optimize(error_value=float("nan"))
+                statuses["warm"] = status = model.solver.status
+                if status != "optimal":
+                    logger.warning("regularization: max bio1 on %s is %s; re-solving from a cold basis",
+                                   model.id, status)
+                    reset_start(model)
+                    commMax_bio1 = model.slim_optimize(error_value=float("nan"))
+                    statuses["cold basis"] = status = model.solver.status
+                if status != "optimal":
+                    logger.warning("regularization: max bio1 on %s is %s from a cold basis; re-solving "
+                                   "on a canonical copy", model.id, status)
+                    work = canonical_copy(model)
+                    work.objective = work.problem.Objective(
+                        work.reactions.get_by_id(self.primary_biomass.id).flux_expression, direction="max")
+                    commMax_bio1 = work.slim_optimize(error_value=float("nan"))
+                    statuses["canonical copy"] = status = work.solver.status
+            finally:
+                model.objective = ogObj_for_bio1
+            if status != "optimal":
+                raise FeasibilityError(
+                    f"regularization: the solve that sets min_comm_growth (max {self.primary_biomass.id}) "
+                    f"on {model.id} is not optimal ({', '.join(f'{k}: {v}' for k, v in statuses.items())}); "
+                    "the community-growth floor cannot be installed, and without it predict_abundances "
+                    "would return the per-member solo floors instead of its regularized composition.")
+            if len(statuses) > 1:
+                logger.warning("regularization: max bio1 on %s is %.6g (%s)", model.id, commMax_bio1,
+                               ", ".join(f"{k}: {v}" for k, v in statuses.items()))
+            if commMax_bio1 > 1e-6:
+                self.util.create_constraint(model.problem.Constraint(
                     self.primary_biomass.flux_expression, name="min_comm_growth",
                     lb=commMax_bio1 * self._growth_fraction()), printing=True)
+            else:
+                logger.warning("regularization: max bio1 on %s is %.3g <= 1e-6; no min_comm_growth floor "
+                               "is installed", model.id, commMax_bio1)
         if linear:
             # PATCH 4: relative (per-member) regularization. The previous
             # scheme bounded |mu_i - mu_j| <= threshold absolutely, which
@@ -518,9 +601,17 @@ class MSCommunity:
                 # status, so the ratio chosen is a pure feasibility decision and the
                 # floors handed downstream are solver-independent.
                 self.util.model.slim_optimize()
+                if self.util.model.solver.status != "optimal":
+                    # a rung is rejected on its status, so a spurious warm-basis 'infeasible'
+                    # (MS5) would silently loosen the floors: confirm it from a cold basis
+                    reset_start(self.util.model)
+                    self.util.model.slim_optimize()
                 if self.util.model.solver.status == "optimal":
                     print(f"The model {self.util.model.id} is regularized: each viable member keeps >={ratio*100:.0f}% of its solo capacity")
                     break
+            else:
+                logger.warning("regularization: no rung of the ratio ladder is feasible on %s; the 5 %% "
+                               "floors stay installed and the next solve is infeasible", self.util.model.id)
         else:
             # TODO create the least-squares method employed in MICOM
             pass
@@ -528,39 +619,89 @@ class MSCommunity:
         logger.debug("Community growth after regularization (%s)", commCurrent)
         return None
 
-    def micom(self, media, tradeoff=0.6):
+    def micom(self, media=None, tradeoff=0.5, *, abundances=None, pfba=False, min_growth=0.0):
+        """MICOM's cooperative tradeoff (Diener, Gibbons & Resendis-Antonio 2020, mSystems
+        5:e00606-19): member growth rates at a GIVEN composition.
+
+        MICOM takes abundance as input and returns growth rates. It is a rate-allocation rule,
+        not an abundance predictor: nothing here changes or predicts the composition. When no
+        member constraint binds at the stage-2 point, its rates are
+
+            mu_m = f * F * a_m / sum_k a_k^2
+
+        (f = tradeoff, F = the stage-1 optimum), so mu_1 / mu_2 = a_1 / a_2 exactly and f only
+        rescales every rate together: the declared composition times one scalar. A member rate
+        departs from this only where a bound, a cap, a kinetic row or the medium binds
+        (result.l2_deviation measures it). On the CommPhitting maltose community at the measured
+        composition this gives E. coli 0.3155 f and P. fluorescens 0.0470 f 1/h.
+
+        The formulation (mscommunity.commmicom, which also lists what is not reproduced):
+            taxon units  every member reaction's bounds are multiplied by its abundance a_m, so
+                         community fluxes are a_m times the per-gDW-member (taxon-unit) flux;
+            biomass      bio1 is shut and every member biomass drain opened: member biomass is
+                         free and community growth = sum_m v_bio_m = sum_m a_m mu_m;
+            stage 1      F = max sum_m v_bio_m;
+            stage 2      min sum_m mu_m^2 = sum_m (v_bio_m / a_m)^2
+                         subject to tradeoff * F <= sum_m v_bio_m <= F;
+            crossover    MICOM's LP, only when the stage-2 QP is not optimal;
+            pfba=True    min total flux with each mu_m held at its stage-2 value.
+        The *_commKin rows (which MICOM does not have) stay as configured; for MICOM proper run
+        it inside `with commmembers.lifted_kinetic_rows(comm):`.
+
+        media       None (the current medium), one medium (dict / KBase media) or a list of them
+        tradeoff    f in [0, 1]; MICOM recommends 0.5 and its own default is 1.0. At f = 1 the
+                    answer is the L2-minimal point of the stage-1 optimal face, which on the
+                    CommPhitting builds is a unique vertex with no L2 content (maltose: E. coli
+                    0, P. fluorescens 2.166 1/h)
+        abundances  {member id: a} for every member (normalised); default the community's
+                    current abundances. Written into bio1 and the commmembers caps for the call
+                    and put back afterwards
+        min_growth  minimum specific growth rate per member (1/h; a number or {member: rate}),
+                    v_bio_m >= a_m * min_growth in both stages, as MICOM's min_growth
+
+        Returns a list with one commmicom.MicomResult per medium: community_growth (= sum_m
+        a_m mu_m at the stage-2 point), community_growth_max (F), growth_rates {member: mu_m},
+        objective (sum_m mu_m^2), status, and the cobra solution (its .fluxes is also
+        result.fluxes); self.solution is set to the last solution. Every reaction bound, member
+        drain, the composition, the objective and the solver are restored on exit; the medium
+        too. RuntimeError when no QP-capable solver is installed.
+
+        The pre-2026-11 behaviour (the declared composition with mu_m = tradeoff * mu_max) is
+        micom_legacy."""
+        from mscommunity.commmicom import cooperative_tradeoff, qp_backend
+        # The second stage minimises a quadratic, so a QP-capable backend is required: keep the
+        # incumbent when it can already do QP, otherwise swap to the best available backend and
+        # always swap back (qp_backend; hard-coding "hybrid" blew up on a Gurobi incumbent).
+        with qp_backend(self):
+            results = cooperative_tradeoff(self, media, tradeoff, abundances=abundances, pfba=pfba,
+                                           min_growth=min_growth)
+        for result in results:
+            if result.solution is not None:
+                self._set_solution(result.solution)
+        return results
+
+    def micom_legacy(self, media, tradeoff=0.6):
+        """DEPRECATED: the micom() of MSCommunity before 2026-11, kept callable to reproduce old
+        results. It is not MICOM: it maximises bio1 at the declared composition, holds bio1 at
+        tradeoff x that maximum and minimises sum_m v_bio_m^2, so it returns the declared
+        composition with every member at mu_m = tradeoff * mu_max (mu_max the bio1 maximum).
+        Returns a list of cobra Solutions, one per medium. The comm_tradeoff row it installs is
+        now removed on exit (it used to stay on bio1). Use micom() for MICOM's tradeoff."""
+        import warnings
+        warnings.warn("MSCommunity.micom_legacy is deprecated: it returns the declared composition "
+                      "with every member at mu_m = tradeoff * mu_max (the bio1 maximum), which is "
+                      "neither MICOM nor a prediction. Use micom() for MICOM's cooperative tradeoff.",
+                      DeprecationWarning, stacklevel=2)
+        from mscommunity.commmicom import qp_backend
         media = [media] if type(media) == dict else media
-        # The second stage minimises sum(mu_i^2), so a QP-capable backend is required.
-        # Hard-coding "hybrid" here blew up before anything else ran whenever the
-        # incumbent already was QP-capable (a Gurobi model carries LP-method settings
-        # that optlang's hybrid interface rejects: "LP Method primal is not valid").
-        # Keep the incumbent when it can already do QP, otherwise swap to the best
-        # available backend and always swap back.
-        ogSolver = self.util.model.solver.interface.__name__.rsplit(".", 1)[-1].replace("_interface", "")
-        qpSolver = _pick_qp_backend(current=ogSolver)
-        if qpSolver is None:
-            raise RuntimeError("micom() minimizes a quadratic objective, but no QP-capable solver "
-                               f"is available (any of {sorted(_QP_CAPABLE)}); install gurobi, cplex, "
-                               "or osqp (the 'hybrid' HiGHS+OSQP path).")
-        swapped = qpSolver != ogSolver
-        # the incoming (linear) objective, captured as interface-independent coefficients
-        ogObjCoefs = {rxn.id: rxn.objective_coefficient for rxn in self.util.model.reactions
-                      if rxn.objective_coefficient}
-        ogObjDir = self.util.model.objective.direction
-        if swapped:  self.util.model.solver = qpSolver
-        try:  solutions = self._micom_inner(media, tradeoff)
-        finally:
-            # The min-sum(mu^2) objective is still installed here, and a quadratic
-            # objective cannot be cloned into a non-QP interface — restoring the solver
-            # first would raise "GLPK only supports linear objectives". So put the
-            # caller's objective back while the QP backend is still live, then swap.
-            ogObjExpr = sum([coef * self.util.model.reactions.get_by_id(rxnID).flux_expression
-                             for rxnID, coef in ogObjCoefs.items()]) if ogObjCoefs else Zero
-            self.util.model.objective = self.util.model.problem.Objective(ogObjExpr, direction=ogObjDir)
-            if swapped:  self.util.model.solver = ogSolver
-        return solutions
+        with qp_backend(self):
+            try:
+                return self._micom_inner(media, tradeoff)
+            finally:
+                self.util.remove_constraint("comm_tradeoff")
 
     def _micom_inner(self, media, tradeoff):
+        """micom_legacy's solves (unchanged)."""
         solutions = []
         for m in media:
             # add the objectives
@@ -594,42 +735,94 @@ class MSCommunity:
     def predict_abundances(self, media=None, pfba=True, timeout=60,
                            environName=None, regularization=True, update_abundances=False,
                            determinize=False, qp_backend=None):
-        print("regularization", regularization)
+        """Member composition read off one community solve: maximise the sum of the member
+        biomass fluxes (member drains as configured; open by default) and return
+        {member: v_bio_m / sum_k v_bio_k}, or None when the community does not grow.
+
+        What the answer is depends on the options, and in neither case is it a prediction of
+        the composition from metabolism alone:
+
+        regularization=True (default)
+            Returns a composition NEAR THE DECLARED ABUNDANCE: a prior, not a prediction. The
+            min_comm_growth floor sits on bio1, whose coefficients are the declared abundances,
+            and the per-member floors are the strictest feasible rung of a fixed ratio ladder
+            (see regularization). Measured on the CommPhitting builds: acetate 0.1106 for a
+            declared 0.1176, maltose 0.8187 for 0.870, maltose + 4HB 0.5400 for 0.574.
+        regularization=False
+            With the community-kinetics (kappa) rows off, the answer is a vertex of a nearly
+            flat face, chosen by a ~0.2 % yield difference (SynCom: 0.0, R12 alone). With the
+            kappa rows on, it is a kappa-set composition: kappa decides it (SynCom 0.657 at
+            kappa 1363, 0.454 at kappa 2000), so a kappa calibrated at a declared composition
+            returns that composition.
+
+        media         applied first (and the previous medium restored on exit)
+        timeout       solver time limit in s, set before the FIRST solve of the call and restored
+                      on exit (an unbounded first slim_optimize stalled 3 of 7 calls for 4-7 min in
+                      one long-lived process); a solve that hits it is treated as not optimal
+        update_abundances  write the result into the community (set_abundance)
+        determinize   replace a degenerate LP split by the unique QP centroid (_determinize_split)
+
+        When the kappa rows (*_commKin) forbid growth on the medium but the community grows
+        without them, they are dropped for this call only: a WARNING is logged and
+        self.kinetic_rows_dropped is set True (it is reset to False at the start of every call),
+        and the composition returned then comes from the model WITHOUT kappa rows. Objective,
+        medium, timeout and the regularization rows are restored on exit, also when a solve
+        raises (regularization raises FeasibilityError when its growth floor cannot be set)."""
+        logger.debug("predict_abundances on %s: regularization=%s", self.util.model.id, regularization)
+        self.kinetic_rows_dropped = False
         # store the original parameters
         ogObj = self.util.model.objective
         ogMedia = self.util.model.medium
         ogTimeout = self.util.model.solver.configuration.timeout
-        # apply environment media BEFORE regularization so constraints are calibrated correctly
-        if media is not None:
-            self.util.add_medium(media)
-        slimOpt = self.util.model.slim_optimize()
-        # PATCH 3: if kinetic constraints zero out growth on this medium, fall
-        # back to a no-kinetics simulation rather than returning None. This
-        # rescues low-yield carbons (e.g. Acetate) where Σ|flux| ≤ kinCoef·bio
-        # is unsatisfiable at any positive biomass for kinCoef=750. Use the
-        # cobra model's context manager so removed constraints auto-restore
-        # on exit (so the package's internal tracking stays consistent).
-        if isclose(0, slimOpt, abs_tol=1e-3):
-            kin_cons = [c for c in self.util.model.constraints if "_commKin" in c.name]
-            if kin_cons:
-                with self.util.model:
-                    self.util.model.remove_cons_vars(kin_cons)
-                    slimOpt_no_kin = self.util.model.slim_optimize()
-                    if not isclose(0, slimOpt_no_kin, abs_tol=1e-3):
-                        print(f"Kinetic constraints disabled for {self.util.model.id} on {environName}: "
-                              f"slim_optimize was {slimOpt:.3g}, now {slimOpt_no_kin:.3g}")
-                        return self._predict_inner(pfba, timeout, regularization, update_abundances,
-                                                    ogObj, ogMedia, ogTimeout, determinize, qp_backend)
-                # context exits here, kinetic constraints auto-restored
-                print(f"\nThe model {self.util.model.id} doesn't grow even without kinetics on {environName}")
-                self.util.model.objective = ogObj
-                self.util.model.medium = ogMedia
-                self.util.model.solver.configuration.timeout = ogTimeout
-                return None
-            else:
-                print(f"\nThe model {self.util.model.id} doesn't grow, with a slim_optimize of {slimOpt} in {environName} media")
-        return self._predict_inner(pfba, timeout, regularization, update_abundances,
-                                    ogObj, ogMedia, ogTimeout, determinize, qp_backend)
+        # the time limit covers every solve of the call, this first slim_optimize included
+        self.util.model.solver.configuration.timeout = timeout
+        try:
+            # apply environment media BEFORE regularization so constraints are calibrated correctly
+            if media is not None:
+                self.util.add_medium(media)
+            slimOpt = self.util.model.slim_optimize()
+            # PATCH 3: if kinetic constraints zero out growth on this medium, fall
+            # back to a no-kinetics simulation rather than returning None. This
+            # rescues low-yield carbons (e.g. Acetate) where Σ|flux| ≤ kinCoef·bio
+            # is unsatisfiable at any positive biomass for kinCoef=750. Use the
+            # cobra model's context manager so removed constraints auto-restore
+            # on exit (so the package's internal tracking stays consistent).
+            if isclose(0, slimOpt, abs_tol=1e-3):
+                kin_cons = [c for c in self.util.model.constraints if "_commKin" in c.name]
+                if kin_cons:
+                    with self.util.model:
+                        self.util.model.remove_cons_vars(kin_cons)
+                        slimOpt_no_kin = self.util.model.slim_optimize()
+                        if not isclose(0, slimOpt_no_kin, abs_tol=1e-3):
+                            self.kinetic_rows_dropped = True
+                            logger.warning(
+                                "predict_abundances: the kinetic rows (%d *_commKin) forbid growth of %s on %s "
+                                "(slim_optimize %.3g); they are dropped for this call (%.3g without them), so "
+                                "the composition returned comes from the model WITHOUT kappa rows",
+                                len(kin_cons), self.util.model.id, environName, slimOpt, slimOpt_no_kin)
+                            return self._predict_inner(pfba, timeout, regularization, update_abundances,
+                                                        ogObj, ogMedia, ogTimeout, determinize, qp_backend)
+                    # context exits here, kinetic constraints auto-restored
+                    logger.warning("predict_abundances: %s doesn't grow even without kinetics on %s",
+                                   self.util.model.id, environName)
+                    self.util.model.objective = ogObj
+                    self.util.model.medium = ogMedia
+                    self.util.model.solver.configuration.timeout = ogTimeout
+                    return None
+                else:
+                    logger.warning("predict_abundances: %s doesn't grow, with a slim_optimize of %s in %s media",
+                                   self.util.model.id, slimOpt, environName)
+            return self._predict_inner(pfba, timeout, regularization, update_abundances,
+                                        ogObj, ogMedia, ogTimeout, determinize, qp_backend)
+        except BaseException:
+            # leave the caller's model as it was found, not half-regularized
+            self.util.remove_constraint("_regularization")
+            self.util.remove_constraint("min_comm_growth")
+            self.util.model.objective = ogObj
+            self.util.model.medium = ogMedia
+            raise
+        finally:
+            self.util.model.solver.configuration.timeout = ogTimeout
 
     def _predict_inner(self, pfba, timeout, regularization, update_abundances,
                        ogObj, ogMedia, ogTimeout, determinize=False, qp_backend=None):
