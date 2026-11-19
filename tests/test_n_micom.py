@@ -346,14 +346,13 @@ def test_predict_abundances_survives_a_spurious_floor_infeasible(monkeypatch):
     assert got["Species0"] != pytest.approx(1 / 3, abs=1e-3)   # what skipping the floor returned
 
 
-def test_predict_abundances_cleans_up_when_regularization_raises(monkeypatch):
+def test_predict_abundances_returns_none_and_cleans_up_when_regularization_raises(monkeypatch):
     comm = _glpk_community()
     model = comm.util.model
     timeout = model.solver.configuration.timeout
     obj = str(model.objective.expression)
     _fail_bio1_max(monkeypatch, math.inf)
-    with pytest.raises(FeasibilityError):
-        comm.predict_abundances(regularization=True, pfba=False, timeout=17)
+    assert comm.predict_abundances(regularization=True, pfba=False, timeout=17) is None
     names = {c.name for c in model.constraints}
     assert not any("regularization" in n or n == "min_comm_growth" for n in names)
     assert model.solver.configuration.timeout == timeout

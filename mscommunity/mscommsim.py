@@ -25,12 +25,14 @@ from cobra.flux_analysis import pfba
 from cobra import Reaction, Model
 from numpy import array, logspace, linspace
 from os import makedirs, path, environ
-from math import isclose, isnan
+from math import isclose, isfinite, isnan
 from pandas import DataFrame
 from pprint import pprint
 from math import exp
 import logging
 from functools import partial
+from collections.abc import Mapping
+from cobra.util.context import get_context
 
 logger = logging.getLogger(__name__)
 
@@ -340,47 +342,91 @@ class MSCommunity:
 
     #Manipulation functions
     def set_abundance(self, abundances):
-        old_abundance = {mem.id: mem.abundance for mem in self.members}
-        old_abundances = getattr(self, "abundances", None)
-        old_set = getattr(self, "abundances_set", False)
-        #calculate the normalized biomass
-        total_abundance = sum(list([content["abundance"] for content in abundances.values()]))
-        # map abundances to all species
-        for modelID, content in abundances.items():
-            if modelID in self.members:  self.members.get_by_id(modelID).abundance = content["abundance"]/total_abundance
-        self.abundances = {mem.id: mem.abundance for mem in self.members}
-        #remake the primary biomass reaction based on abundances  #TODO what is the purpose of this?
+        """Set the member abundances and write them into the community biomass reaction (bio1).
+
+        abundances  {member id: a} or {member id: {"abundance": a, ...}} (the constructor's form; other keys,
+                    such as "biomass_compound", are ignored) for EVERY member, each a finite a >= 0, normalised
+                    to sum 1. The dict is validated before anything is changed: ValueError for a missing or an
+                    unknown member, a negative or non-finite abundance, or a total of 0.
+
+        bio1 keeps every term it has (its product, a community-level cost written on it); only the
+        member-biomass coefficients are replaced by -a_m, and a zero abundance removes that member's term.
+        Each member's .abundance, self.abundances ({member id: a_m}) and self.abundances_set (True) are set.
+
+        Inside `with model:` the call is undone when the context exits: bio1's member-biomass coefficients,
+        the members' abundances, self.abundances and self.abundances_set all go back to what they were before
+        the call. bio1 is written outside cobra's change tracking (whose per-metabolite undo raised KeyError for
+        a member whose stored biomass_cpd is a different object with the same id, as on the SynCom build, and
+        for a term a zero abundance had removed) and one undo step restores all four.
+
+        The abundance-basis caps and maintenance rows of commmembers are not rewritten here: use
+        commmembers.set_member_abundances (or refresh_caps) for those."""
+        composition = self._normalize_abundances(abundances)
         if self.primary_biomass is None:  logger.critical("Primary biomass reaction not found in community model")
-        # Write bio1 with the model's own metabolite objects, outside cobra's change tracking, and
-        # register one undo step that restores the previous stoichiometry and abundances. A member's
-        # stored biomass_cpd can be a different object with the same id (the SynCom build), and a
-        # zero abundance drops the metabolite from bio1; cobra's per-metabolite undo record raised
-        # KeyError on either inside `with model:`.
-        model = self.util.model
-        mets = model.metabolites
-        all_metabolites = {self.primary_biomass.products[0]: 1}
-        all_metabolites.update({mets.get_by_id(mem.biomass_cpd.id): -abundances[mem.id]["abundance"]/total_abundance
-                                for mem in self.members})
-        context = model._contexts[-1] if getattr(model, "_contexts", None) else None
+        coefficients = {self._member_biomass_id(mem): -composition[mem.id] for mem in self.members}
+        context = get_context(self.util.model)
         if context is not None:
-            previous = (dict(self.primary_biomass.metabolites), dict(old_abundance), old_abundances, old_set)
-            context(partial(self._restore_abundance_state, *previous))
-        self._write_bio1(all_metabolites)
+            context(partial(self._restore_abundance_state, *self._abundance_snapshot()))
+        if self.primary_biomass is not None:
+            self._write_bio1(coefficients)
+        for mem in self.members:
+            mem.abundance = composition[mem.id]
+        self.abundances = dict(composition)
         self.abundances_set = True
 
-    def _write_bio1(self, stoichiometry):
-        """Replace bio1's stoichiometry without recording cobra undo steps (set_abundance records its own)."""
-        model = self.util.model
-        contexts, model._contexts = getattr(model, "_contexts", []), []
-        try:
-            self.primary_biomass.add_metabolites(
-                {met: -coef for met, coef in self.primary_biomass.metabolites.items()}, combine=True)
-            self.primary_biomass.add_metabolites(stoichiometry, combine=True)
-        finally:
-            model._contexts = contexts
+    def _normalize_abundances(self, abundances):
+        """{member id: a_m / sum a} from {id: a} or {id: {"abundance": a, ...}}; ValueError unless every member
+        is given once with a finite a >= 0 and the total is positive. Changes nothing."""
+        if not isinstance(abundances, Mapping):
+            raise ValueError(f"abundances must be a mapping {{member id: abundance}}, not {type(abundances).__name__}")
+        raw = {}
+        for memID, value in abundances.items():
+            if isinstance(value, Mapping):
+                if "abundance" not in value:
+                    raise ValueError(f"the entry of {memID!r} has no 'abundance': {value!r}")
+                value = value["abundance"]
+            try:
+                raw[memID] = float(value)
+            except (TypeError, ValueError):
+                raise ValueError(f"the abundance of {memID!r} is not a number: {value!r}") from None
+        ids = [mem.id for mem in self.members]
+        missing, unknown = sorted(set(ids) - set(raw)), sorted(set(raw) - set(ids), key=str)
+        if missing or unknown:
+            raise ValueError(f"give an abundance for every member: missing {missing}, unknown {unknown}")
+        bad = {k: v for k, v in raw.items() if not isfinite(v) or v < 0}
+        if bad:
+            raise ValueError(f"abundances must be finite and >= 0: {bad}")
+        total = sum(raw.values())
+        if not total > 0:
+            raise ValueError(f"the abundances sum to {total}: give at least one positive abundance")
+        return {memID: raw[memID] / total for memID in ids}
 
-    def _restore_abundance_state(self, stoichiometry, member_abundance, abundances, abundances_set):
-        self._write_bio1(stoichiometry)
+    @staticmethod
+    def _member_biomass_id(member):
+        return getattr(member.biomass_cpd, "id", member.biomass_cpd)
+
+    def _write_bio1(self, coefficients):
+        """Set bio1's coefficients for the metabolites in `coefficients` ({metabolite or id: coefficient}; 0
+        removes the term) and leave every other term as it is, without recording cobra undo steps
+        (set_abundance records its own). The model's own metabolite objects are written, looked up by id."""
+        mets = self.util.model.metabolites
+        self.primary_biomass.add_metabolites(
+            {mets.get_by_id(getattr(met, "id", met)): float(coef) for met, coef in coefficients.items()},
+            combine=False, reversibly=False)
+
+    def _abundance_snapshot(self):
+        """What set_abundance changes: bio1's member-biomass coefficients ({id: coefficient}, 0 when absent),
+        the members' abundances, self.abundances and self.abundances_set (_restore_abundance_state's arguments)."""
+        bio1 = {met.id: coef for met, coef in self.primary_biomass.metabolites.items()} \
+            if self.primary_biomass is not None else {}
+        coefficients = {mid: bio1.get(mid, 0.0) for mid in (self._member_biomass_id(mem) for mem in self.members)}
+        return (coefficients, {mem.id: mem.abundance for mem in self.members},
+                getattr(self, "abundances", None), getattr(self, "abundances_set", False))
+
+    def _restore_abundance_state(self, coefficients, member_abundance, abundances, abundances_set):
+        """Put back an _abundance_snapshot (untracked, so it is safe inside and outside `with model:`)."""
+        if self.primary_biomass is not None:
+            self._write_bio1(coefficients)
         for mem in self.members:
             if mem.id in member_abundance:  mem.abundance = member_abundance[mem.id]
         self.abundances = abundances
@@ -641,9 +687,11 @@ class MSCommunity:
         Gurobi and on GLPK from a cold basis); skipping the floor then silently returned the 70 %
         solo floor (a_ec 0.6994 against 0.8187). A non-optimal status is re-solved from a cold
         basis (commcycles.reset_start) and then on a canonical copy (commcycles.canonical_copy);
-        if all three fail, FeasibilityError is raised. An optimal max(bio1) <= 1e-6 installs no
-        floor and logs a warning. Each rung of the ratio ladder that is not optimal is likewise
-        re-solved once from a cold basis before it is rejected. Returns None."""
+        if all three fail, FeasibilityError is raised (here, called directly; predict_abundances
+        catches it, logs it as a warning and returns None, its documented answer for a community
+        that does not grow). An optimal max(bio1) <= 1e-6 installs no floor and logs a warning.
+        Each rung of the ratio ladder that is not optimal is likewise re-solved once from a cold
+        basis before it is rejected. Returns None."""
         from mscommunity.commcycles import canonical_copy, reset_start
         self.util.remove_constraint("_regularization")
         # PATCH 5: the per-member solo capacities MUST be measured with the community
@@ -904,9 +952,13 @@ class MSCommunity:
         When the kappa rows (*_commKin) forbid growth on the medium but the community grows
         without them, they are dropped for this call only: a WARNING is logged and
         self.kinetic_rows_dropped is set True (it is reset to False at the start of every call),
-        and the composition returned then comes from the model WITHOUT kappa rows. Objective,
-        medium, timeout and the regularization rows are restored on exit, also when a solve
-        raises (regularization raises FeasibilityError when its growth floor cannot be set)."""
+        and the composition returned then comes from the model WITHOUT kappa rows.
+
+        A community that cannot grow -- including one that is infeasible on the medium, so that
+        regularization() raises FeasibilityError because its growth floor cannot be set, or whose
+        determining solve is not optimal -- returns None, with a WARNING that gives the reason.
+        Objective, medium, timeout and the regularization rows are restored on exit, also when a
+        solve raises."""
         logger.debug("predict_abundances on %s: regularization=%s", self.util.model.id, regularization)
         self.kinetic_rows_dropped = False
         # store the original parameters
@@ -953,15 +1005,24 @@ class MSCommunity:
                                    self.util.model.id, slimOpt, environName)
             return self._predict_inner(pfba, timeout, regularization, update_abundances,
                                         ogObj, ogMedia, ogTimeout, determinize, qp_backend)
+        except FeasibilityError as error:
+            # the documented answer for a community that does not grow is None, not an exception
+            self._predict_cleanup(ogObj, ogMedia)
+            logger.warning("predict_abundances: %s cannot grow on %s (%s); returning None",
+                           self.util.model.id, environName, error)
+            return None
         except BaseException:
             # leave the caller's model as it was found, not half-regularized
-            self.util.remove_constraint("_regularization")
-            self.util.remove_constraint("min_comm_growth")
-            self.util.model.objective = ogObj
-            self.util.model.medium = ogMedia
+            self._predict_cleanup(ogObj, ogMedia)
             raise
         finally:
             self.util.model.solver.configuration.timeout = ogTimeout
+
+    def _predict_cleanup(self, ogObj, ogMedia):
+        self.util.remove_constraint("_regularization")
+        self.util.remove_constraint("min_comm_growth")
+        self.util.model.objective = ogObj
+        self.util.model.medium = ogMedia
 
     def _predict_inner(self, pfba, timeout, regularization, update_abundances,
                        ogObj, ogMedia, ogTimeout, determinize=False, qp_backend=None):
@@ -995,6 +1056,10 @@ class MSCommunity:
         self.util.model.solver.configuration.timeout = ogTimeout
         self.util.model.objective = ogObj
         self.util.model.medium = ogMedia
+        if sol.status != "optimal":
+            logger.warning("predict_abundances: the solve that determines the composition of %s is %s; the "
+                           "community does not grow, returning None", self.util.model.id, sol.status)
+            return None
         return self._compute_relative_abundance_from_solution(sol, True, update_abundances)
 
     def _note_fallback(self, message, *args):
@@ -1174,9 +1239,12 @@ class MSCommunity:
         total_growth = sum([self.solution.fluxes[member.primary_biomass.id] for member in self.members])
         message = f"The total community growth is {total_growth}"
         if self.printing:  print(message)
-        if isclose(0, total_growth, abs_tol=1e-3):
+        if isnan(total_growth) or isclose(0, total_growth, abs_tol=1e-3):
             if not skipNoGrowth:   NoFluxError(f"No community growth: {total_growth} in {self.util.model.id}")
-            else:    print(message)  ;  return None
+            else:
+                logger.warning("predict_abundances: %s does not grow (summed member growth %s); returning None",
+                               self.util.model.id, total_growth)
+                return None
         abundances = {member.id: self.solution.fluxes[member.primary_biomass.id]/total_growth for member in self.members}
         if update_abundances:
             self.set_abundance(abundances)

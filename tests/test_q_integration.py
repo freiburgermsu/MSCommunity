@@ -91,3 +91,89 @@ def test_package_exports():
     for name in ("SteadyComResult", "ProfileResult", "KappaCalibration", "ConcentrationSwitch",
                  "SteadyState", "SteadyStates", "Trajectory", "MicomResult"):
         assert hasattr(mscommunity, name), name
+
+
+# --------------------------------------------------------------------------- set_abundance
+def _bio1(comm):
+    return {met.id: coef for met, coef in comm.primary_biomass.metabolites.items()}
+
+
+def test_set_abundance_keeps_the_other_bio1_terms():
+    """Only the member-biomass coefficients are replaced: a community-level cost on bio1 survives (the
+    integration commit rebuilt bio1 from its product and the member terms and dropped it)."""
+    comm = T._community()
+    atp = comm.util.model.metabolites.get_by_id("cpd00002_c1")
+    comm.primary_biomass.add_metabolites({atp: -0.1})
+    comm.set_abundance(_abund(0.3))
+    assert _bio1(comm) == pytest.approx({"cpd11416_c0": 1.0, "cpd11416_c1": -0.3, "cpd11416_c2": -0.7,
+                                         "cpd00002_c1": -0.1})
+    before = _bio1(comm)
+    with comm.util.model:
+        comm.set_abundance(_abund(0.0))
+        assert _bio1(comm) == pytest.approx({"cpd11416_c0": 1.0, "cpd11416_c2": -1.0, "cpd00002_c1": -0.1})
+    assert _bio1(comm) == before
+
+
+def test_set_abundance_inside_a_context_reverts_every_attribute():
+    comm = T._community()
+    comm.abundances_set = False
+    abundances = dict(comm.abundances)
+    with comm.util.model:
+        comm.set_abundance(_abund(0.2))
+        assert comm.abundances_set is True and comm.abundances == pytest.approx({"memA": 0.2, "memB": 0.8})
+    assert comm.abundances_set is False and comm.abundances == abundances
+
+
+def test_set_abundance_takes_plain_numbers():
+    comm = T._community()
+    comm.set_abundance({"memA": 3.0, "memB": 1.0})
+    assert {m.id: m.abundance for m in comm.members} == pytest.approx({"memA": 0.75, "memB": 0.25})
+    assert _bio1(comm)["cpd11416_c1"] == pytest.approx(-0.75)
+
+
+@pytest.mark.parametrize("bad, match", [
+    ({"memA": {"abundance": 0.9}}, "every member"),
+    ({"memA": 0.9, "memB": 0.1, "memC": 0.1}, "unknown"),
+    ({"memA": -0.1, "memB": 1.0}, ">= 0"),
+    ({"memA": 0.0, "memB": 0.0}, "sum"),
+])
+def test_set_abundance_validates_before_changing_anything(bad, match):
+    comm = T._community()
+    state = (_bio1(comm), {m.id: m.abundance for m in comm.members}, dict(comm.abundances))
+    with pytest.raises(ValueError, match=match):
+        comm.set_abundance(bad)
+    assert (_bio1(comm), {m.id: m.abundance for m in comm.members}, dict(comm.abundances)) == state
+
+
+def test_predict_abundances_update_abundances_writes_the_prediction():
+    """update_abundances=True hands set_abundance the plain {member: a} it computed, which always raised."""
+    comm = MSCommunity(model=_merged(), ids=["memA", "memB"], kinetic_coeff=1e6)
+    out = comm.predict_abundances(update_abundances=True, regularization=False, pfba=False)
+    assert out is not None and sum(out.values()) == pytest.approx(1.0)
+    assert comm.abundances == pytest.approx(out)
+    bio1 = _bio1(comm)
+    for m in comm.members:
+        assert bio1.get(m.biomass_cpd.id, 0.0) == pytest.approx(-out[m.id])
+
+
+# --------------------------------------------------------------------------- predict_abundances contract
+def _unpayable():
+    """memA's ATPM floor (100) cannot be paid from 10 glucose: the community is infeasible."""
+    from mscommunity.commhelper import build_from_species_models
+    members = [T._member("memA"), T._member("memB", periplasm=True)]
+    members[0].reactions.get_by_id("rxn00062_c0").lower_bound = 100.0
+    model = build_from_species_models(members, abundances={"memA": 0.5, "memB": 0.5})
+    return MSCommunity(model=model, ids=["memA", "memB"], kinetic_coeff=1e6)
+
+
+@pytest.mark.parametrize("regularization", [True, False])
+def test_predict_abundances_returns_none_when_the_community_cannot_grow(regularization, caplog):
+    comm = _unpayable()
+    model = comm.util.model
+    objective = str(model.objective.expression)
+    rows = sorted(c.name for c in model.constraints)
+    with caplog.at_level("WARNING"):
+        assert comm.predict_abundances(regularization=regularization, pfba=False) is None
+    assert any("predict_abundances" in r.getMessage() for r in caplog.records if r.levelname == "WARNING")
+    assert sorted(c.name for c in model.constraints) == rows
+    assert str(model.objective.expression) == objective
