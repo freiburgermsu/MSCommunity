@@ -228,3 +228,20 @@ def test_predict_abundances_returns_none_when_the_community_cannot_grow(regulari
     assert any("predict_abundances" in r.getMessage() for r in caplog.records if r.levelname == "WARNING")
     assert sorted(c.name for c in model.constraints) == rows
     assert str(model.objective.expression) == objective
+
+
+def test_predict_abundances_update_abundances_survives_dropped_kinetic_rows():
+    """When the kappa rows forbid growth they are dropped inside a temporary `with model:`; the composition
+    written by update_abundances must outlive that context (set_abundance's undo would revert it on exit)."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from test_a_mscommsim import _members
+    from mscommunity.commhelper import build_from_species_models
+    comm = MSCommunity(model=build_from_species_models(_members()), kinetic_coeff=0.5)   # rows forbid growth
+    out = comm.predict_abundances(update_abundances=True, regularization=False, pfba=False)
+    assert comm.kinetic_rows_dropped
+    assert out == pytest.approx({"Species0": 10 / 14, "Species1": 4 / 14}, rel=1e-6)
+    assert comm.abundances == pytest.approx(out)
+    assert {m.id: m.abundance for m in comm.members} == pytest.approx(out)
+    bio1 = _bio1(comm)
+    for m in comm.members:
+        assert bio1.get(m.biomass_cpd.id, 0.0) == pytest.approx(-out[m.id])

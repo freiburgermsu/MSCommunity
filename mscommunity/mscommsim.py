@@ -1020,9 +1020,15 @@ class MSCommunity:
                                 "(slim_optimize %.3g); they are dropped for this call (%.3g without them), so "
                                 "the composition returned comes from the model WITHOUT kappa rows",
                                 len(kin_cons), self.util.model.id, environName, slimOpt, slimOpt_no_kin)
-                            return self._predict_inner(pfba, timeout, regularization, update_abundances,
-                                                        ogObj, ogMedia, ogTimeout, determinize, qp_backend)
+                            # update_abundances is applied after this temporary context: set_abundance
+                            # registers its undo in the innermost context, which would revert it on exit
+                            result = self._predict_inner(pfba, timeout, regularization, False,
+                                                         ogObj, ogMedia, ogTimeout, determinize, qp_backend)
                     # context exits here, kinetic constraints auto-restored
+                    if self.kinetic_rows_dropped:
+                        if update_abundances and result is not None:
+                            self.set_abundance(result)
+                        return result
                     logger.warning("predict_abundances: %s doesn't grow even without kinetics on %s",
                                    self.util.model.id, environName)
                     self.util.model.objective = ogObj
