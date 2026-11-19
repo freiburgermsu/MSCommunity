@@ -1,4 +1,3 @@
-from icecream import ic
 
 from modelseedpy.core.fbahelper import FBAHelper
 from modelseedpy.biochem import from_local

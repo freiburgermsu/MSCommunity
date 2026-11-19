@@ -26,14 +26,12 @@ from cobra import Reaction, Model
 from numpy import array, logspace, linspace
 from os import makedirs, path, environ
 from math import isclose, isnan
-from icecream import ic
 from pandas import DataFrame
 from pprint import pprint
 from math import exp
 import logging
 
 logger = logging.getLogger(__name__)
-ic.configureOutput(includeContext=True)
 
 # QP-capable cobra solvers -> optlang.available_solvers capability key. Used by the
 # community split-determinizer (min sum mu_i^2) to pick a backend: Gurobi/CPLEX are
@@ -527,7 +525,7 @@ class MSCommunity:
             # TODO create the least-squares method employed in MICOM
             pass
         commCurrent = self.util.model.slim_optimize()
-        ic(f"Community growth after regularization ({commCurrent})")
+        logger.debug("Community growth after regularization (%s)", commCurrent)
         return None
 
     def micom(self, media, tradeoff=0.6):
@@ -577,7 +575,7 @@ class MSCommunity:
             biomass = sol.fluxes[self.primary_biomass.id]
             # biomass = sum([sol.fluxes[mem.primary_biomass.id]*mem.abundance for mem in self.members])
             tradeoff_growth = biomass*tradeoff
-            ic(biomass, tradeoff)
+            logger.debug("micom: community growth %s, tradeoff %s", biomass, tradeoff)
             self.util.remove_constraint("comm_tradeoff")
             self.util.create_constraint(self.util.model.problem.Constraint(
                 self.primary_biomass.forward_variable, name="comm_tradeoff",
@@ -843,7 +841,7 @@ class MSCommunity:
         if solution is not None:  self._set_solution(solution)
         total_growth = sum([self.solution.fluxes[member.primary_biomass.id] for member in self.members])
         message = f"The total community growth is {total_growth}"
-        if self.printing:  ic(message)
+        if self.printing:  print(message)
         if isclose(0, total_growth, abs_tol=1e-3):
             if not skipNoGrowth:   NoFluxError(f"No community growth: {total_growth} in {self.util.model.id}")
             else:    print(message)  ;  return None
@@ -852,7 +850,7 @@ class MSCommunity:
             self.set_abundance(abundances)
             if self.printing:  print(f"Updated abundances: {self.abundances}")
         for mem in self.members:
-            ic(f"{mem.id} grows {self.solution.fluxes[mem.primary_biomass.id]} with abundance {mem.abundance}")
+            logger.debug("%s grows %s with abundance %s", mem.id, self.solution.fluxes[mem.primary_biomass.id], mem.abundance)
         return abundances
 
     def _set_solution(self, solution, dump_diagnostics=None):
@@ -883,9 +881,9 @@ class MSCommunity:
         self.exchange_fluxes = {ex.id: self.solution.fluxes[ex.id] for ex in self.util.model.reactions if "EX_" in ex.id}
         self._comm_growth()
         if self.printing:
-            ic("Member Biomass Fluxes:", self.memGrowths)  # TODO weight the member growths by their abundances
-            ic("Max member Fluxes:", {memID: growth*self.kinCoef for memID, growth in self.memGrowths.items()})
-            ic("Total fluxes:", {memID: sum(abs(fluxes)) for memID, fluxes in self.member_fluxes.items()})
+            print("Member Biomass Fluxes:", self.memGrowths)  # TODO weight the member growths by their abundances
+            print("Max member Fluxes:", {memID: growth*self.kinCoef for memID, growth in self.memGrowths.items()})
+            print("Total fluxes:", {memID: sum(abs(fluxes)) for memID, fluxes in self.member_fluxes.items()})
         # logger.info(self.util.model.summary())
         return self.solution
 
