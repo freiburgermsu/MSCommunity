@@ -205,21 +205,27 @@ def _restore_bounds(model, bounds):
 
 
 def _apply_abundances(comm, a):
-    """Write `a` into the community (bio1 coefficients, member abundances and the caps on basis
-    "abundance") when it differs from the current composition. Returns the restore callable."""
+    """Write `a` into the community (bio1's member-biomass coefficients, the members' abundances,
+    comm.abundances, comm.abundances_set and the caps on basis "abundance") when it differs from the
+    current composition, and return the callable that puts all of it back exactly. Both directions go
+    through MSCommunity's untracked bio1 write (set_abundance / _restore_abundance_state): the old restore,
+    a tracked add_metabolites(combine=False), could not remove a term (a member at a_m = 0 before the call
+    kept the call's coefficient) and raised KeyError from cobra's undo bookkeeping inside `with model:`."""
     if all(abs(float(m.abundance) - a[m.id]) <= 1e-15 for m in comm.members):
         return lambda: None
-    old_a = {m.id: m.abundance for m in comm.members}
-    old_attr = getattr(comm, "abundances", None)
-    old_bio1 = dict(comm.primary_biomass.metabolites)
-    _cm.set_member_abundances(comm, a)
+    model = comm.util.model
+    snapshot = comm._abundance_snapshot()
+    rows = {rec.name: (model.constraints[rec.name].lb, model.constraints[rec.name].ub)
+            for rec in _cm.member_caps(comm) if rec.basis == "abundance"}
 
     def restore():
-        for m in comm.members:
-            m.abundance = old_a[m.id]
-        comm.abundances = old_attr
-        comm.primary_biomass.add_metabolites(old_bio1, combine=False)
-        _cm.refresh_caps(comm)
+        comm._restore_abundance_state(*snapshot)
+        _cm._restore_row_bounds(model, rows)
+    try:
+        _cm.set_member_abundances(comm, a)
+    except BaseException:
+        restore()
+        raise
     return restore
 
 
@@ -263,8 +269,10 @@ def cooperative_tradeoff(comm, media=None, tradeoff=0.5, *, abundances=None, pfb
                          min_growth=0.0) -> List[MicomResult]:
     """MICOM's cooperative tradeoff on `comm` (see the module docstring), one MicomResult per
     medium. Run it on a QP-capable solver (MSCommunity.micom wraps it in qp_backend). Every
-    reaction bound, the composition, the drains and the rows it adds are put back on exit; the
-    objective is the caller's (qp_backend restores it)."""
+    reaction bound, the composition (bio1, member abundances, comm.abundances, comm.abundances_set,
+    the abundance-basis caps), the drains and the rows it adds are put back on exit, also inside
+    `with model:`; the objective is the caller's (qp_backend restores it). comm.solution is not
+    touched."""
     tradeoff = float(tradeoff)
     if not (0.0 <= tradeoff <= 1.0):
         raise ValueError(f"tradeoff must be in [0, 1], not {tradeoff}")
@@ -272,8 +280,9 @@ def cooperative_tradeoff(comm, media=None, tradeoff=0.5, *, abundances=None, pfb
     floors = _floors(min_growth, comm)
     model = comm.util.model
     bounds0 = {r.id: tuple(r.bounds) for r in model.reactions}
-    restore_abundances = _apply_abundances(comm, a)
+    restore_abundances = lambda: None  # noqa: E731
     try:
+        restore_abundances = _apply_abundances(comm, a)
         return [_one_medium(comm, medium, tradeoff, a, floors, pfba, bounds0) for medium in _media(media)]
     finally:
         _restore_bounds(model, bounds0)

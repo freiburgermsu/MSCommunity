@@ -160,7 +160,7 @@ def test_micom_restores_bounds_rows_objective_composition_and_solver():
     assert [r.status for r in results] == ["optimal", "optimal"]
     assert results[1].community_growth_max == pytest.approx(5.0, abs=1e-9)   # cpd00082 closed
     assert _state(comm) == before
-    assert comm.solution is results[-1].solution
+    assert results[-1].solution is not None
 
 
 @needs_qp
@@ -174,6 +174,46 @@ def test_micom_restores_everything_when_a_solve_raises(monkeypatch):
     with pytest.raises(RuntimeError, match="injected"):
         comm.micom(MEDIUM, tradeoff=0.5, abundances=A_64)
     assert _state(comm) == before
+
+
+@needs_qp
+def test_micom_restores_a_zero_abundance_member_exactly():
+    """bio1 was restored with a tracked add_metabolites(combine=False), which cannot remove a term: a member
+    at a_m = 0 before the call kept the call's coefficient in bio1 afterwards."""
+    comm = _community()
+    comm.set_abundance({"Species0": {"abundance": 1.0}, "Species1": {"abundance": 0.0}})
+    before = _state(comm)
+    assert "cpd11416_c2" not in before["bio1"]
+    (res,) = comm.micom(tradeoff=0.5, abundances={"Species0": 0.5, "Species1": 0.5})
+    assert res.status == "optimal"
+    assert _state(comm) == before
+
+
+@needs_qp
+def test_micom_inside_a_model_context_restores_the_composition():
+    """Inside `with model:` the old restore raised KeyError from cobra's undo bookkeeping."""
+    comm = _community()
+    before = _state(comm)
+    with comm.util.model:
+        (res,) = comm.micom(tradeoff=0.5, abundances={"Species0": 1.0, "Species1": 0.0})
+        assert res.status == "optimal" and res.growth_rates["Species1"] is None
+        assert _state(comm) == before
+    assert _state(comm) == before
+
+
+@needs_qp
+def test_micom_restores_abundances_set_and_leaves_the_solution_state_alone():
+    """micom() solves a transformed model (taxon units, bio1 shut): its member biomass fluxes are a_m mu_m, so
+    the solution-derived attributes are left as they were (the MicomResult carries the answer)."""
+    comm = _community()
+    sol = comm.run_fba()
+    state = (comm.solution, dict(comm.memGrowths), comm.comm_growth, dict(comm.exchange_fluxes))
+    comm.abundances_set = False
+    (res,) = comm.micom(tradeoff=0.5, abundances=A_64)
+    assert res.status == "optimal" and res.solution is not sol
+    assert comm.abundances_set is False
+    assert comm.solution is state[0]
+    assert (dict(comm.memGrowths), comm.comm_growth, dict(comm.exchange_fluxes)) == state[1:]
 
 
 @needs_qp

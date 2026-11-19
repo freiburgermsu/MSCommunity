@@ -874,9 +874,17 @@ class MSCommunity:
         Returns a list with one commmicom.MicomResult per medium: community_growth (= sum_m
         a_m mu_m at the stage-2 point), community_growth_max (F), growth_rates {member: mu_m},
         objective (sum_m mu_m^2), status, and the cobra solution (its .fluxes is also
-        result.fluxes); self.solution is set to the last solution. Every reaction bound, member
-        drain, the composition, the objective and the solver are restored on exit; the medium
-        too. RuntimeError when no QP-capable solver is installed.
+        result.fluxes). Every reaction bound, member drain, the composition (bio1, member
+        abundances, self.abundances, self.abundances_set, the abundance-basis caps), the objective
+        and the solver are restored on exit, also inside `with model:`; the medium too.
+        RuntimeError when no QP-capable solver is installed.
+
+        self.solution and what is derived from it (memGrowths, comm_growth, member_fluxes,
+        exchange_fluxes) are left as they were. The MICOM solution belongs to the transformed model
+        (taxon-unit bounds, bio1 shut, drains open), where a member's biomass flux is a_m mu_m:
+        read as MSCommunity's solution state it gave memGrowths of 0.714 and comm_growth 0.714 for
+        a community growing at 1.43. Read the answer from the MicomResult, and pass result.solution
+        explicitly where a solution is wanted (e.g. interactions(solution=...)).
 
         The pre-2026-11 behaviour (the declared composition with mu_m = tradeoff * mu_max) is
         micom_legacy."""
@@ -885,12 +893,8 @@ class MSCommunity:
         # incumbent when it can already do QP, otherwise swap to the best available backend and
         # always swap back (qp_backend; hard-coding "hybrid" blew up on a Gurobi incumbent).
         with qp_backend(self):
-            results = cooperative_tradeoff(self, media, tradeoff, abundances=abundances, pfba=pfba,
-                                           min_growth=min_growth)
-        for result in results:
-            if result.solution is not None:
-                self._set_solution(result.solution)
-        return results
+            return cooperative_tradeoff(self, media, tradeoff, abundances=abundances, pfba=pfba,
+                                        min_growth=min_growth)
 
     def micom_legacy(self, media, tradeoff=0.6):
         """DEPRECATED: the micom() of MSCommunity before 2026-11, kept callable to reproduce old
