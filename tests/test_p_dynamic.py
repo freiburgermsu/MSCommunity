@@ -356,6 +356,65 @@ def test_simulate_models_without_copy_restores_the_solver_threads():
     assert mA.solver.problem.Params.Threads == 3
 
 
+# --------------------------------------------------------------------------- review fixes: community_strict
+def _rare_sweep_community():
+    """test_l_members' pair: both members grow on glucose alone at 3.5 glucose per gDW."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import test_l_members as L
+    return L._community()
+
+
+@pytest.mark.parametrize("xb", [1e-6, 1e-8, 1e-10, 1e-12])
+def test_community_strict_rare_member_grows_as_in_the_members_form(xb):
+    """A member at a_m ~ 1e-6 or less carries per-community fluxes at the solver's tolerance, and mu = v_bio / a_m
+    turned that noise into 285.7 (X_B 1e-10) or 1000 1/h (1e-12) for a member that grows at 2.857 alone. Below
+    a_min it is solved by its own member LP."""
+    comm = _rare_sweep_community()
+    X0, S0 = {"memA": 1.0, "memB": xb}, {GLC: 100.0}
+    ref = dynamic(comm, 1.0, 0.25, X0, S0, kinetics={}, form="members")
+    traj = dynamic(comm, 1.0, 0.25, X0, S0, kinetics={}, form="community_strict")
+    assert ref.mu["memB"][0] == pytest.approx(2.857, rel=1e-3)
+    np.testing.assert_allclose(traj.mu["memB"], ref.mu["memB"], rtol=1e-6)
+    np.testing.assert_allclose(traj.mu["memA"], ref.mu["memA"], rtol=1e-6)
+    assert traj.X["memB"][-1] / xb == pytest.approx(ref.X["memB"][-1] / xb, rel=1e-6)
+    assert any("a_min" in w and "memB" in w for w in traj.warnings)
+
+
+def test_community_strict_never_reports_a_rate_above_the_solo_maximum():
+    """With the rare-member route switched off (a_min=0) the community LP's noise is clamped to the member's
+    own solo maximum on the current medium, with a warning."""
+    comm = _rare_sweep_community()
+    X0, S0 = {"memA": 1.0, "memB": 1e-10}, {GLC: 100.0}
+    ref = dynamic(comm, 0.25, 0.25, X0, S0, kinetics={}, form="members")
+    traj = dynamic(comm, 0.25, 0.25, X0, S0, kinetics={}, form="community_strict", a_min=0.0)
+    assert traj.mu["memB"][0] <= ref.mu["memB"][0] * (1 + 1e-6)
+    assert any("clamped" in w and "memB" in w for w in traj.warnings)
+
+
+def test_community_strict_releases_the_forced_flux_a_member_cannot_pay():
+    """memB carries a forced acetate drain (0.5 mmol/gDW/h) and there is no acetate at t = 0: the community LP
+    was infeasible and every member idled for the whole run. memB's forced bound is released for the steps it
+    cannot pay, so memA grows as it does in the members form."""
+    mA, mB = _member("memA", "A"), _member("memB", "B")
+    drain = Reaction("rxnMAINT_c0", lower_bound=0.5, upper_bound=1000.0)
+    water = Metabolite("cpd00001_c0", compartment="c0")
+    drain.add_metabolites({mB.metabolites.get_by_id(f"{AC}_c0"): -1, water: 1})
+    sink = Reaction("DM_cpd00001_c0", lower_bound=0.0, upper_bound=1000.0)
+    sink.add_metabolites({water: -1})
+    mB.add_reactions([drain, sink])
+    model = build_from_species_models([mA, mB], abundances={"memA": 0.5, "memB": 0.5})
+    comm = MSCommunity(model=model, ids=["memA", "memB"], kinetic_coeff=1e6, close_member_drains=True)
+    X0, S0 = {"memA": 0.01, "memB": 0.01}, {GLC: 2.0}
+    kin = {"memA": {GLC: (3.0, 0.01)}, "memB": {AC: (4.0, 0.05)}}
+    ref = dynamic(comm, 2.0, 0.5, X0, S0, kinetics=kin, form="members")
+    traj = dynamic(comm, 2.0, 0.5, X0, S0, kinetics=kin, form="community_strict")
+    assert ref.mu["memA"][0] == pytest.approx(0.2985, abs=1e-4)
+    assert traj.mu["memA"][0] == pytest.approx(ref.mu["memA"][0], rel=1e-6)
+    assert traj.X["memA"][-1] == pytest.approx(ref.X["memA"][-1], rel=1e-4)
+    assert traj.status[0]["memA"] == "optimal"
+    assert any("memB" in w and "forced" in w for w in traj.warnings)
+
+
 # --------------------------------------------------------------------------- validation
 def test_arguments_are_checked():
     comm = _community()

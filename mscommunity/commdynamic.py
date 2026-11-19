@@ -30,7 +30,10 @@ split alone moves the P. fluorescens-window rate difference from -0.0004 to -0.0
 form and the tie-break are explicit parameters and are recorded on the Trajectory.
 
 A member whose max growth is <= 1e-12 is idle for the step: mu = 0, but it still exchanges what its forced fluxes
-need (the least total flux with no growth required, e.g. the substrate an ATPM floor burns).
+need (the least total flux with no growth required, e.g. the substrate an ATPM floor burns). "community_strict"
+solves a member below a_min of the culture with its own member LP, clamps every rate to the member's solo maximum on
+the current pool, and releases the forced bounds of a member that cannot pay them when the community LP is
+infeasible (see dynamic()).
 
 Units
     X gDW/L; S mM (= mmol/L); specific rates mmol/gDW_member/h and 1/h; OTR mmol O2/L/h; kLa 1/h; D 1/h.
@@ -116,6 +119,8 @@ FACE_RETRY = 1e-5    # ... and at (1 - FACE_RETRY) when the pFBA stage fails at 
 IDLE = 1e-12         # growth at or below this: the member is idle for the step (mu = 0; its exchanges are those
                      # of the least total flux with no growth required, e.g. the substrate an ATPM floor burns)
 RELAXED = 1e30
+A_MIN = 1e-4         # community_strict: a member below this share of the culture is solved by its own member LP
+CLAMP_RTOL, CLAMP_ATOL = 1e-6, 1e-9   # community_strict: a rate this far above the member's solo maximum is clamped
 
 __all__ = ["DEFAULT_KINETICS", "Trajectory", "member_model", "dynamic", "simulate_models",
            "calibrate_monoculture"]
@@ -410,6 +415,17 @@ class _LexLP:
             self._relax_sec()
             self.seconds += time.perf_counter() - t0
 
+    def maximum(self):
+        """(status, z) of the max-growth stage alone (z None unless optimal)."""
+        t0 = time.perf_counter()
+        try:
+            self.fix.lb = -RELAXED
+            self._relax_sec()
+            status = self._optimize(self.obj_max)
+            return status, (float(self.model.solver.objective.value) if status == "optimal" else None)
+        finally:
+            self.seconds += time.perf_counter() - t0
+
 
 def _flux(values, rxn):
     return values[rxn.forward_variable.name] - values[rxn.reverse_variable.name]
@@ -422,6 +438,7 @@ class _Rates:
     release: np.ndarray            # rows: members (per gDW member) [+ shared per gDW community]; cols: ledger cpds
     status: list                   # per member
     o2_limited: bool = False
+    notes: list = field(default_factory=list)   # (kind, member, value): what the stepper had to do this step
 
 
 class _MembersStepper:
@@ -516,16 +533,75 @@ class _MembersStepper:
                 _set_threads(model, self.threads_saved[mid])
 
 
+def _exchange_like(rxn):
+    return rxn.boundary and all(met.compartment == SHARED or met.id.endswith(f"_{SHARED}") for met in rxn.metabolites)
+
+
+class _SoloMembers:
+    """The members' own models (member_model) beside a community_strict run, solved the way the "members" form solves
+    them: the rate of a member too rare for the community LP (a_m < a_min), the ceiling a community rate is clamped
+    to, and whether a member alone can pay its forced fluxes."""
+
+    def __init__(self, comm, tracked, ledger, o2_mode, pfba, threads):
+        models = {m.id: member_model(comm, m) for m in comm.members}
+        biomass = {m.id: m.primary_biomass.id for m in comm.members}
+        self.stepper = _MembersStepper(models, biomass, tracked, ledger, o2_mode, None, None, pfba, threads)
+        self.forced = {mid: [(r, r.lower_bound, r.upper_bound) for r in model.reactions
+                             if not _exchange_like(r) and (r.lower_bound > 0 or r.upper_bound < 0)]
+                       for mid, model in models.items()}
+
+    def solve(self, mid, caps, o2cap):
+        """(mu, release per gDW member, status) of the members-form solve with these caps (O2 per gDW: o2cap)."""
+        return self.stepper._solve_member(mid, caps, o2cap)
+
+    def _maximum(self, mid, caps, release):
+        self.stepper._bounds(mid, caps, None)
+        forced = self.forced[mid] if release else []
+        for r, lb, ub in forced:
+            r.bounds = (min(lb, 0.0), max(ub, 0.0))
+        try:
+            return self.stepper.lp[mid].maximum()
+        finally:
+            for r, lb, ub in forced:
+                r.bounds = (lb, ub)
+
+    def ceiling(self, mid, caps):
+        """max mu of the member alone on the current pool: tracked compounds at its kinetic caps, O2 not limited by a
+        transfer rate, forced bounds released. None when that LP is not optimal."""
+        status, z = self._maximum(mid, caps, release=True)
+        return max(z, 0.0) if status == "optimal" else None
+
+    def feasible(self, mid, caps):
+        """Whether the member alone can meet its forced fluxes on the current pool (O2 not limited)."""
+        return self._maximum(mid, caps, release=False)[0] == "optimal"
+
+    @property
+    def n_solves(self):
+        return self.stepper.n_solves
+
+    @property
+    def lp_seconds(self):
+        return self.stepper.lp_seconds
+
+    def close(self):
+        self.stepper.close()
+
+
 class _CommunityStrictStepper:
     """One community LP per step on comm.util.model. Structural changes (bio1 shut, drains open, X_m variables,
     cap rows, the growth-fix rows, lifted *_commKin rows) are made inside a model context that the caller's
     ExitStack closes; per-step bounds (eq. 9 scaling, exchanges, X_m = a_m) are written to the solver directly
     and cobra's bounds are pushed back at the end. The cap rows' q is rewritten in place every step (the X_m
-    coefficient), so their commmembers registry entries carry the placeholder rate 1.0 while the run lasts."""
+    coefficient), so their commmembers registry entries carry the placeholder rate 1.0 while the run lasts.
+
+    Beside the community LP each member's own model (member_model, _SoloMembers) solves what the community LP cannot
+    be trusted with: a member below a_min of the culture (its per-community fluxes sit at the solver's tolerance, so
+    v_bio / a_m is noise), the ceiling every community rate is clamped to (the member alone on the current pool), and
+    which member cannot pay its forced fluxes when the community LP is infeasible (those are released for the step)."""
     form = "community_strict"
 
     def __init__(self, comm, tracked, ledger, o2_mode, o2_rule, tiebreak, pfba, cap_basis, kinetic_rows,
-                 scale_bounds, threads, stack: ExitStack):
+                 scale_bounds, threads, stack: ExitStack, a_min=A_MIN):
         self.comm = comm
         model = self.model = comm.util.model
         self.ids = [m.id for m in comm.members]
@@ -533,6 +609,11 @@ class _CommunityStrictStepper:
         self.col = {c: j for j, c in enumerate(ledger)}
         self.o2_mode, self.o2_rule = o2_mode, o2_rule
         self.tracked = list(tracked)
+        self.a_min = float(a_min)
+        self.scale_bounds = bool(scale_bounds)
+        # the members' own models, cut from the community as it is (before the run's structural changes)
+        self.solo = _SoloMembers(comm, tracked, ledger, o2_mode, pfba, threads)
+        stack.callback(self.solo.close)
         previous_threads = _set_threads(model, threads)
         if previous_threads is not None:
             stack.callback(_set_threads, model, previous_threads)
@@ -559,13 +640,16 @@ class _CommunityStrictStepper:
         # membership, once
         by_member = reactions_by_member(comm)
         self.transporters = {}
-        self.scaled = {}
+        self.own_nb = {}       # non-boundary member reactions and their bounds: scaled by a_m (eq. 9), shut below a_min
+        self.forced = {}       # forced member bounds (lb > 0 or ub < 0): (reaction, lb, ub, scaled with a_m)
         for m in members:
             own = by_member[m.id]
             self.transporters[m.id] = [r for r in own if any(met.compartment == SHARED for met in r.metabolites)]
-            if scale_bounds:
-                rs = [r for r in own if not r.boundary]
-                self.scaled[m.id] = (rs, np.array([r.lower_bound for r in rs]), np.array([r.upper_bound for r in rs]))
+            rs = [r for r in own if not r.boundary]
+            self.own_nb[m.id] = (rs, np.array([r.lower_bound for r in rs]), np.array([r.upper_bound for r in rs]))
+            drain = m.biomass_drain.id if m.biomass_drain is not None else None
+            self.forced[m.id] = [(r, r.lower_bound, r.upper_bound, not r.boundary) for r in own
+                                 if r.id != drain and (r.lower_bound > 0 or r.upper_bound < 0)]
         stack.callback(self._resync_bounds)
         self.shared = [model.reactions.get_by_id(rid) for rid in member_table(comm).shared]
         # strict caps: one row per member and tracked compound the member can move
@@ -612,8 +696,11 @@ class _CommunityStrictStepper:
 
     def _resync_bounds(self):
         """Per-step bounds were written to the solver directly; push cobra's (restored) bounds back."""
-        for rs, _, _ in self.scaled.values():
+        for rs, _, _ in self.own_nb.values():
             for r in rs:
+                r.update_variable_bounds()
+        for forced in self.forced.values():
+            for r, _, _, _ in forced:
                 r.update_variable_bounds()
         for r, _ in self.ex.values():
             r.update_variable_bounds()
@@ -630,12 +717,20 @@ class _CommunityStrictStepper:
         n = len(self.ids)
         Xt = float(np.sum(X))
         a = X / Xt if Xt > 0 else np.zeros(n)
+        rare = [i for i in range(n) if 0.0 < a[i] < self.a_min]
+        a_lp = a.copy()            # the community LP's shares: members below a_min are taken out of it
+        a_lp[rare] = 0.0
+        touched = []               # (reaction, lb, ub) written for this step only; put back after it
         for i, mid in enumerate(self.ids):
-            self.X[mid].set_bounds(float(a[i]), float(a[i]))
-            if mid in self.scaled:
-                rs, lb0, ub0 = self.scaled[mid]
-                for r, lo, hi in zip(rs, lb0 * a[i], ub0 * a[i]):
+            self.X[mid].set_bounds(float(a_lp[i]), float(a_lp[i]))
+            rs, lb0, ub0 = self.own_nb[mid]
+            if self.scale_bounds:
+                for r, lo, hi in zip(rs, lb0 * a_lp[i], ub0 * a_lp[i]):
                     self._set(r, lo, hi)
+            elif i in rare:
+                for r, lo, hi in zip(rs, lb0, ub0):
+                    self._set(r, 0.0, 0.0)
+                    touched.append((r, lo, hi))
         cidx = {c: j for j, c in enumerate(self.tracked)}
         for (mid, c), entry in self.caps.items():
             i = self.index[mid]
@@ -647,7 +742,7 @@ class _CommunityStrictStepper:
                 entry[0].set_linear_coefficients({self.X[mid]: -q})
                 entry[1] = q
         for c, (r, coef) in self.ex.items():
-            total = float(sum(a[i] * caps[i].get(c, 0.0) for i in range(n)))
+            total = float(sum(a_lp[i] * caps[i].get(c, 0.0) for i in range(n)))
             lb, ub = _cap_bounds(coef, total, self.ex_base[c], keep=False)
             self._set(r, lb, ub)
         if self.o2_ex is not None and self.o2_mode == "otr":
@@ -657,45 +752,134 @@ class _CommunityStrictStepper:
             else:
                 self._set(r, *_cap_bounds(coef, otr / Xt if Xt > 0 else 0.0, self.o2_base, keep=True))
         status, z, values = self.lp.solve()
+        notes = []
+        if values is None:
+            status, z, values, released = self._release_unpayable(status, caps, a_lp, touched)
+            notes += [("released", self.ids[i], tuple(names)) for i, names in released.items()]
         mu = np.zeros(n)
         rel = np.zeros((n + 1, len(self.ledger)))
         stat = [status] * n
-        limited = False
-        if values is None:
-            return _Rates(mu, rel, stat, False)
-        for i, mid in enumerate(self.ids):
-            if a[i] <= 0:
-                continue
-            mu[i] = 0.0 if status == "idle" else max(_flux(values, self.bio[mid]), 0.0) / a[i]
-            for r in self.transporters[mid]:
+        if values is not None:
+            for i, mid in enumerate(self.ids):
+                if a_lp[i] <= 0:
+                    continue
+                mu[i] = 0.0 if status == "idle" else max(_flux(values, self.bio[mid]), 0.0) / a_lp[i]
+                for r in self.transporters[mid]:
+                    v = _flux(values, r)
+                    if v == 0.0:
+                        continue
+                    for met, coef in r.metabolites.items():
+                        if met.compartment == SHARED:
+                            j = self.col.get(_cpd(met.id))
+                            if j is not None:
+                                rel[i, j] += float(coef) * v / a_lp[i]
+            for r in self.shared:
                 v = _flux(values, r)
                 if v == 0.0:
                     continue
                 for met, coef in r.metabolites.items():
-                    if met.compartment == SHARED:
-                        j = self.col.get(_cpd(met.id))
-                        if j is not None:
-                            rel[i, j] += float(coef) * v / a[i]
-        for r in self.shared:
-            v = _flux(values, r)
-            if v == 0.0:
+                    j = self.col.get(_cpd(met.id))
+                    if j is not None:
+                        rel[n, j] += float(coef) * v
+        for r, lo, hi in touched:
+            self._set(r, lo, hi)
+        # members below a_min: their own LP, with their own caps on the pool and the per-gDW O2 share
+        o2share = otr / Xt if (otr is not None and self.o2_mode == "otr" and Xt > 0) else None
+        for i in rare:
+            mid = self.ids[i]
+            mu[i], rel[i], stat[i] = self.solo.solve(mid, caps[i], o2share)
+            notes.append(("a_min", mid, float(a[i])))
+        # no member grows faster than it would alone on the current pool
+        for i, mid in enumerate(self.ids):
+            if i in rare or mu[i] <= 0.0:
                 continue
-            for met, coef in r.metabolites.items():
-                j = self.col.get(_cpd(met.id))
-                if j is not None:
-                    rel[n, j] += float(coef) * v
+            ceiling = self.solo.ceiling(mid, caps[i])
+            if ceiling is not None and mu[i] > ceiling * (1.0 + CLAMP_RTOL) + CLAMP_ATOL:
+                notes.append(("clamped", mid, float(mu[i] - ceiling)))
+                rel[i] *= ceiling / mu[i]
+                mu[i] = ceiling
+        limited = False
         if otr is not None and self.o2_mode == "otr" and O2 in self.col and Xt > 0:
             used = float(-np.dot(np.minimum(rel[:n, self.col[O2]], 0.0), a))
             limited = used >= (otr / Xt) * (1 - 1e-6)
-        return _Rates(mu, rel, stat, limited)
+        return _Rates(mu, rel, stat, limited, notes)
+
+    def _release(self, i, share, touched):
+        """Release member i's forced bounds on the solver for this step; returns the reaction ids."""
+        names = []
+        for r, lb0, ub0, scaled in self.forced[self.ids[i]]:
+            f = share if (scaled and self.scale_bounds) else 1.0
+            lo, hi = lb0 * f, ub0 * f
+            self._set(r, min(lo, 0.0), max(hi, 0.0))
+            touched.append((r, lo, hi))
+            names.append(r.id)
+        return names
+
+    def _unrelease(self, i, share):
+        for r, lb0, ub0, scaled in self.forced[self.ids[i]]:
+            f = share if (scaled and self.scale_bounds) else 1.0
+            self._set(r, lb0 * f, ub0 * f)
+
+    def _release_unpayable(self, status, caps, a_lp, touched):
+        """The community LP failed: release the forced bounds of the member(s) that cannot meet them and re-solve.
+        First the members that are infeasible alone on the current pool; if that is not enough, each other member with
+        forced bounds in turn, then all of them. Returns (status, z, values, {member index: released reaction ids});
+        the incoming status and no values when nothing helps."""
+        cands = [i for i in range(len(self.ids)) if a_lp[i] > 0 and self.forced[self.ids[i]]]
+        released = {}
+
+        def resolve(idx):
+            for i in idx:
+                released[i] = self._release(i, a_lp[i], touched)
+            return self.lp.solve()
+
+        alone = [i for i in cands if not self.solo.feasible(self.ids[i], caps[i])]
+        if alone:
+            st, z, values = resolve(alone)
+            if values is not None:
+                return st, z, values, released
+        rest = [i for i in cands if i not in released]
+        if len(rest) > 1:
+            for i in rest:
+                st, z, values = resolve([i])
+                if values is not None:
+                    return st, z, values, released
+                self._unrelease(i, a_lp[i])
+                released.pop(i)
+        if rest:
+            st, z, values = resolve(rest)
+            if values is not None:
+                return st, z, values, released
+        return status, None, None, {}
+
+    def summarize(self, events):
+        """The run's warnings for what the stepper had to do: {(kind, member): [(t, value)]}."""
+        out = []
+        for (kind, mid), entries in events.items():
+            k, first = len(entries), entries[0][0]
+            if kind == "a_min":
+                out.append(f"{mid}: below a_min = {self.a_min:g} of the culture at {k} step(s) (first at t = {first:.4g} h, "
+                           f"a_m = {entries[0][1]:.3g}); solved there by its own member LP (the members form, its own "
+                           "kinetic caps on the pool), since the community LP's fluxes for it sit at the solver's tolerance")
+            elif kind == "clamped":
+                worst = max(v for _, v in entries)
+                out.append(f"{mid}: the community LP gave a rate above the member's solo maximum on the current pool at "
+                           f"{k} step(s) (first at t = {first:.4g} h, largest excess {worst:.3g} 1/h); clamped to it, "
+                           "with its exchanges scaled to match")
+            elif kind == "released":
+                rxns = sorted({r for _, names in entries for r in names})
+                out.append(f"{mid}: the community LP was infeasible with {mid}'s forced fluxes ({', '.join(rxns[:6])}"
+                           f"{', ...' if len(rxns) > 6 else ''}) at {k} step(s) (first at t = {first:.4g} h); they were "
+                           "released at those steps so that the community could be solved")
+        return out
 
     @property
     def n_solves(self):
-        return self.lp.n_solves
+        return self.lp.n_solves + self.solo.n_solves
 
     @property
     def lp_seconds(self):
-        return self.lp.seconds
+        return self.lp.seconds + self.solo.lp_seconds
 
     def close(self):
         pass
@@ -842,7 +1026,7 @@ def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, d
     intervals = {"up": [], "se": [], "in": [], "out": []}
     acc = None
     n_acc = n_rej = n_forced = n_patankar = 0
-    failed, vertex = {}, {}
+    failed, vertex, events = {}, {}, {}
     mismatch_total = np.zeros(nc)
     h_min_seen = float(dt)
     since_record = 0
@@ -852,6 +1036,8 @@ def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, d
         caps_arr = np.where(live[None, :], vmax * S / (Km + np.where(live, S, 1.0)), 0.0)
         caps = [dict(zip(tracked, caps_arr[i])) for i in range(nm)]
         rates = stepper.rates(X, caps, otr if o2_mode == "otr" else None)
+        for kind, mid, value in rates.notes:
+            events.setdefault((kind, mid), []).append((t, value))
         for i, st in enumerate(rates.status):
             if st == "vertex":
                 vertex.setdefault(members[i], []).append(t)
@@ -942,6 +1128,9 @@ def _integrate(stepper, members, X0, S0, tracked, ledger, kin, default, t_end, d
     for mid, ts in vertex.items():
         warnings.append(f"{mid}: the pFBA stage failed at {len(ts)} step(s) (first at t = {ts[0]:.4g} h); the "
                         "max-growth vertex was used there")
+    summarize = getattr(stepper, "summarize", None)
+    if events and summarize is not None:
+        warnings.extend(summarize(events))
     if n_forced:
         warnings.append(f"{n_forced} step(s) reached dt_min = {dt_min} h and were taken with the Patankar update "
                         "although the members' uptake was not realised to within rtol")
@@ -1147,7 +1336,7 @@ def simulate_models(models, t_end, dt, X0, S0, *, kinetics, otr=None, o2_rule=No
 def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_rule=None, tiebreak=None,
             feed=None, D=None, record_every=1, default_kinetics=DEFAULT_KINETICS, ample=None, tracked=None,
             member_models=None, repair=None, cap_basis="gross", kinetic_rows="lift", scale_bounds=True, threads=1,
-            **integration) -> Trajectory:
+            a_min=None, **integration) -> Trajectory:
     """Multi-species dynamic FBA of the community from X0 ({member: gDW/L}) and S0 ({compound: mM}) to t_end (h),
     steps of at most dt (h), recording every record_every-th accepted step. See the module docstring for the
     forms, units, tracked set, O2 and the integrator.
@@ -1168,6 +1357,25 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
     kinetic_rows      community_strict: "lift" (default; the *_commKin rows would forbid any flux of a member that
                       is not growing) or "keep"
     scale_bounds      community_strict: multiply every non-boundary member reaction bound by a_m (eq. 9)
+    a_min             community_strict (default 1e-4): a member whose share a_m = X_m / X of the culture is below
+                      a_min is taken out of the community LP for the step and solved by its own member LP
+                      (member_model; the "members" form solve, with its own kinetic caps on the pool and, under an
+                      OTR, the per-gDW O2 share OTR / X), with a warning. The community LP is per gDW of community,
+                      so a rare member's fluxes sit at the solver's feasibility tolerance and mu_m = v_bio,m / a_m
+                      turns that noise into a rate: a member growing at 2.857 1/h alone came out at 285.7 1/h at
+                      a_m = 1e-10, 1000 at 1e-12 and 10 % low at 1e-6. The relative error is about tol / (q a_m)
+                      (q its uptake rate), about 1e-3 at a_m = 1e-4. a_min=0 switches the route off.
+                      Every rate the community LP gives is also checked against the member's own solo maximum on
+                      the current pool (its member LP: tracked compounds at its kinetic caps, O2 not limited by the
+                      transfer rate, forced bounds released) and clamped to it, its exchanges scaled to match, with a
+                      warning: a rate above what the member reaches alone is solver noise, or a medium bound that,
+                      being per gDW of community, gives a small member more per gDW than it gets alone.
+                      When the community LP is infeasible, the forced bounds (lb > 0 or ub < 0, e.g. a maintenance
+                      drain) of the member(s) that cannot meet them are released for that step and the LP is solved
+                      again: first the members whose own LP is infeasible alone on the current pool, then, if that
+                      is not enough, each other member with forced bounds in turn, then all of them; a warning names
+                      each member, its reactions and the steps. Without this, one member's unpayable forced flux (a
+                      drain on a substrate not yet in the pool) idled every member for the whole run.
     integration       max_depletion (0.5), rtol (1e-2), atol (1e-7 mM), dt_min (1e-6 h), s_min (1e-12 mM),
                       max_steps (200000), callback (None: a callable(t, {member: X}, {compound: S}) called at
                       every recorded state, e.g. to report progress), t_start (0.0 h: the time of X0 and S0;
@@ -1177,8 +1385,8 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
         raise ValueError(f"form must be one of {FORMS}, not {form!r}")
     ids = [m.id for m in comm.members]
     if form == "members":
-        if cap_basis != "gross" or kinetic_rows != "lift" or not scale_bounds:
-            logger.info("cap_basis, kinetic_rows and scale_bounds apply to form='community_strict' only")
+        if cap_basis != "gross" or kinetic_rows != "lift" or not scale_bounds or a_min is not None:
+            logger.info("cap_basis, kinetic_rows, scale_bounds and a_min apply to form='community_strict' only")
         if member_models is None:
             models = {mid: member_model(comm, mid, repair=repair) for mid in ids}
             copy = False
@@ -1201,15 +1409,19 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
                          "comm.util.model first")
     if cap_basis not in CAP_BASES:
         raise ValueError(f"cap_basis must be one of {CAP_BASES}, not {cap_basis!r}")
+    a_min = A_MIN if a_min is None else float(a_min)
+    if not (math.isfinite(a_min) and 0.0 <= a_min < 1.0):
+        raise ValueError(f"a_min must be a share in [0, 1), not {a_min}")
     tb, pfba = _check_tiebreak(tiebreak, form, ids)
     opts = dict(_INTEGRATION_DEFAULTS, **integration)
     setup = _setup([comm.util.model], S0, feed, kinetics, default_kinetics, otr, o2_rule, form, ample, tracked, ids)
     with ExitStack() as stack:
         factory = _Factory(lambda tr, led, mode, rule: _CommunityStrictStepper(
-            comm, tr, led, mode, rule, tb, pfba, cap_basis, kinetic_rows, scale_bounds, threads, stack))
+            comm, tr, led, mode, rule, tb, pfba, cap_basis, kinetic_rows, scale_bounds, threads, stack, a_min))
         return _run(factory, ids, X0, form=form, otr=otr, feed=feed, D=D, t_end=t_end, dt=dt,
-                    record_every=record_every, tiebreak=tb, pfba=pfba, extra_settings={"cap_basis": cap_basis, "kinetic_rows": kinetic_rows,
-                                    "scale_bounds": bool(scale_bounds)}, setup=setup, **opts)
+                    record_every=record_every, tiebreak=tb, pfba=pfba,
+                    extra_settings={"cap_basis": cap_basis, "kinetic_rows": kinetic_rows,
+                                    "scale_bounds": bool(scale_bounds), "a_min": a_min}, setup=setup, **opts)
 
 
 # --------------------------------------------------------------------------- calibration
