@@ -1355,7 +1355,8 @@ def dynamic(comm, t_end, dt, X0, S0, *, kinetics, form="members", otr=None, o2_r
     cap_basis         community_strict: "gross" (cap_member_uptake rows on the import direction) or "net"
                       (member_uptake_expression net uptake, the prototype's rows)
     kinetic_rows      community_strict: "lift" (default; the *_commKin rows would forbid any flux of a member that
-                      is not growing) or "keep"
+                      is not growing) or "keep". The member LPs below (a_min route, rate ceiling, feasibility
+                      probe) are member_model copies and carry no *_commKin rows either way
     scale_bounds      community_strict: multiply every non-boundary member reaction bound by a_m (eq. 9)
     a_min             community_strict (default 1e-4): a member whose share a_m = X_m / X of the culture is below
                       a_min is taken out of the community LP for the step and solved by its own member LP
