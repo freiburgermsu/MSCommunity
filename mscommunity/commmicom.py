@@ -227,7 +227,7 @@ def _l2_term(rxn, a):
     """(v_bio / a)^2 on the forward variable alone when the reverse one is fixed at 0 (MICOM keeps
     only the free variables of a taxon objective), else on the net flux."""
     rev = rxn.reverse_variable
-    if (rev.ub or 0.0) - (rev.lb or 0.0) <= 1e-6:
+    if rev.ub is not None and rev.ub - (rev.lb or 0.0) <= 1e-6:
         return (1.0 / (a * a)) * rxn.forward_variable ** 2
     return ((1.0 / (a * a)) * rxn.flux_expression ** 2).expand()
 
@@ -373,8 +373,9 @@ def _crossover(comm, model, row, live, result):
     for m in live:
         bio = m.primary_biomass
         bio.upper_bound = max(bio.lower_bound, v[m.id])
-    row.ub = max(sum(v.values()), 0.0) + 1e-6
+    # lb first: the non-optimal point may sit below f F, and optlang refuses ub < lb
     row.lb = 0.0
+    row.ub = max(sum(v.values()), 0.0) + 1e-6
     model.objective = model.problem.Objective(row.expression, direction="max")
     _, status = _solve(model)
     result.stage_status["crossover"] = status

@@ -177,6 +177,61 @@ def test_micom_restores_everything_when_a_solve_raises(monkeypatch):
 
 
 @needs_qp
+def test_micom_on_an_lp_only_incumbent_swaps_to_a_qp_backend_and_back():
+    # GLPK (the abund_common builders' default) cannot solve stage 2: qp_backend swaps to a QP
+    # backend, and the bounds are restored on that clone before it is cloned back to GLPK
+    (ref,) = _community().micom(tradeoff=0.5, abundances=A_64)
+    comm = _community()
+    comm.util.model.solver = "glpk"
+    before = _state(comm)
+    (res,) = comm.micom(tradeoff=0.5, abundances=A_64)
+    assert _state(comm) == before
+    assert "glpk" in comm.util.model.solver.interface.__name__
+    assert res.status == "optimal"
+    assert res.growth_rates == pytest.approx(ref.growth_rates, abs=1e-7)
+    assert comm.util.model.slim_optimize() == pytest.approx(8.0, abs=1e-9)   # still solves on GLPK
+
+
+@needs_qp
+@pytest.mark.parametrize("scale", [1.0, 0.5])
+def test_a_non_optimal_qp_runs_micoms_crossover(monkeypatch, scale):
+    """The QP reports 'numeric' with its point left behind; scale 0.5 makes the crossover start
+    from half that point, BELOW the f F floor (the row's bounds must then be moved lb first)."""
+    comm = _community()
+    if "gurobi" not in comm.util.model.solver.interface.__name__:
+        pytest.skip("the injection below patches the Gurobi interface")
+    import optlang.gurobi_interface as grb
+    real, fired, reads = grb.Model.optimize, [], {"n": 0}
+
+    def optimize(self):
+        status = real(self)
+        if self.objective.direction == "min" and not self.objective.is_Linear and not fired:
+            fired.append(status)
+            self._status = "numeric"      # a QP the solver gave up on, primal values left behind
+        return self._status
+    real_flux = commmicom._flux
+
+    def flux(rxn):                        # the crossover's read of the non-optimal point
+        if fired and reads["n"] < 2:
+            reads["n"] += 1
+            return scale * real_flux(rxn)
+        return real_flux(rxn)
+    monkeypatch.setattr(grb.Model, "optimize", optimize)
+    monkeypatch.setattr(commmicom, "_flux", flux)
+    before = _state(comm)
+    (res,) = comm.micom(tradeoff=0.5, abundances=A_64)
+    assert fired and reads["n"] == 2
+    assert res.crossover is True and res.status == "optimal"
+    assert res.stage_status["stage 2"] == "numeric" and res.stage_status["crossover"] == "optimal"
+    # each member at most at the point crossed over from, total maximised: that point itself
+    s2 = sum(a * a for a in A_64.values())
+    for mid, a in A_64.items():
+        assert res.growth_rates[mid] == pytest.approx(scale * 0.5 * 14.0 * a / s2, abs=1e-6)
+    assert res.community_growth == pytest.approx(scale * 0.5 * 14.0, abs=1e-6)
+    assert _state(comm) == before
+
+
+@needs_qp
 def test_a_failed_stage1_is_a_status_not_an_exception():
     comm = _community()
     # a floor on bio1, as regularization leaves it, is infeasible once micom shuts bio1
